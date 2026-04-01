@@ -67,6 +67,12 @@ let state = {
    Data kekal walaupun browser ditutup / refresh.
    ================================================================ */
 function simpanData() {
+/* URL Worker — tukar kepada URL worker anda selepas deploy */
+const WORKER_URL = window.SPEKMA_API_URL || '';
+
+/* ── Simpan ke D1 (dengan localStorage backup) ── */
+function simpanData() {
+  /* Sentiasa simpan ke localStorage sebagai backup offline */
   try {
     localStorage.setItem('spekma_keputusan',    JSON.stringify(state.keputusan));
     localStorage.setItem('spekma_pasukan',      JSON.stringify(state.pasukan));
@@ -79,10 +85,80 @@ function simpanData() {
     localStorage.setItem('spekma_roundrobin',   JSON.stringify(state.roundRobin));
     localStorage.setItem('spekma_streaming',    JSON.stringify(state.streaming));
     localStorage.setItem('spekma_bracket',      JSON.stringify(state.bracket));
-  } catch (e) { console.warn('Gagal simpan data:', e); }
+  } catch (e) { console.warn('localStorage fail:', e); }
+
+  /* Hantar ke D1 kalau Worker URL ada */
+  if (!WORKER_URL) return;
+  const payload = {
+    pasukan:      state.pasukan,
+    sukan:        state.sukan,
+    formatSukan:  state.formatSukan,
+    kumpulanSukan:state.kumpulanSukan,
+    jadual:       state.jadual,
+    roundRobin:   state.roundRobin,
+    bracket:      state.bracket,
+    keputusan:    state.keputusan,
+    staff:        state.staff,
+    password:     state.password,
+    streaming:    state.streaming,
+  };
+  fetch(WORKER_URL + '/api/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }).catch(e => console.warn('D1 sync fail:', e));
 }
 
-function muatData() {
+/* ── Muat dari D1, fallback ke localStorage ── */
+async function muatData() {
+  /* Cuba muat dari D1 */
+  if (WORKER_URL) {
+    try {
+      const tunjukLoading = () => {
+        const el = document.getElementById('main-content');
+        if (el) el.innerHTML = `
+          <div style="text-align:center;padding:60px 20px;color:var(--muted)">
+            <div style="font-size:32px;margin-bottom:12px">⏳</div>
+            <div>Memuatkan data...</div>
+          </div>`;
+      };
+      tunjukLoading();
+
+      const res  = await fetch(WORKER_URL + '/api/data');
+      if (res.ok) {
+        const data = await res.json();
+        _muatStateFromData(data);
+        _bersihkanStatus();
+        return; /* berjaya, keluar */
+      }
+    } catch (e) {
+      console.warn('D1 gagal, guna localStorage:', e);
+    }
+  }
+
+  /* Fallback ke localStorage */
+  _muatDariLocalStorage();
+  _bersihkanStatus();
+}
+
+function _muatStateFromData(data) {
+  if (data.pasukan)       state.pasukan       = data.pasukan;
+  if (data.sukan)         state.sukan         = data.sukan;
+  if (data.formatSukan)   state.formatSukan   = data.formatSukan;
+  if (data.kumpulanSukan) state.kumpulanSukan = data.kumpulanSukan;
+  if (data.jadual)        state.jadual        = data.jadual;
+  if (data.roundRobin)    state.roundRobin    = data.roundRobin;
+  if (data.bracket) {
+    state.bracket = data.bracket;
+    Object.keys(state.bracket).forEach(sid => kemaskiniSemakBracket(sid));
+  }
+  if (data.keputusan)     state.keputusan     = data.keputusan;
+  if (data.staff)         state.staff         = data.staff;
+  if (data.password)      state.password      = data.password;
+  if (data.streaming)     state.streaming     = data.streaming;
+}
+
+function _muatDariLocalStorage() {
   try {
     const k  = localStorage.getItem('spekma_keputusan');
     const p  = localStorage.getItem('spekma_pasukan');
@@ -93,39 +169,39 @@ function muatData() {
     const fm = localStorage.getItem('spekma_format');
     const km = localStorage.getItem('spekma_kumpulan');
     const rr = localStorage.getItem('spekma_roundrobin');
-    if (k)  state.keputusan    = JSON.parse(k);
-    if (p)  state.pasukan      = JSON.parse(p);
-    if (s)  state.sukan        = JSON.parse(s);
-    if (j)  state.jadual       = JSON.parse(j);
-    if (st) state.staff        = JSON.parse(st);
-    if (pw) state.password     = pw;
-    if (fm) state.formatSukan  = JSON.parse(fm);
-    if (km) state.kumpulanSukan= JSON.parse(km);
-    if (rr) state.roundRobin   = JSON.parse(rr);
     const sm = localStorage.getItem('spekma_streaming');
-    if (sm) state.streaming    = JSON.parse(sm);
     const br = localStorage.getItem('spekma_bracket');
+    if (k)  state.keputusan     = JSON.parse(k);
+    if (p)  state.pasukan       = JSON.parse(p);
+    if (s)  state.sukan         = JSON.parse(s);
+    if (j)  state.jadual        = JSON.parse(j);
+    if (st) state.staff         = JSON.parse(st);
+    if (pw) state.password      = pw;
+    if (fm) state.formatSukan   = JSON.parse(fm);
+    if (km) state.kumpulanSukan = JSON.parse(km);
+    if (rr) state.roundRobin    = JSON.parse(rr);
+    if (sm) state.streaming     = JSON.parse(sm);
     if (br) {
       state.bracket = JSON.parse(br);
-      /* Kemaskini advancement setiap bracket selepas muat */
       Object.keys(state.bracket).forEach(sid => kemaskiniSemakBracket(sid));
     }
+  } catch (e) { console.warn('Gagal muat localStorage:', e); }
+}
 
-    /* Betulkan perlawanan yang salah jadi LIVE (tarikh dah >4 jam lepas) */
-    const now = new Date();
-    state.jadual.forEach(m => {
+function _bersihkanStatus() {
+  const now = new Date();
+  state.jadual.forEach(m => {
+    if (m.status !== 'sedang_berlangsung' || !m.tarikh || !m.masa) return;
+    const masaMula = new Date(m.tarikh + 'T' + m.masa + ':00');
+    if ((now - masaMula) / 3600000 >= 4) m.status = 'akan_datang';
+  });
+  Object.values(state.roundRobin).forEach(rr => {
+    (rr.perlawanan || []).forEach(m => {
       if (m.status !== 'sedang_berlangsung' || !m.tarikh || !m.masa) return;
       const masaMula = new Date(m.tarikh + 'T' + m.masa + ':00');
       if ((now - masaMula) / 3600000 >= 4) m.status = 'akan_datang';
     });
-    Object.values(state.roundRobin).forEach(rr => {
-      (rr.perlawanan || []).forEach(m => {
-        if (m.status !== 'sedang_berlangsung' || !m.tarikh || !m.masa) return;
-        const masaMula = new Date(m.tarikh + 'T' + m.masa + ':00');
-        if ((now - masaMula) / 3600000 >= 4) m.status = 'akan_datang';
-      });
-    });
-  } catch (e) { console.warn('Gagal muat data:', e); }
+  });
 }
 
 
@@ -281,6 +357,10 @@ function togolMobileMenu() {
 /* ================================================================
    MULA APLIKASI
    ================================================================ */
-muatData();
-mulaAutoStatus();
-render();
+/* Mula aplikasi */
+(async () => {
+  await muatData();
+  render();
+  mulaAutoStatus();
+})();
+}
