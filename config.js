@@ -10,4 +10,4 @@
    (mode offline, data tidak sync antara pengguna).
    ================================================================ */
 
-window.SPEKMA_API_URL = 'https://spekma-api.muhdammar758.workers.dev';  /* ← TUKAR INI selepas deploy worker */
+window.SPEKMA_API_URL = 'tvetmara.muhdammar758.workers.dev';  /* ← TUKAR INI selepas deploy worker */
