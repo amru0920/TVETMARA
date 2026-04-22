@@ -4,12 +4,12 @@
 
 // ⚠️ GANTIKAN dengan konfigurasi dari Firebase anda (Langkah 2)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAILJy2G8WIBzK0Bo_Sb1etEULihIMesNE",
+  authDomain: "spekma-sukan.firebaseapp.com",
+  projectId: "spekma-sukan",
+  storageBucket: "spekma-sukan.firebasestorage.app",
+  messagingSenderId: "567274981127",
+  appId: "1:567274981127:web:6f03351dcd0a3a508767a2"
 };
 
 let db = null;
