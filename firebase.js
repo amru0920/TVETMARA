@@ -15,23 +15,26 @@ const firebaseConfig = {
 let db = null;
 let firestoreInitialized = false;
 
-async function initFirebase() {
-  if (firestoreInitialized) return;
+async function simpanData() {
+  simpanKeLocalStorage();
+  if (!db) await initFirebase();
+  if (!db) return;
+  
+  const dataToSync = {
+    pasukan: state.pasukan, sukan: state.sukan,
+    formatSukan: state.formatSukan, kumpulanSukan: state.kumpulanSukan,
+    jadual: state.jadual, roundRobin: state.roundRobin,
+    bracket: state.bracket, keputusan: state.keputusan,
+    staff: state.staff, password: state.password, streaming: state.streaming,
+    _staffAuth: state.staffLogin ? true : false,  // ← TAMBAH baris ini
+    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+  };
   
   try {
-    if (typeof firebase === 'undefined') {
-      console.warn('Firebase SDK not loaded yet');
-      return;
-    }
-    
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    db = firebase.firestore();
-    firestoreInitialized = true;
-    console.log('✅ Firebase connected');
+    await db.collection('spekma').doc('mainData').set(dataToSync, { merge: true });
+    console.log('✅ Data synced to Firebase');
   } catch (e) {
-    console.error('Firebase init fail:', e);
+    console.warn('Firebase sync fail:', e);
   }
 }
 
