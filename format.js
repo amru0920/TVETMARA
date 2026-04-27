@@ -65,8 +65,8 @@ function renderFormatSukan() {
       ${state.sukan.map(s => {
         const fmt     = state.formatSukan[s.id] || 'biasa';
         const fmtInfo = LABEL_FORMAT[fmt];
+        const modJadual = s.modJadual || 'auto';
 
-        /* Butang urus ikut format */
         let urusBtn = '';
         if (fmt === 'kumpulan') {
           urusBtn = `
@@ -99,6 +99,7 @@ function renderFormatSukan() {
                   `<option value="${k}" ${fmt===k?'selected':''}>${v.icon} ${v.label}</option>`
                 ).join('')}
               </select>
+              
               <!-- Toggle Main Ikut Set -->
               <label style="display:flex;align-items:center;gap:6px;cursor:pointer;
                 font-size:12px;color:var(--muted);white-space:nowrap;user-select:none"
@@ -114,6 +115,25 @@ function renderFormatSukan() {
                 </div>
                 🏸 Main ikut Set
               </label>
+
+              <!-- Pilihan Auto/Manual Jadual -->
+              ${fmt !== 'individu' ? `
+                <div style="display:flex;align-items:center;gap:5px;margin-left:4px">
+                  <label style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--muted)">
+                    <input type="radio" name="modJadual-${s.id}" value="auto" 
+                      ${modJadual === 'auto' ? 'checked' : ''}
+                      onchange="tukarModJadual('${s.id}', 'auto')">
+                    🤖 Auto
+                  </label>
+                  <label style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--muted)">
+                    <input type="radio" name="modJadual-${s.id}" value="manual"
+                      ${modJadual === 'manual' ? 'checked' : ''}
+                      onchange="tukarModJadual('${s.id}', 'manual')">
+                    ✏️ Manual
+                  </label>
+                </div>
+              ` : ''}
+
               ${urusBtn}
             </div>
           </div>
@@ -929,4 +949,13 @@ function padamSemuaKumpulan(katKey, sukanId, katNama) {
 
   simpanData();
   render();
+}
+
+function tukarModJadual(sukanId, mod) {
+  const sukan = state.sukan.find(s => s.id === sukanId);
+  if (sukan) {
+    sukan.modJadual = mod;
+    simpanData();
+    render();
+  }
 }
