@@ -411,8 +411,8 @@ function renderJadualSukan() {
     </div>
   ` : isStaff && format === 'kumpulan' ? `
     <div style="margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <button class="tambah-perlawanan-btn" onclick="bukaFormTambah()">
-        + Tambah Perlawanan
+      <button class="tambah-perlawanan-btn" onclick="bukaPanelTambahCepat('${sukanId}')">
+        ⚡ Tambah Perlawanan
       </button>
       ${state.jadual.some(m => m.sukanId === sukanId && m.peringkat === 'kumpulan') ? `
         <button class="cetak-btn" style="color:#ff8a80;border-color:rgba(231,76,60,0.4)"
@@ -426,9 +426,13 @@ function renderJadualSukan() {
       </button>
     </div>
   ` : isStaff ? `
-    <div style="margin-bottom:16px">
-      <button class="tambah-perlawanan-btn" onclick="bukaFormTambah()">
-        + Tambah Perlawanan
+    <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="tambah-perlawanan-btn" onclick="bukaPanelTambahCepat('${sukanId}')">
+        ⚡ Tambah Perlawanan
+      </button>
+      <button class="tambah-perlawanan-btn" style="background:var(--card2);font-size:13px"
+        onclick="bukaFormTambah()">
+        📋 Form Lengkap
       </button>
     </div>
   ` : '';
@@ -529,8 +533,9 @@ function renderJadualSukan() {
     </div>
     <div class="section-title" style="margin-top:12px">${sukanKini.icon || '🏅'} ${sukanKini.nama}</div>
     ${statsHTML}
+    ${state._panelTambahCepat === sukanId ? renderPanelTambahCepat(sukanId) : ''}
     ${modeDraw ? renderDrawBadminton(sukanId) : ''}
-    ${modeDraw ? '' : (modePenuh ? '' : tambahBtn)}
+    ${modeDraw ? '' : (modePenuh ? '' : (state._panelTambahCepat === sukanId ? '' : tambahBtn))}
     ${modeDraw ? '' : kandungan}
   `;
 }
@@ -1163,6 +1168,211 @@ function pilihKategori(sukanId, kat) {
   if (!state.selectedKategori) state.selectedKategori = {};
   state.selectedKategori[sukanId] = kat;
   render();
+}
+
+/* ── PANEL TAMBAH CEPAT ── */
+function bukaPanelTambahCepat(sukanId) {
+  state._panelTambahCepat = sukanId;
+  state.editingPerlawanan = null;
+  render();
+}
+
+function tutupPanelTambahCepat() {
+  state._panelTambahCepat = null;
+  render();
+}
+
+function renderPanelTambahCepat(sukanId) {
+  const sukan     = state.sukan.find(s => s.id === sukanId);
+  const format    = state.formatSukan[sukanId] || 'biasa';
+  const acara     = sukan?.acara || [];
+  const kategoriSukan = [...new Set(state.jadual.filter(m => m.sukanId === sukanId).map(m => m.kategori).filter(Boolean))];
+  const semuaKat  = [...new Set([...acara.map(a => a.nama), ...kategoriSukan])];
+
+  /* Kumpulan dropdown kalau format kumpulan */
+  const opsKumpulan = format === 'kumpulan'
+    ? Object.entries(state.kumpulanSukan)
+        .filter(([k]) => k === sukanId || k.startsWith(sukanId + '___'))
+        .flatMap(([, arr]) => arr)
+        .map(k => `<option value="${k.id}">${k.nama}</option>`)
+        .join('')
+    : '';
+
+  /* Pasukan datalist */
+  const pasukanList = state.pasukan.map(p => `<option value="${p}">`).join('');
+
+  return `
+    <div class="panel-tambah-cepat" id="panel-tambah-cepat">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:0.5px">
+          ⚡ Tambah Perlawanan Cepat
+        </div>
+        <button onclick="tutupPanelTambahCepat()"
+          style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px 8px">×</button>
+      </div>
+
+      <datalist id="dl-pasukan">${pasukanList}</datalist>
+
+      <!-- Row 1: Kategori + Peringkat + Kumpulan -->
+      <div style="display:grid;grid-template-columns:${format==='kumpulan'?'1fr 1fr 1fr':'1fr 1fr'};gap:10px;margin-bottom:10px">
+        ${semuaKat.length > 0 ? `
+          <div>
+            <div class="field-label">📂 Kategori / Acara</div>
+            <select id="tc-kategori" class="podium-select" style="padding:9px 12px;font-size:13px;width:100%">
+              <option value="">-- Tiada / Umum --</option>
+              ${semuaKat.map(k => `<option value="${k}">${k}</option>`).join('')}
+            </select>
+          </div>
+        ` : ''}
+        ${format === 'kumpulan' && opsKumpulan ? `
+          <div>
+            <div class="field-label">🔵 Kumpulan</div>
+            <select id="tc-kumpulan" class="podium-select" style="padding:9px 12px;font-size:13px;width:100%">
+              ${opsKumpulan}
+            </select>
+          </div>
+        ` : ''}
+        <div>
+          <div class="field-label">🏆 Peringkat</div>
+          <select id="tc-peringkat" class="podium-select" style="padding:9px 12px;font-size:13px;width:100%">
+            <option value="kumpulan">Kumpulan</option>
+            <option value="suku_akhir">Suku Akhir</option>
+            <option value="separuh_akhir">Separuh Akhir</option>
+            <option value="tempat_ketiga">Tempat Ke-3</option>
+            <option value="final">Final</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 2: Tarikh + Masa + Gelanggang -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+        <div>
+          <div class="field-label">📅 Tarikh</div>
+          <input type="date" id="tc-tarikh" class="field-input" style="padding:8px 10px;font-size:13px"/>
+        </div>
+        <div>
+          <div class="field-label">🕐 Masa Mula</div>
+          <input type="time" id="tc-masa" class="field-input" style="padding:8px 10px;font-size:13px" value="09:00"/>
+        </div>
+        <div>
+          <div class="field-label">📍 Gelanggang</div>
+          <input type="text" id="tc-gelanggang" class="field-input" style="padding:8px 10px;font-size:13px" placeholder="Contoh: Gelanggang A"/>
+        </div>
+      </div>
+
+      <!-- Senarai perlawanan untuk ditambah -->
+      <div class="field-label" style="margin-bottom:8px">⚔️ Senarai Perlawanan</div>
+      <div id="tc-baris-wrap">
+        ${renderBarisTambahCepat(0)}
+        ${renderBarisTambahCepat(1)}
+        ${renderBarisTambahCepat(2)}
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button onclick="tambahBarisTC()"
+          style="padding:8px 14px;background:var(--card2);border:1px solid var(--border);
+          color:var(--muted);border-radius:8px;cursor:pointer;font-size:13px">
+          + Tambah Baris
+        </button>
+        <button onclick="simpanTambahCepat('${sukanId}')"
+          style="padding:9px 20px;background:linear-gradient(135deg,#E8960F,#F5A623);
+          border:none;color:#0A1628;border-radius:8px;cursor:pointer;
+          font-weight:800;font-size:14px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px">
+          💾 Simpan Semua
+        </button>
+        <button onclick="tutupPanelTambahCepat()"
+          style="padding:9px 16px;background:transparent;border:1px solid var(--border);
+          color:var(--muted);border-radius:8px;cursor:pointer;font-size:13px">
+          Batal
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+let _tcBilBaris = 3;
+
+function renderBarisTambahCepat(i) {
+  return `
+    <div class="tc-baris" id="tc-baris-${i}" style="display:grid;grid-template-columns:1fr auto 1fr auto;gap:8px;align-items:center;margin-bottom:6px">
+      <input type="text" id="tc-rumah-${i}" class="field-input"
+        style="padding:8px 10px;font-size:13px" placeholder="Tuan Rumah"
+        list="dl-pasukan" autocomplete="off"/>
+      <span style="color:var(--muted);font-weight:700;font-size:14px;text-align:center">VS</span>
+      <input type="text" id="tc-tamu-${i}" class="field-input"
+        style="padding:8px 10px;font-size:13px" placeholder="Pasukan Tamu"
+        list="dl-pasukan" autocomplete="off"/>
+      <button onclick="padamBarisTC(${i})"
+        style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px 6px">×</button>
+    </div>
+  `;
+}
+
+function tambahBarisTC() {
+  const wrap = document.getElementById('tc-baris-wrap');
+  if (!wrap) return;
+  const div = document.createElement('div');
+  div.innerHTML = renderBarisTambahCepat(_tcBilBaris);
+  wrap.appendChild(div.firstElementChild);
+  _tcBilBaris++;
+  /* Focus input baru */
+  document.getElementById('tc-rumah-' + (_tcBilBaris - 1))?.focus();
+}
+
+function padamBarisTC(i) {
+  const el = document.getElementById('tc-baris-' + i);
+  if (el) el.remove();
+}
+
+function simpanTambahCepat(sukanId) {
+  const tarikh     = document.getElementById('tc-tarikh')?.value     || '';
+  const masa       = document.getElementById('tc-masa')?.value       || '';
+  const gelanggang = document.getElementById('tc-gelanggang')?.value?.trim() || '';
+  const peringkat  = document.getElementById('tc-peringkat')?.value  || 'kumpulan';
+  const kategori   = document.getElementById('tc-kategori')?.value   || '';
+  const kumpulan   = document.getElementById('tc-kumpulan')?.value   || '';
+
+  let ditambah = 0;
+  for (let i = 0; i < _tcBilBaris + 10; i++) {
+    const rumah = document.getElementById('tc-rumah-' + i)?.value?.trim();
+    const tamu  = document.getElementById('tc-tamu-' + i)?.value?.trim();
+    if (!rumah || !tamu) continue;
+    if (rumah === tamu) { alert(`Baris ${i+1}: Pasukan sama tak boleh lawan diri sendiri!`); return; }
+
+    state.jadual.push({
+      id:         sukanId + '_manual_' + Date.now() + '_' + i,
+      sukanId,
+      kategori,
+      peringkat,
+      kumpulan:   peringkat === 'kumpulan' ? kumpulan : '',
+      label:      '',
+      rumah,
+      tamu,
+      tarikh,
+      masa,
+      gelanggang,
+      status:     'akan_datang',
+      scoreRumah: 0,
+      scoreTamu:  0,
+      sets:       [],
+    });
+    ditambah++;
+  }
+
+  if (ditambah === 0) { alert('Sila isi sekurang-kurangnya satu baris perlawanan.'); return; }
+
+  state._panelTambahCepat = null;
+  _tcBilBaris = 3;
+  simpanData();
+  render();
+  /* Tunjuk toast */
+  setTimeout(() => {
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:12px 20px;border-radius:10px;font-weight:700;z-index:9999;font-size:14px;box-shadow:0 4px 20px rgba(0,0,0,0.3)';
+    toast.textContent = '✅ ' + ditambah + ' perlawanan ditambah!';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+  }, 100);
 }
 
 function padamSemuaJadualDariJadualTab(sukanId) {

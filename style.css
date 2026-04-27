@@ -2271,3 +2271,26 @@ input[type="time"] { color-scheme: dark; }
   background: var(--gold);
   transform: translateX(16px);
 }
+
+
+/* ================================================================
+   PANEL TAMBAH CEPAT
+   ================================================================ */
+.panel-tambah-cepat {
+  background: var(--card);
+  border: 1.5px solid rgba(245,166,35,0.35);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tc-baris input:focus {
+  border-color: var(--gold);
+  outline: none;
+}
