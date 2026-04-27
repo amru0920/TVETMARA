@@ -283,83 +283,84 @@ function sukanTabAktif() {
    ── Tunjuk grid kad sukan dulu
    ── Bila klik sukan → tunjuk jadual sukan tersebut
    ================================================================ */
-  /* Kandungan ikut format atau jadual penuh */
-  let kandungan = '';
-  const modJadual = sukanKini.modJadual || 'auto';
-  
-  if (state.jadualPenuhMode === sukanId) {
-    kandungan = renderJadualPenuh(sukanId, format);
-  } 
-  else if (modJadual === 'manual') {
-    // MOD MANUAL — tunjuk semua perlawanan tanpa auto jana
-    const pTapis = (state.selectedKategori?.[sukanId] && kategoriSukan.includes(state.selectedKategori[sukanId]))
-      ? perlawananSukan.filter(m => m.kategori === state.selectedKategori[sukanId])
-      : perlawananSukan;
-    kandungan = renderJadualManualFormat(sukanId, pTapis, isStaff);
+function renderJadual() {
+  if (state.editingPerlawanan && state.editingPerlawanan !== 'BAHARU') {
+    const p = state.jadual.find(m => m.id === state.editingPerlawanan);
+    if (p && typeof adaBadminton === 'function' && adaBadminton(p.sukanId)) {
+      return renderJadualSukan(); /* biar renderKadPerlawanan handle */
+    }
+    return renderFormEditPerlawanan();
   }
-  else if (format === 'kumpulan') {
-    // MOD AUTO untuk kumpulan
-    const kategoriKumpulan = [...new Set(perlawananSukan.map(m => m.kategori).filter(Boolean))];
-    const katAktif = (state.selectedKategori?.[sukanId] && kategoriKumpulan.includes(state.selectedKategori[sukanId]))
-      ? state.selectedKategori[sukanId] : null;
+  if (state.editingPerlawanan === 'BAHARU') return renderFormEditPerlawanan();
 
-    const tabKatHTML = kategoriKumpulan.length > 1 ? `
-      <div class="kat-tab-bar">
-        <button class="kat-tab-btn ${!katAktif ? 'active' : ''}"
-          onclick="pilihKategori('${sukanId}', null)">📋 Semua</button>
-        ${kategoriKumpulan.map(k => {
-          const bilK = perlawananSukan.filter(m => m.kategori === k).length;
-          const slsK = perlawananSukan.filter(m => m.kategori === k && m.status === 'selesai').length;
-          const liveK = perlawananSukan.filter(m => m.kategori === k && m.status === 'sedang_berlangsung').length;
-          return `
-            <button class="kat-tab-btn ${katAktif === k ? 'active' : ''}"
-              data-kat="${k}"
-              onclick="pilihKategori('${sukanId}', this.dataset.kat)">
-              ${liveK > 0 ? '<span class="live-dot" style="width:6px;height:6px"></span>' : ''}
-              ${k}<span class="kat-count">${slsK}/${bilK}</span>
-            </button>`;
-        }).join('')}
-      </div>
-    ` : '';
+  /* Kalau sukan dah dipilih → tunjuk jadual sukan */
+  if (state.jadualSukanTab) return renderJadualSukan();
 
-    const pTapisKump = katAktif ? perlawananSukan.filter(m => m.kategori === katAktif) : perlawananSukan;
-    kandungan = tabKatHTML + renderJadualKumpulanFormat(sukanId, pTapisKump, isStaff, katAktif);
-  } 
-  else if (format === 'round_robin') {
-    kandungan = renderJadualRoundRobinFormat(sukanId, perlawananSukan, isStaff);
-  } 
-  else {
-    // MOD AUTO untuk biasa
-    const kategoriSukan = [...new Set(perlawananSukan.map(m => m.kategori).filter(Boolean))];
-    const katAktif = (state.selectedKategori?.[sukanId] && kategoriSukan.includes(state.selectedKategori[sukanId]))
-      ? state.selectedKategori[sukanId] : null;
+  /* ── Grid kad sukan ── */
+  const senarai = sukanAdaJadual();
+  const isStaff = !!state.staffLogin;
 
-    const tabKatHTML = kategoriSukan.length > 1 ? `
-      <div class="kat-tab-bar">
-        <button class="kat-tab-btn ${!katAktif ? 'active' : ''}"
-          onclick="pilihKategori('${sukanId}', null)">📋 Semua</button>
-        ${kategoriSukan.map(k => {
-          const bilLive = perlawananSukan.filter(m => m.kategori === k && m.status === 'sedang_berlangsung').length;
-          const bilKat  = perlawananSukan.filter(m => m.kategori === k).length;
-          const selesaiKat = perlawananSukan.filter(m => m.kategori === k && m.status === 'selesai').length;
-          return `
-            <button class="kat-tab-btn ${katAktif === k ? 'active' : ''}"
-              data-kat="${k}" onclick="pilihKategori('${sukanId}', this.dataset.kat)">
-              ${bilLive > 0 ? '<span class="live-dot" style="width:6px;height:6px"></span>' : ''}
-              ${k}
-              <span class="kat-count">${selesaiKat}/${bilKat}</span>
-            </button>
-          `;
-        }).join('')}
-      </div>
-    ` : '';
-
-    const pTapis = katAktif
-      ? perlawananSukan.filter(m => m.kategori === katAktif)
-      : perlawananSukan;
-
-    kandungan = tabKatHTML + renderJadualBiasaFormat(sukanId, pTapis, isStaff);
+  if (senarai.length === 0) {
+    return `<div class="kosong-box"><div style="font-size:40px;margin-bottom:12px">🏅</div>Tiada sukan dengan jadual perlawanan.</div>`;
   }
+
+  const kards = senarai.map(s => {
+    const fmt = state.formatSukan[s.id] || 'biasa';
+
+    let selesai = 0, berlangsung = 0, total = 0;
+
+    if (fmt === 'round_robin') {
+      const prl = state.roundRobin[s.id]?.perlawanan || [];
+      selesai     = prl.filter(m => m.status === 'selesai').length;
+      berlangsung = prl.filter(m => m.status === 'sedang_berlangsung').length;
+      total       = prl.length;
+    } else {
+      /* Jadual biasa + bracket (suku akhir, separuh akhir, final) */
+      const pSukan = state.jadual.filter(m => m.sukanId === s.id);
+      const bPrl   = fmt === 'kumpulan'
+        ? Object.values(state.bracket?.[s.id] || {}).flat()
+        : [];
+      const semua  = [...pSukan, ...bPrl];
+
+      selesai     = semua.filter(m => m.status === 'selesai').length;
+      berlangsung = semua.filter(m => m.status === 'sedang_berlangsung').length;
+      total       = semua.length;
+    }
+
+    const formatLabel = fmt === 'kumpulan'    ? '🔵 Format Kumpulan'
+                      : fmt === 'round_robin' ? '🔄 Round Robin'
+                      : '🎯 Perlawanan';
+
+    /* "Siap" hanya bila semua perlawanan selesai TERMASUK bracket */
+    const siap = total > 0 && selesai === total;
+
+    return `
+      <div class="jadual-sukan-kad" onclick="pilihJadualSukan('${s.id}')">
+        ${berlangsung > 0 ? '<span class="done-badge" style="background:var(--red)">🔴 LIVE</span>' : ''}
+        ${siap ? '<span class="done-badge">✓ Siap</span>' : ''}
+
+        <div class="jadual-sukan-icon">${s.icon || '🏅'}</div>
+        <div class="jadual-sukan-nama">${s.nama}</div>
+        <div class="jadual-sukan-format">${formatLabel}</div>
+
+        <div class="jadual-sukan-stats">
+          <span class="${berlangsung > 0 ? 'live-stat' : 'muted-stat'}">
+            ${berlangsung > 0 ? '🔴 ' + berlangsung + ' Live' : ''}
+          </span>
+          <span class="muted-stat">
+            ${total > 0 ? selesai + '/' + total + ' selesai' : 'Belum ada jadual'}
+          </span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="section-title">📅 Jadual Perlawanan</div>
+    <div class="jadual-sukan-grid">${kards}</div>
+  `;
+}
+
 
 /* ================================================================
    RENDER JADUAL UNTUK SATU SUKAN (selepas klik kad)
@@ -400,58 +401,37 @@ function renderJadualSukan() {
     </div>
   `;
 
-    /* Butang tambah — ikut mod */
-  let tambahBtn = '';
-  if (isStaff) {
-    const modJadual2 = sukanKini.modJadual || 'auto';
-    if (format === 'round_robin') {
-      tambahBtn = `
-        <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <button class="tambah-perlawanan-btn" style="background:var(--card);color:var(--green);border:1.5px solid rgba(46,204,113,0.5)"
-            onclick="setTab('tetapan');state.subTab='round_robin';state.rrSukanTab='${sukanId}';render()">
-            🔄 Urus Round Robin →
-          </button>
-        </div>
-      `;
-    } 
-    else if (modJadual2 === 'manual') {
-      tambahBtn = `
-        <div style="margin-bottom:16px">
-          <button class="tambah-perlawanan-btn" onclick="bukaFormTambah()">
-            + Tambah Perlawanan Manual
-          </button>
-        </div>
-      `;
-    }
-    else if (format === 'kumpulan') {
-      tambahBtn = `
-        <div style="margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <button class="tambah-perlawanan-btn" onclick="bukaFormTambah()">
-            + Tambah Perlawanan
-          </button>
-          ${state.jadual.some(m => m.sukanId === sukanId && m.peringkat === 'kumpulan') ? `
-            <button class="cetak-btn" style="color:#ff8a80;border-color:rgba(231,76,60,0.4)"
-              onclick="padamSemuaJadualDariJadualTab('${sukanId}')">
-              🗑 Reset Jadual Kumpulan
-            </button>
-          ` : ''}
-          <button class="cetak-btn"
-            onclick="setTab('tetapan');state.subTab='urus_kumpulan';state.kumpulanSukanTab='${sukanId}';render()">
-            🔵 Urus Kumpulan →
-          </button>
-        </div>
-      `;
-    } 
-    else {
-      tambahBtn = `
-        <div style="margin-bottom:16px">
-          <button class="tambah-perlawanan-btn" onclick="bukaFormTambah()">
-            + Tambah Perlawanan
-          </button>
-        </div>
-      `;
-    }
-  }
+  /* Butang tambah — sembunyi untuk round robin (guna Urus Round Robin) */
+  const tambahBtn = isStaff && format === 'round_robin' ? `
+    <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="tambah-perlawanan-btn" style="background:var(--card);color:var(--green);border:1.5px solid rgba(46,204,113,0.5)"
+        onclick="setTab('tetapan');state.subTab='round_robin';state.rrSukanTab='${sukanId}';render()">
+        🔄 Urus Round Robin →
+      </button>
+    </div>
+  ` : isStaff && format === 'kumpulan' ? `
+    <div style="margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <button class="tambah-perlawanan-btn" onclick="bukaFormTambah()">
+        + Tambah Perlawanan
+      </button>
+      ${state.jadual.some(m => m.sukanId === sukanId && m.peringkat === 'kumpulan') ? `
+        <button class="cetak-btn" style="color:#ff8a80;border-color:rgba(231,76,60,0.4)"
+          onclick="padamSemuaJadualDariJadualTab('${sukanId}')">
+          🗑 Reset Jadual Kumpulan
+        </button>
+      ` : ''}
+      <button class="cetak-btn"
+        onclick="setTab('tetapan');state.subTab='urus_kumpulan';state.kumpulanSukanTab='${sukanId}';render()">
+        🔵 Urus Kumpulan →
+      </button>
+    </div>
+  ` : isStaff ? `
+    <div style="margin-bottom:16px">
+      <button class="tambah-perlawanan-btn" onclick="bukaFormTambah()">
+        + Tambah Perlawanan
+      </button>
+    </div>
+  ` : '';
 
   /* Kandungan ikut format atau jadual penuh */
   let kandungan = '';
@@ -1481,80 +1461,6 @@ function togolDrawMode(sukanId) {
   state.drawMode        = state.drawMode === sukanId ? null : sukanId;
   state.jadualPenuhMode = null;
   render();
-}
-
-/* ================================================================
-   RENDER JADUAL MANUAL (untuk sukan mod manual)
-   ================================================================ */
-function renderJadualManualFormat(sukanId, senarai, isStaff) {
-  if (senarai.length === 0) {
-    return `
-      <div class="kosong-box">
-        <div style="font-size:36px;margin-bottom:10px">📅</div>
-        Tiada jadual perlawanan. 
-        ${isStaff ? 'Klik "+ Tambah Perlawanan Manual" di atas.' : 'Sila hubungi staff untuk menambah jadual.'}
-      </div>
-    `;
-  }
-
-  // Kumpul ikut tarikh
-  const ikutTarikh = {};
-  const tanpaTarikh = [];
-  senarai.forEach(m => {
-    if (m.tarikh) {
-      if (!ikutTarikh[m.tarikh]) ikutTarikh[m.tarikh] = [];
-      ikutTarikh[m.tarikh].push(m);
-    } else {
-      tanpaTarikh.push(m);
-    }
-  });
-
-  const tarikhKeys = Object.keys(ikutTarikh).sort();
-  const aktifHari = hariAktif(sukanId);
-  
-  const tabHari = tarikhKeys.length > 1 ? `
-    <div class="hari-tab-wrap">
-      <div class="hari-tab-bar">
-        ${tarikhKeys.map(h => `
-          <button class="hari-tab-btn ${h === aktifHari ? 'active' : ''}"
-            onclick="pilihHari('${h}','${sukanId}')">
-            ${formatTarikhPendek(h)}
-          </button>
-        `).join('')}
-        ${tanpaTarikh.length > 0 ? `
-          <button class="hari-tab-btn ${aktifHari === 'tba' ? 'active' : ''}"
-            onclick="pilihHari('tba','${sukanId}')">
-            📌 Belum Ditetapkan
-          </button>
-        ` : ''}
-      </div>
-    </div>
-  ` : '';
-
-  let html = tabHari;
-
-  if (aktifHari === 'tba' && tanpaTarikh.length > 0) {
-    html += `
-      <div class="tarikh-penuh">Tarikh Belum Ditetapkan</div>
-      ${tanpaTarikh.map(m => renderKadPerlawanan(m, isStaff)).join('')}
-    `;
-  } 
-  else if (aktifHari && ikutTarikh[aktifHari]) {
-    const papar = ikutTarikh[aktifHari].sort((a,b) => (a.masa||'').localeCompare(b.masa||''));
-    html += `
-      <div class="tarikh-penuh">${formatTarikh(aktifHari)}</div>
-      ${papar.map(m => renderKadPerlawanan(m, isStaff)).join('')}
-    `;
-  }
-  else if (tarikhKeys.length > 0 && ikutTarikh[tarikhKeys[0]]) {
-    const papar = ikutTarikh[tarikhKeys[0]].sort((a,b) => (a.masa||'').localeCompare(b.masa||''));
-    html += `
-      <div class="tarikh-penuh">${formatTarikh(tarikhKeys[0])}</div>
-      ${papar.map(m => renderKadPerlawanan(m, isStaff)).join('')}
-    `;
-  }
-
-  return html;
 }
 
 function renderJadualPenuh(sukanId, format) {
