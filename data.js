@@ -145,7 +145,40 @@ const SUKAN_ASAL = [
 ];
 
 /* ================================================================
-   PEMBOLEH UBAH TAMBAHAN (diperlukan oleh app.js)
+   STATE GLOBAL — dideklarasi awal supaya semua modul boleh akses
+   app.js akan isi nilai penuh selepas semua data diload
    ================================================================ */
-/* JADUAL_ASAL dideklarasi dalam jadual.js */
-/* FORMAT_ASAL & KUMPULAN_ASAL dideklarasi dalam format.js */
+var state = {
+  staffLogin:          null,
+  tab:                 'kedudukan',
+  subTab:              'urus_akaun',
+  selectedSukan:       null,
+  editingAcara:        null,
+  editingPerlawanan:   null,
+  selectedHari:        {},
+  jadualSukanTab:      null,
+  kumpulanSukanTab:    null,
+  rrSukanTab:          null,
+  rrEditingMatch:      null,
+  rrEditPresetSelesai: null,
+  streamTab:           'awam',
+  jadualPenuhMode:     null,
+  jadualPenuhHari:     {},
+  drawMode:            null,
+  selectedKategori:    {},
+  selectedKatKumpulan: {},
+  keputusan:           {},
+  pasukan:             [...PASUKAN_ASAL],
+  sukan:               [...SUKAN_ASAL],
+  jadual:              [],
+  staff:               [...STAFF_ASAL],
+  password:            PASSWORD_TETAP,
+  formatSukan:         {},
+  kumpulanSukan:       {},
+  roundRobin:          {},
+  streaming:           [],
+  bracket:             {},
+  bracketEdit:              null,
+  bracketPresetSelesai:     false,
+  _panelTambahCepat:        null,
+};

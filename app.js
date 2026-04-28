@@ -4,7 +4,8 @@
    simpanData() dan muatData() diurus oleh firebase.js
    ================================================================ */
 
-let state = {
+/* state dideklarasi dalam data.js — kemaskini dengan nilai penuh di sini */
+Object.assign(state, {
   staffLogin:    null,
   tab:               'kedudukan',
   subTab:            'urus_akaun',
@@ -29,7 +30,7 @@ let state = {
   jadual:        (typeof JADUAL_ASAL !== 'undefined') ? [...JADUAL_ASAL] : [],
   staff:         (typeof STAFF_ASAL !== 'undefined') ? [...STAFF_ASAL] : [],
   password:      (typeof PASSWORD_TETAP !== 'undefined') ? PASSWORD_TETAP : "tvet2025",
-  formatSukan:   (typeof FORMAT_ASAL !== 'undefined') ? { ...FORMAT_ASAL } : (typeof FORMAT_SUKAN !== 'undefined' ? { ...FORMAT_SUKAN } : {}),
+  formatSukan:   (typeof FORMAT_ASAL !== 'undefined') ? { ...FORMAT_ASAL } : {},
   kumpulanSukan: (typeof KUMPULAN_ASAL !== 'undefined') ? JSON.parse(JSON.stringify(KUMPULAN_ASAL)) : {},
   roundRobin:    {},
   streaming:     [],
@@ -37,7 +38,7 @@ let state = {
   bracketEdit:          null,
   bracketPresetSelesai: false,
   _panelTambahCepat:    null,
-};
+});
 
 
 /* ================================================================
@@ -198,4 +199,4 @@ function togolDrawMode(sukanId) {
 }
 
 
-/* Aplikasi dimulakan dari init.js selepas semua modul diload */
+/* Aplikasi dimulakan dari init.js */
