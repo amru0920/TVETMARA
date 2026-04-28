@@ -20,12 +20,9 @@
 
 
 /* ----------------------------------------------------------------
-   FORMAT SETIAP SUKAN
-   'kumpulan'  → ada peringkat kumpulan + knockout (bola sepak gaya)
-   'biasa'     → jadual perlawanan biasa tanpa kumpulan
-   'individu'  → tiada jadual perlawanan (olahraga, renang)
+   FORMAT SETIAP SUKAN (Tetapan asal)
    ---------------------------------------------------------------- */
-const FORMAT_SUKAN = {
+const FORMAT_SUKAN_DEFAULT = {
   s1: 'individu',   // Olahraga
   s2: 'biasa',      // Badminton
   s3: 'kumpulan',   // Bola Sepak
@@ -33,6 +30,11 @@ const FORMAT_SUKAN = {
   s5: 'biasa',      // Bola Tampar
   s6: 'individu',   // Renang
 };
+
+// Pastikan state.formatSukan ada data supaya fungsi filter tidak crash
+if (!state.formatSukan || Object.keys(state.formatSukan).length === 0) {
+  state.formatSukan = FORMAT_SUKAN_DEFAULT;
+}
 
 
 /* ----------------------------------------------------------------
