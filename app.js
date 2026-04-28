@@ -4,7 +4,8 @@
    simpanData() dan muatData() diurus oleh firebase.js
    ================================================================ */
 
-let state = {
+/* state dideklarasi awal dalam data.js — di sini kita kemaskini dengan nilai penuh */
+Object.assign(state, {
   staffLogin:    null,
   tab:               'kedudukan',
   subTab:            'urus_akaun',
@@ -37,7 +38,7 @@ let state = {
   bracketEdit:          null,
   bracketPresetSelesai: false,
   _panelTambahCepat:    null,
-};
+});
 
 
 /* ================================================================
