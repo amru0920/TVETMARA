@@ -147,6 +147,4 @@ const SUKAN_ASAL = [
 /* ================================================================
    PEMBOLEH UBAH TAMBAHAN (diperlukan oleh app.js)
    ================================================================ */
-const JADUAL_ASAL    = [];   /* Tiada jadual asal — dijana dalam app */
-const FORMAT_ASAL    = {};   /* Format sukan — diurus dalam Tetapan */
-const KUMPULAN_ASAL  = {};   /* Kumpulan — diurus dalam Urus Kumpulan */
+/* JADUAL_ASAL, FORMAT_ASAL, KUMPULAN_ASAL diisytihar dalam jadual.js dan format.js */
