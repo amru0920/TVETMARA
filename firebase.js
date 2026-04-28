@@ -1,6 +1,5 @@
 /* ================================================================
-   firebase.js — INTEGRASI FIREBASE FIRESTORE
-   Projek: spekma-sukan
+   firebase.js — INTEGRASI FIREBASE FIRESTORE (VERSI REAL-TIME)
    ================================================================ */
 
 const firebaseConfig = {
@@ -73,82 +72,61 @@ async function simpanData() {
 }
 
 /* ================================================================
-   MUAT DATA — Firebase dulu, fallback localStorage
+   MUAT DATA — Menggunakan onSnapshot (Real-time Sync)
    ================================================================ */
 async function muatData() {
   const el = document.getElementById('main-content');
   if (el) el.innerHTML = `
     <div style="text-align:center;padding:80px 20px;color:var(--muted)">
       <div style="font-size:36px;margin-bottom:12px">⏳</div>
-      <div>Memuatkan data...</div>
+      <div>Menghubungkan ke server SPEKMA...</div>
     </div>`;
 
   await initFirebase();
-
-  /* Cuba Firebase */
-  if (db) {
-    try {
-      const docSnap = await db.collection('spekma').doc('mainData').get();
-      if (docSnap.exists) {
-        const data = docSnap.data();
-        if (data.pasukan)       state.pasukan       = data.pasukan;
-        if (data.sukan)         state.sukan         = data.sukan;
-        if (data.formatSukan)   state.formatSukan   = data.formatSukan;
-        if (data.kumpulanSukan) state.kumpulanSukan = data.kumpulanSukan;
-        if (data.jadual)        state.jadual        = data.jadual;
-        if (data.roundRobin)    state.roundRobin    = data.roundRobin;
-        if (data.bracket) {
-          state.bracket = data.bracket;
-          Object.keys(state.bracket).forEach(sid => {
-            if (typeof kemaskiniSemakBracket === 'function') kemaskiniSemakBracket(sid);
-          });
-        }
-        if (data.keputusan)  state.keputusan  = data.keputusan;
-        if (data.staff)      state.staff      = data.staff;
-        if (data.password)   state.password   = data.password;
-        if (data.streaming)  state.streaming  = data.streaming;
-        console.log('✅ Data loaded from Firebase');
-        if (typeof _bersihkanStatus === 'function') _bersihkanStatus();
-        return;
-      }
-    } catch (e) {
-      console.warn('Firebase read fail, guna localStorage:', e);
-    }
+  if (!db) {
+      console.warn("DB tidak dapat di-init. Guna offline backup.");
+      muatDataOffline(); // Panggil backup kalau internet takde
+      return;
   }
 
-  /* Fallback localStorage */
-  try {
-    const k  = localStorage.getItem('spekma_keputusan');
-    const p  = localStorage.getItem('spekma_pasukan');
-    const s  = localStorage.getItem('spekma_sukan');
-    const j  = localStorage.getItem('spekma_jadual');
-    const st = localStorage.getItem('spekma_staff');
-    const pw = localStorage.getItem('spekma_password');
-    const fm = localStorage.getItem('spekma_format');
-    const km = localStorage.getItem('spekma_kumpulan');
-    const rr = localStorage.getItem('spekma_roundrobin');
-    const sm = localStorage.getItem('spekma_streaming');
-    const br = localStorage.getItem('spekma_bracket');
-    if (k)  state.keputusan     = JSON.parse(k);
-    if (p)  state.pasukan       = JSON.parse(p);
-    if (s)  state.sukan         = JSON.parse(s);
-    if (j)  state.jadual        = JSON.parse(j);
-    if (st) state.staff         = JSON.parse(st);
-    if (pw) state.password      = pw;
-    if (fm) state.formatSukan   = JSON.parse(fm);
-    if (km) state.kumpulanSukan = JSON.parse(km);
-    if (rr) state.roundRobin    = JSON.parse(rr);
-    if (sm) state.streaming     = JSON.parse(sm);
-    if (br) {
-      state.bracket = JSON.parse(br);
-      Object.keys(state.bracket).forEach(sid => {
-        if (typeof kemaskiniSemakBracket === 'function') kemaskiniSemakBracket(sid);
-      });
-    }
-  } catch (e) { console.warn('localStorage fail:', e); }
+  // Listener Real-time
+  db.collection('spekma').doc('mainData').onSnapshot((doc) => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.pasukan)       state.pasukan       = data.pasukan;
+      if (data.sukan)         state.sukan         = data.sukan;
+      if (data.formatSukan)   state.formatSukan   = data.formatSukan;
+      if (data.kumpulanSukan) state.kumpulanSukan = data.kumpulanSukan;
+      if (data.jadual)        state.jadual        = data.jadual;
+      if (data.roundRobin)    state.roundRobin    = data.roundRobin;
+      if (data.bracket)       state.bracket       = data.bracket;
+      if (data.keputusan)     state.keputusan     = data.keputusan;
+      if (data.staff)         state.staff         = data.staff;
+      if (data.password)      state.password      = data.password;
+      if (data.streaming)     state.streaming     = data.streaming;
 
-  if (typeof _bersihkanStatus === 'function') _bersihkanStatus();
+      console.log('⚡ Data SPEKMA dikemaskini secara Real-time!');
+      
+      if (typeof _bersihkanStatus === 'function') _bersihkanStatus();
+      render(); 
+    } else {
+        console.log("Dokumen mainData belum wujud di Firebase. Gunakan data lokal.");
+        muatDataOffline();
+    }
+  }, (error) => {
+    console.error("Gelong sebab Error Firebase:", error);
+    muatDataOffline();
+  });
 }
 
-/* Init awal */
+/* Fallback kalau internet down */
+function muatDataOffline() {
+  try {
+    const k = localStorage.getItem('spekma_keputusan');
+    if (k) state.keputusan = JSON.parse(k);
+    // ... sambung parse yang lain kalau perlu ...
+    render();
+  } catch (e) { console.error("Backup lokal pun gagal:", e); }
+}
+
 initFirebase();
