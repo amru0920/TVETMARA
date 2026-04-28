@@ -2,7 +2,7 @@
    app.js — OTAK UTAMA APLIKASI SPEKMA
    ================================================================ */
 
-//const WORKER_URL = window.SPEKMA_API_URL || '';
+const WORKER_URL = window.SPEKMA_API_URL || '';
 
 let state = {
   staffLogin:    null,
@@ -36,9 +36,10 @@ let state = {
   bracket:       {},
   bracketEdit:          null,
   bracketPresetSelesai: false,
+  _panelTambahCepat:    null,
 };
 
-/* function simpanData() {
+function simpanData() {
   try {
     localStorage.setItem('spekma_keputusan',  JSON.stringify(state.keputusan));
     localStorage.setItem('spekma_pasukan',    JSON.stringify(state.pasukan));
@@ -114,7 +115,7 @@ async function muatData() {
     if (br) { state.bracket = JSON.parse(br); Object.keys(state.bracket).forEach(sid => kemaskiniSemakBracket(sid)); }
   } catch (e) { console.warn('Gagal muat localStorage:', e); }
   _bersihkanStatus();
-} */
+}
 
 function _bersihkanStatus() {
   const now = new Date();

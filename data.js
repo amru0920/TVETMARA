@@ -1,13 +1,39 @@
 /* ================================================================
    data.js — DATA PASUKAN & SUKAN
+   ================================================================
+
+   FAIL INI untuk edit:
+   ✏️  Tambah / padam pasukan
+   ✏️  Tambah / padam sukan
+   ✏️  Tambah / padam acara dalam setiap sukan
+   ✏️  Tukar sistem mata
+
+   CARA TAMBAH PASUKAN BARU:
+   Cari bahagian PASUKAN_ASAL dan tambah nama dalam senarai.
+
+   CARA TAMBAH SUKAN BARU:
+   Cari bahagian SUKAN_ASAL, salin blok sukan yang ada
+   dan ubah id, nama, icon dan acara.
+
+   NOTA: id mesti unik — jangan guna id yang sama dua kali.
    ================================================================ */
 
+
+/* ----------------------------------------------------------------
+   SISTEM MATA
+   Ubah nilai di sini untuk tukar berapa mata setiap tempat.
+   ---------------------------------------------------------------- */
 const MATA = {
-  1: 5,
-  2: 3,
-  3: 1,
+  1: 5,    // 🥇 Tempat Pertama  = 5 mata
+  2: 3,    // 🥈 Tempat Kedua    = 3 mata
+  3: 1,    // 🥉 Tempat Ketiga   = 1 mata
 };
 
+
+/* ----------------------------------------------------------------
+   SENARAI PASUKAN
+   Tambah atau padam nama pasukan di sini.
+   ---------------------------------------------------------------- */
 const PASUKAN_ASAL = [
   "MRSM Kepala Batas",
   "MRSM Balik Pulau",
@@ -17,10 +43,29 @@ const PASUKAN_ASAL = [
   "IKM Alor Setar",
   "ADTEC Kedah",
   "MRSM Taiping",
+  /* Tambah pasukan → "Nama Pasukan Baru", */
 ];
 
+
+/* ----------------------------------------------------------------
+   SENARAI SUKAN & ACARA
+
+   Setiap sukan:
+     id    : kod unik (contoh: "s1", "s2") — JANGAN ULANG
+     nama  : nama sukan
+     icon  : emoji sukan
+     jenis : "individu" atau "pasukan"
+             individu → ada score masa/jarak (contoh: "10.5s", "45m")
+             pasukan  → ada score perlawanan (contoh: "3 - 1")
+     acara : senarai acara dalam sukan ini
+
+   Setiap acara:
+     id    : kod unik (contoh: "s1_a1") — JANGAN ULANG
+     nama  : nama acara
+   ---------------------------------------------------------------- */
 const SUKAN_ASAL = [
 
+  /* ── OLAHRAGA ── */
   {
     id: "s1", nama: "Olahraga", icon: "🏃", jenis: "individu",
     acara: [
@@ -38,6 +83,7 @@ const SUKAN_ASAL = [
     ],
   },
 
+  /* ── BADMINTON ── */
   {
     id: "s2", nama: "Badminton", icon: "🏸", jenis: "pasukan",
     acara: [
@@ -49,6 +95,7 @@ const SUKAN_ASAL = [
     ],
   },
 
+  /* ── BOLA SEPAK ── */
   {
     id: "s3", nama: "Bola Sepak", icon: "⚽", jenis: "pasukan",
     acara: [
@@ -56,6 +103,7 @@ const SUKAN_ASAL = [
     ],
   },
 
+  /* ── FUTSAL ── */
   {
     id: "s4", nama: "Futsal", icon: "🥅", jenis: "pasukan",
     acara: [
@@ -64,6 +112,7 @@ const SUKAN_ASAL = [
     ],
   },
 
+  /* ── BOLA TAMPAR ── */
   {
     id: "s5", nama: "Bola Tampar", icon: "🏐", jenis: "pasukan",
     acara: [
@@ -72,6 +121,7 @@ const SUKAN_ASAL = [
     ],
   },
 
+  /* ── RENANG ── */
   {
     id: "s6", nama: "Renang", icon: "🏊", jenis: "individu",
     acara: [
@@ -82,4 +132,21 @@ const SUKAN_ASAL = [
     ],
   },
 
+  /* ── CONTOH TAMBAH SUKAN BARU ──
+  {
+    id: "s7", nama: "Nama Sukan", icon: "🏅", jenis: "pasukan",
+    acara: [
+      { id: "s7_a1", nama: "Nama Acara 1" },
+      { id: "s7_a2", nama: "Nama Acara 2" },
+    ],
+  },
+  */
+
 ];
+
+/* ================================================================
+   PEMBOLEH UBAH TAMBAHAN (diperlukan oleh app.js)
+   ================================================================ */
+const JADUAL_ASAL    = [];   /* Tiada jadual asal — dijana dalam app */
+const FORMAT_ASAL    = {};   /* Format sukan — diurus dalam Tetapan */
+const KUMPULAN_ASAL  = {};   /* Kumpulan — diurus dalam Urus Kumpulan */
