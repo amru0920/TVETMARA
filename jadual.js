@@ -31,10 +31,7 @@ const FORMAT_SUKAN_DEFAULT = {
   s6: 'individu',   // Renang
 };
 
-// Pastikan state.formatSukan ada data supaya fungsi filter tidak crash
-if (!state.formatSukan || Object.keys(state.formatSukan).length === 0) {
-  state.formatSukan = FORMAT_SUKAN_DEFAULT;
-}
+// formatSukan akan diisi oleh app.js selepas load
 
 
 /* ----------------------------------------------------------------
@@ -286,6 +283,10 @@ function sukanTabAktif() {
    ── Bila klik sukan → tunjuk jadual sukan tersebut
    ================================================================ */
 function renderJadual() {
+  /* Pastikan formatSukan ada data */
+  if (!state.formatSukan || Object.keys(state.formatSukan).length === 0) {
+    state.formatSukan = FORMAT_SUKAN_DEFAULT;
+  }
   if (state.editingPerlawanan && state.editingPerlawanan !== 'BAHARU') {
     const p = state.jadual.find(m => m.id === state.editingPerlawanan);
     if (p && typeof adaBadminton === 'function' && adaBadminton(p.sukanId)) {

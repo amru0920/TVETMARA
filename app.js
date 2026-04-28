@@ -4,8 +4,7 @@
    simpanData() dan muatData() diurus oleh firebase.js
    ================================================================ */
 
-/* state dideklarasi awal dalam data.js — di sini kita kemaskini dengan nilai penuh */
-Object.assign(state, {
+let state = {
   staffLogin:    null,
   tab:               'kedudukan',
   subTab:            'urus_akaun',
@@ -38,7 +37,7 @@ Object.assign(state, {
   bracketEdit:          null,
   bracketPresetSelesai: false,
   _panelTambahCepat:    null,
-});
+};
 
 
 /* ================================================================
@@ -199,12 +198,4 @@ function togolDrawMode(sukanId) {
 }
 
 
-/* ================================================================
-   MULA APLIKASI
-   muatData() dipanggil dari firebase.js selepas data diload
-   ================================================================ */
-(async () => {
-  await muatData();
-  render();
-  mulaAutoStatus();
-})();
+/* Aplikasi dimulakan dari init.js selepas semua modul diload */
