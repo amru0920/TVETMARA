@@ -31,7 +31,7 @@ const FORMAT_SUKAN_DEFAULT = {
   s6: 'individu',   // Renang
 };
 
-// formatSukan akan diisi semula oleh app.js
+// formatSukan diisi oleh app.js selepas semua fail diload
 
 
 /* ----------------------------------------------------------------

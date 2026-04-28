@@ -1,39 +1,13 @@
 /* ================================================================
    data.js — DATA PASUKAN & SUKAN
-   ================================================================
-
-   FAIL INI untuk edit:
-   ✏️  Tambah / padam pasukan
-   ✏️  Tambah / padam sukan
-   ✏️  Tambah / padam acara dalam setiap sukan
-   ✏️  Tukar sistem mata
-
-   CARA TAMBAH PASUKAN BARU:
-   Cari bahagian PASUKAN_ASAL dan tambah nama dalam senarai.
-
-   CARA TAMBAH SUKAN BARU:
-   Cari bahagian SUKAN_ASAL, salin blok sukan yang ada
-   dan ubah id, nama, icon dan acara.
-
-   NOTA: id mesti unik — jangan guna id yang sama dua kali.
    ================================================================ */
 
-
-/* ----------------------------------------------------------------
-   SISTEM MATA
-   Ubah nilai di sini untuk tukar berapa mata setiap tempat.
-   ---------------------------------------------------------------- */
 const MATA = {
-  1: 5,    // 🥇 Tempat Pertama  = 5 mata
-  2: 3,    // 🥈 Tempat Kedua    = 3 mata
-  3: 1,    // 🥉 Tempat Ketiga   = 1 mata
+  1: 5,
+  2: 3,
+  3: 1,
 };
 
-
-/* ----------------------------------------------------------------
-   SENARAI PASUKAN
-   Tambah atau padam nama pasukan di sini.
-   ---------------------------------------------------------------- */
 const PASUKAN_ASAL = [
   "MRSM Kepala Batas",
   "MRSM Balik Pulau",
@@ -43,29 +17,9 @@ const PASUKAN_ASAL = [
   "IKM Alor Setar",
   "ADTEC Kedah",
   "MRSM Taiping",
-  /* Tambah pasukan → "Nama Pasukan Baru", */
 ];
 
-
-/* ----------------------------------------------------------------
-   SENARAI SUKAN & ACARA
-
-   Setiap sukan:
-     id    : kod unik (contoh: "s1", "s2") — JANGAN ULANG
-     nama  : nama sukan
-     icon  : emoji sukan
-     jenis : "individu" atau "pasukan"
-             individu → ada score masa/jarak (contoh: "10.5s", "45m")
-             pasukan  → ada score perlawanan (contoh: "3 - 1")
-     acara : senarai acara dalam sukan ini
-
-   Setiap acara:
-     id    : kod unik (contoh: "s1_a1") — JANGAN ULANG
-     nama  : nama acara
-   ---------------------------------------------------------------- */
 const SUKAN_ASAL = [
-
-  /* ── OLAHRAGA ── */
   {
     id: "s1", nama: "Olahraga", icon: "🏃", jenis: "individu",
     acara: [
@@ -82,8 +36,6 @@ const SUKAN_ASAL = [
       { id: "s1_a11", nama: "4x100m Pemancar (Wanita)" },
     ],
   },
-
-  /* ── BADMINTON ── */
   {
     id: "s2", nama: "Badminton", icon: "🏸", jenis: "pasukan",
     acara: [
@@ -94,16 +46,12 @@ const SUKAN_ASAL = [
       { id: "s2_a5", nama: "Perseorangan Wanita" },
     ],
   },
-
-  /* ── BOLA SEPAK ── */
   {
     id: "s3", nama: "Bola Sepak", icon: "⚽", jenis: "pasukan",
     acara: [
       { id: "s3_a1", nama: "Bola Sepak Lelaki" },
     ],
   },
-
-  /* ── FUTSAL ── */
   {
     id: "s4", nama: "Futsal", icon: "🥅", jenis: "pasukan",
     acara: [
@@ -111,8 +59,6 @@ const SUKAN_ASAL = [
       { id: "s4_a2", nama: "Futsal Wanita" },
     ],
   },
-
-  /* ── BOLA TAMPAR ── */
   {
     id: "s5", nama: "Bola Tampar", icon: "🏐", jenis: "pasukan",
     acara: [
@@ -120,8 +66,6 @@ const SUKAN_ASAL = [
       { id: "s5_a2", nama: "Bola Tampar Wanita" },
     ],
   },
-
-  /* ── RENANG ── */
   {
     id: "s6", nama: "Renang", icon: "🏊", jenis: "individu",
     acara: [
@@ -131,22 +75,11 @@ const SUKAN_ASAL = [
       { id: "s6_a4", nama: "100m Gaya Dada (Wanita)" },
     ],
   },
-
-  /* ── CONTOH TAMBAH SUKAN BARU ──
-  {
-    id: "s7", nama: "Nama Sukan", icon: "🏅", jenis: "pasukan",
-    acara: [
-      { id: "s7_a1", nama: "Nama Acara 1" },
-      { id: "s7_a2", nama: "Nama Acara 2" },
-    ],
-  },
-  */
-
 ];
 
 /* ================================================================
-   STATE GLOBAL — dideklarasi awal supaya semua modul boleh akses
-   app.js akan isi nilai penuh selepas semua data diload
+   STATE GLOBAL — mesti di sini (data.js diload pertama)
+   Nilai kosong/asas sahaja — app.js akan isi nilai betul kemudian
    ================================================================ */
 var state = {
   staffLogin:          null,
@@ -168,11 +101,11 @@ var state = {
   selectedKategori:    {},
   selectedKatKumpulan: {},
   keputusan:           {},
-  pasukan:             [...PASUKAN_ASAL],
-  sukan:               [...SUKAN_ASAL],
+  pasukan:             [],
+  sukan:               [],
   jadual:              [],
-  staff:               [...STAFF_ASAL],
-  password:            PASSWORD_TETAP,
+  staff:               [],
+  password:            'tvet2025',
   formatSukan:         {},
   kumpulanSukan:       {},
   roundRobin:          {},

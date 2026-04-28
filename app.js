@@ -4,40 +4,15 @@
    simpanData() dan muatData() diurus oleh firebase.js
    ================================================================ */
 
-/* state dideklarasi dalam data.js — kemaskini dengan nilai penuh di sini */
+/* state dideklarasi dalam data.js — isi nilai betul di sini */
 Object.assign(state, {
-  staffLogin:    null,
-  tab:               'kedudukan',
-  subTab:            'urus_akaun',
-  selectedSukan:     null,
-  editingAcara:      null,
-  editingPerlawanan: null,
-  selectedHari:      {},
-  jadualSukanTab:    null,
-  kumpulanSukanTab:  null,
-  rrSukanTab:        null,
-  rrEditingMatch:    null,
-  rrEditPresetSelesai: null,
-  streamTab:         'awam',
-  jadualPenuhMode:   null,
-  jadualPenuhHari:   {},
-  drawMode:          null,
-  selectedKategori:  {},
-  selectedKatKumpulan: {},
-  keputusan:     {},
-  pasukan:       (typeof PASUKAN_ASAL !== 'undefined') ? [...PASUKAN_ASAL] : [],
-  sukan:         (typeof SUKAN_ASAL !== 'undefined') ? [...SUKAN_ASAL] : [],
-  jadual:        (typeof JADUAL_ASAL !== 'undefined') ? [...JADUAL_ASAL] : [],
-  staff:         (typeof STAFF_ASAL !== 'undefined') ? [...STAFF_ASAL] : [],
-  password:      (typeof PASSWORD_TETAP !== 'undefined') ? PASSWORD_TETAP : "tvet2025",
-  formatSukan:   (typeof FORMAT_ASAL !== 'undefined') ? { ...FORMAT_ASAL } : {},
-  kumpulanSukan: (typeof KUMPULAN_ASAL !== 'undefined') ? JSON.parse(JSON.stringify(KUMPULAN_ASAL)) : {},
-  roundRobin:    {},
-  streaming:     [],
-  bracket:       {},
-  bracketEdit:          null,
-  bracketPresetSelesai: false,
-  _panelTambahCepat:    null,
+  pasukan:       [...PASUKAN_ASAL],
+  sukan:         [...SUKAN_ASAL],
+  jadual:        [...JADUAL_ASAL],
+  staff:         [...STAFF_ASAL],
+  password:      PASSWORD_TETAP,
+  formatSukan:   { ...FORMAT_ASAL },
+  kumpulanSukan: JSON.parse(JSON.stringify(KUMPULAN_ASAL)),
 });
 
 
@@ -199,4 +174,8 @@ function togolDrawMode(sukanId) {
 }
 
 
-/* Aplikasi dimulakan dari init.js */
+/* ================================================================
+   MULA APLIKASI
+   muatData() dipanggil dari firebase.js selepas data diload
+   ================================================================ */
+/* dimulakan dari init.js */
