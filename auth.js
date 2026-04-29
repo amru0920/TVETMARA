@@ -85,6 +85,7 @@ function cubaLogin() {
   /* Berjaya */
   state.staffLogin = staff;
   tutupPanelLogin();
+  tambahLog('login', 'Log masuk berjaya');
 
   document.getElementById('btn-buka-login').style.display    = 'none';
   document.getElementById('staff-logged-info').style.display = 'flex';
@@ -97,6 +98,7 @@ function cubaLogin() {
 /* Log keluar */
 function logKeluar() {
   if (!confirm('Anda pasti mahu log keluar?')) return;
+  tambahLog('logout', 'Log keluar');
   state.staffLogin   = null;
   state.editingAcara = null;
   if (state.tab === 'tetapan') state.tab = 'kedudukan';
@@ -161,6 +163,7 @@ function tukarPassword() {
   if (baru.length < 4) { alert('Kata laluan mesti sekurang-kurangnya 4 aksara.'); return; }
   if (!confirm('Tukar kata laluan kepada "' + baru + '"?\n\nSemua staff perlu guna kata laluan baru.')) return;
   state.password = baru;
+  tambahLog('kata_laluan', 'Kata laluan sistem ditukar');
   simpanData();
   render();
 }
@@ -187,6 +190,7 @@ function tambahStaff() {
 
   errEl.style.display = 'none';
   state.staff.push({ ic4, nama, jawatan: jawatan || 'Staff' });
+  tambahLog('staff_tambah', 'Tambah staff baru: ' + nama + ' (IC: ****' + ic4 + ')');
   simpanData();
 
   const ok = document.getElementById('staff-berjaya');
@@ -204,8 +208,10 @@ function padamStaff(i) {
     alert('Tidak boleh padam akaun yang sedang digunakan.');
     return;
   }
-  if (!confirm('Padam staff "' + state.staff[i].nama + '"?')) return;
+  const staffDipadam = state.staff[i].nama;
+  if (!confirm('Padam staff "' + staffDipadam + '"?')) return;
   state.staff.splice(i, 1);
+  tambahLog('staff_padam', 'Padam staff: ' + staffDipadam);
   simpanData();
   render();
 }

@@ -45,6 +45,7 @@ async function simpanData() {
     localStorage.setItem('spekma_roundrobin', JSON.stringify(state.roundRobin));
     localStorage.setItem('spekma_streaming',  JSON.stringify(state.streaming));
     localStorage.setItem('spekma_bracket',    JSON.stringify(state.bracket));
+    localStorage.setItem('spekma_log',       JSON.stringify(state.logAktiviti || []));
   } catch (e) { console.warn('localStorage fail:', e); }
 
   /* 2. Firebase sync */
@@ -104,6 +105,7 @@ async function muatData() {
       if (data.staff)         state.staff         = data.staff;
       if (data.password)      state.password      = data.password;
       if (data.streaming)     state.streaming     = data.streaming;
+      if (data.logAktiviti)   state.logAktiviti   = data.logAktiviti;
 
       console.log('⚡ Data SPEKMA dikemaskini secara Real-time!');
       

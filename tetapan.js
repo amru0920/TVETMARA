@@ -23,6 +23,7 @@ function renderSubTabBar() {
     { id: 'format_sukan',    icon: '🗂️', label: 'Format Sukan' },
     { id: 'urus_kumpulan',   icon: '🔵', label: 'Urus Kumpulan' },
     { id: 'round_robin',     icon: '🔄', label: 'Round Robin' },
+    { id: 'log_aktiviti',    icon: '🗂️', label: 'Log Aktiviti' },
   ];
   return `
     <div class="subtab-bar">
@@ -59,6 +60,7 @@ function renderTetapan() {
   else if (state.subTab === 'format_sukan')    panel = renderFormatSukan();
   else if (state.subTab === 'urus_kumpulan')   panel = renderUrusKumpulan();
   else if (state.subTab === 'round_robin')     panel = renderUrusRoundRobinPage();
+  else if (state.subTab === 'log_aktiviti')    panel = renderLogAktiviti();
 
   return renderSubTabBar() + `<div class="set-panel">${panel}</div>`;
 }

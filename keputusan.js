@@ -285,6 +285,13 @@ function simpanKeputusan(acaraId) {
 
   state.keputusan[acaraId] = { 1: s1, 2: s2, 3: s3, score, score1, score2, score3 };
   state.editingAcara = null;
+  /* Cari nama acara untuk log */
+  const _sukanLog = state.sukan.find(s => s.acara.some(a => a.id === acaraId));
+  const _acaraLog = _sukanLog?.acara.find(a => a.id === acaraId);
+  const _butiranLog = (_acaraLog?.nama || acaraId) + ' → 🥇' + s1 +
+    (s2 ? ' 🥈' + s2 : '') + (s3 ? ' 🥉' + s3 : '') +
+    (score ? ' [' + score + ']' : '');
+  tambahLog('keputusan_simpan', _butiranLog);
   simpanData();
   render();
 }
@@ -294,6 +301,8 @@ function padamKeputusan(acaraId) {
   const sukan = state.sukan.find(s => s.acara.some(a => a.id === acaraId));
   const acara = sukan?.acara.find(a => a.id === acaraId);
   if (!confirm('Padam keputusan untuk "' + (acara?.nama || acaraId) + '"?')) return;
+  const _acaraPadam = state.sukan.flatMap(s => s.acara).find(a => a.id === acaraId);
+  tambahLog('keputusan_padam', 'Padam keputusan: ' + (_acaraPadam?.nama || acaraId));
   delete state.keputusan[acaraId];
   simpanData();
   render();

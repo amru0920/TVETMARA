@@ -114,4 +114,5 @@ var state = {
   bracketEdit:              null,
   bracketPresetSelesai:     false,
   _panelTambahCepat:        null,
+  logAktiviti:              [],
 };
