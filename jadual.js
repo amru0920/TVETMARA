@@ -31,7 +31,10 @@ const FORMAT_SUKAN_DEFAULT = {
   s6: 'individu',   // Renang
 };
 
-// formatSukan diisi oleh app.js selepas semua fail diload
+// Pastikan state.formatSukan ada data supaya fungsi filter tidak crash
+if (!state.formatSukan || Object.keys(state.formatSukan).length === 0) {
+  state.formatSukan = FORMAT_SUKAN_DEFAULT;
+}
 
 
 /* ----------------------------------------------------------------
@@ -987,10 +990,25 @@ function renderFormEditPerlawanan() {
         .map(n => `<option value="${n}" ${n===d.kategori?'selected':''}>${n||'-- Pilih Acara --'}</option>`).join('')
     : '';
 
-  const opsPasukan = (pilihan) =>
-    ['', ...state.pasukan].map(n =>
-      `<option value="${n}" ${n===pilihan?'selected':''}>${n||'-- Pilih Pasukan --'}</option>`
-    ).join('');
+  /* Helper: buat dropdown + input manual untuk pilih pasukan */
+  const renderPilihanPasukan = (idField, label, nilai) => {
+    const dariSenarai = state.pasukan.includes(nilai) || nilai === '';
+    const opsDropdown = ['', ...state.pasukan].map(n =>
+      `<option value="${n}" ${(dariSenarai && n===nilai)?'selected':''}>${n||'-- Pilih Pasukan --'}</option>`
+    ).join('') + `<option value="__manual__" ${!dariSenarai?'selected':''}>✏️ Taip Manual...</option>`;
+    return `
+      <select id="${idField}-sel" class="podium-select" style="padding:10px 12px;font-size:14px;margin-bottom:6px"
+        onchange="togolInputManual('${idField}', this.value)">
+        ${opsDropdown}
+      </select>
+      <input type="text" id="${idField}-manual" class="field-input"
+        style="padding:9px 12px;font-size:14px;display:${!dariSenarai?'block':'none'}"
+        placeholder="Taip nama ${label} di sini..."
+        value="${!dariSenarai ? nilai : ''}"
+        oninput="kemaskiniLabelScore()"/>
+      <input type="hidden" id="${idField}" value="${nilai}"/>
+    `;
+  };
 
   const formatKini = (state.formatSukan[d.sukanId] || state.formatSukan[tabAktif] || 'biasa');
   const adaKumpulan = formatKini === 'kumpulan';
@@ -1062,15 +1080,11 @@ function renderFormEditPerlawanan() {
       <div class="form-row">
         <div class="form-group">
           <label class="field-label">🏠 Tuan Rumah</label>
-          <select id="fp-rumah" class="podium-select" style="padding:10px 12px;font-size:14px">
-            ${opsPasukan(d.rumah)}
-          </select>
+          ${renderPilihanPasukan('fp-rumah', 'tuan rumah', d.rumah)}
         </div>
         <div class="form-group">
           <label class="field-label">✈️ Pasukan Tamu</label>
-          <select id="fp-tamu" class="podium-select" style="padding:10px 12px;font-size:14px">
-            ${opsPasukan(d.tamu)}
-          </select>
+          ${renderPilihanPasukan('fp-tamu', 'pasukan tamu', d.tamu)}
         </div>
       </div>
 
@@ -1114,10 +1128,10 @@ function renderFormEditPerlawanan() {
           <div class="score-edit-row">
             <div class="score-edit-pasukan" id="label-rumah">${d.rumah||'Tuan Rumah'}</div>
             <input type="number" id="fp-score-rumah" class="score-big-input"
-              min="0" value="${d.scoreRumah}" placeholder="0" oninput="previewScore()"/>
+              min="0" value="${d.scoreRumah}" placeholder="0" oninput="kemaskiniLabelScore();previewScore()"/>
             <div class="score-edit-dash">—</div>
             <input type="number" id="fp-score-tamu" class="score-big-input"
-              min="0" value="${d.scoreTamu}" placeholder="0" oninput="previewScore()"/>
+              min="0" value="${d.scoreTamu}" placeholder="0" oninput="kemaskiniLabelScore();previewScore()"/>
             <div class="score-edit-pasukan" id="label-tamu">${d.tamu||'Pasukan Tamu'}</div>
           </div>
           <div id="score-preview" class="score-preview-label">
@@ -1476,6 +1490,56 @@ function previewScore() {
 /* ================================================================
    SIMPAN / PADAM
    ================================================================ */
+/* ================================================================
+   HELPER — TOGGLE INPUT MANUAL & KEMASKINI LABEL SCORE
+   ================================================================ */
+
+/* Dipanggil bila dropdown tukar — tunjuk/sembunyi input manual */
+function togolInputManual(fieldId, nilai) {
+  const manual  = document.getElementById(fieldId + '-manual');
+  const hidden  = document.getElementById(fieldId);
+  if (!manual || !hidden) return;
+
+  if (nilai === '__manual__') {
+    /* Tunjuk input manual */
+    manual.style.display = 'block';
+    manual.focus();
+    hidden.value = manual.value || '';
+  } else {
+    /* Guna nilai dari dropdown */
+    manual.style.display = 'none';
+    manual.value = '';
+    hidden.value = nilai;
+  }
+  kemaskiniLabelScore();
+}
+
+/* Kemaskini nama pasukan dalam kotak score secara live */
+function kemaskiniLabelScore() {
+  const rumahHidden = document.getElementById('fp-rumah');
+  const tamuHidden  = document.getElementById('fp-tamu');
+  const manualRumah = document.getElementById('fp-rumah-manual');
+  const manualTamu  = document.getElementById('fp-tamu-manual');
+
+  /* Jika input manual terbuka, sync nilai ke hidden field */
+  if (manualRumah && manualRumah.style.display !== 'none') {
+    if (rumahHidden) rumahHidden.value = manualRumah.value;
+  }
+  if (manualTamu && manualTamu.style.display !== 'none') {
+    if (tamuHidden) tamuHidden.value = manualTamu.value;
+  }
+
+  /* Kemaskini label dalam kotak score */
+  const namaRumah = rumahHidden?.value || 'Tuan Rumah';
+  const namaTamu  = tamuHidden?.value  || 'Pasukan Tamu';
+  const lbRumah   = document.getElementById('label-rumah');
+  const lbTamu    = document.getElementById('label-tamu');
+  if (lbRumah) lbRumah.textContent = namaRumah;
+  if (lbTamu)  lbTamu.textContent  = namaTamu;
+
+  previewScore();
+}
+
 function simpanPerlawanan() {
   const errEl    = document.getElementById('fp-error');
   const id       = document.getElementById('fp-id')?.value?.trim();
@@ -1484,8 +1548,10 @@ function simpanPerlawanan() {
   const peringkat= document.getElementById('fp-peringkat')?.value;
   const kumpulan = document.getElementById('fp-kumpulan')?.value || null;
   const label    = document.getElementById('fp-label')?.value?.trim()||'';
-  const rumah    = document.getElementById('fp-rumah')?.value?.trim();
-  const tamu     = document.getElementById('fp-tamu')?.value?.trim();
+  /* Sync manual input ke hidden field sebelum baca nilai */
+  kemaskiniLabelScore();
+  const rumah    = (document.getElementById('fp-rumah')?.value || '').trim();
+  const tamu     = (document.getElementById('fp-tamu')?.value || '').trim();
   const tarikh   = document.getElementById('fp-tarikh')?.value?.trim();
   const masa     = document.getElementById('fp-masa')?.value?.trim();
   const gelang   = document.getElementById('fp-gelanggang')?.value?.trim();
