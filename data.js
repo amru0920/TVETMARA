@@ -78,6 +78,42 @@ const SUKAN_ASAL = [
 ];
 
 /* ================================================================
+   MASKOT SPARTA XIII MENGIKUT SUKAN
+   Padanan ikut nama sukan (huruf kecil, tanpa ruang/tanda).
+   Kalau nama sukan tak match, kad guna emoji ikon sahaja (fallback).
+   ================================================================ */
+const MASKOT_SUKAN = {
+  olahraga:        "assets/maskot/maskot-umum.png",
+  larian:          "assets/maskot/maskot-umum.png",
+  badminton:       "assets/maskot/maskot-badminton.png",
+  bolasepak:       "assets/maskot/maskot-bola-sepak.png",
+  futsal:          "assets/maskot/maskot-futsal.png",
+  bolatampar:      "assets/maskot/maskot-bola-tampar.png",
+  bolajaring:      "assets/maskot/maskot-bola-jaring.png",
+  netball:         "assets/maskot/maskot-bola-jaring.png",
+  bolabaling:      "assets/maskot/maskot-bola-baling.png",
+  handball:        "assets/maskot/maskot-bola-baling.png",
+  catur:           "assets/maskot/maskot-catur.png",
+  chess:           "assets/maskot/maskot-catur.png",
+  sepaktakraw:     "assets/maskot/maskot-sepak-takraw.png",
+  takraw:          "assets/maskot/maskot-sepak-takraw.png",
+  petanque:        "assets/maskot/maskot-petanque.png",
+  boling:          "assets/maskot/maskot-petanque.png",
+  pingpong:        "assets/maskot/maskot-ping-pong.png",
+  tenismeja:       "assets/maskot/maskot-ping-pong.png",
+  dart:            "assets/maskot/maskot-dart.png",
+  panahdarts:      "assets/maskot/maskot-dart.png",
+  esukan:          "assets/maskot/maskot-esukan.png",
+  esports:         "assets/maskot/maskot-esukan.png",
+};
+
+function maskotSukan(nama) {
+  if (!nama) return null;
+  const key = nama.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return MASKOT_SUKAN[key] || null;
+}
+
+/* ================================================================
    STATE GLOBAL — mesti di sini (data.js diload pertama)
    Nilai kosong/asas sahaja — app.js akan isi nilai betul kemudian
    ================================================================ */

@@ -259,6 +259,21 @@ function panelPasukan() {
    ================================================================ */
 function panelSukanAcara() {
   const EMOJI_PILIHAN = ['🏃','🏸','⚽','🥅','🏐','🏊','🏋️','🎯','🤸','🎾','🏓','🥊','🏹','🚴','🤼','🏇','🎳','🏒','🤺','🏄'];
+  const MASKOT_PILIHAN = [
+    { file: 'assets/maskot/maskot-bola-sepak.png',   label: 'Bola Sepak',    emoji: '⚽' },
+    { file: 'assets/maskot/maskot-futsal.png',       label: 'Futsal',        emoji: '🥅' },
+    { file: 'assets/maskot/maskot-badminton.png',    label: 'Badminton',     emoji: '🏸' },
+    { file: 'assets/maskot/maskot-bola-tampar.png',  label: 'Bola Tampar',   emoji: '🏐' },
+    { file: 'assets/maskot/maskot-bola-jaring.png',  label: 'Bola Jaring',   emoji: '🏀' },
+    { file: 'assets/maskot/maskot-bola-baling.png',  label: 'Bola Baling',   emoji: '🤾' },
+    { file: 'assets/maskot/maskot-sepak-takraw.png', label: 'Sepak Takraw',  emoji: '🪀' },
+    { file: 'assets/maskot/maskot-ping-pong.png',    label: 'Ping Pong',     emoji: '🏓' },
+    { file: 'assets/maskot/maskot-catur.png',        label: 'Catur',         emoji: '♟️' },
+    { file: 'assets/maskot/maskot-petanque.png',     label: 'Petanque',      emoji: '🎳' },
+    { file: 'assets/maskot/maskot-dart.png',         label: 'Dart',          emoji: '🎯' },
+    { file: 'assets/maskot/maskot-esukan.png',       label: 'E-Sukan',       emoji: '🎮' },
+    { file: 'assets/maskot/maskot-umum.png',         label: 'Olahraga',      emoji: '🏃' },
+  ];
 
   return `
     <div class="set-panel-title">🏅 Sukan &amp; Acara</div>
@@ -289,7 +304,18 @@ function panelSukanAcara() {
       </div>
 
       <div style="margin-bottom:12px">
-        <div class="field-label" style="margin-bottom:8px">Pilih Ikon</div>
+        <div class="field-label" style="margin-bottom:8px">Pilih Maskot SPARTA XIII</div>
+        <div class="maskot-picker">
+          ${MASKOT_PILIHAN.map(m => `
+            <button type="button" class="maskot-picker-btn" title="${m.label}"
+              onclick="pilihMaskotIkon('${m.emoji}','${m.label}',this)">
+              <img src="${m.file}" alt="${m.label}"/>
+              <span>${m.label}</span>
+            </button>
+          `).join('')}
+        </div>
+
+        <div class="field-label" style="margin:14px 0 8px">Atau Pilih Emoji Lain</div>
         <div class="emoji-picker" id="emoji-picker">
           ${EMOJI_PILIHAN.map(e => `
             <button class="emoji-btn" onclick="pilihEmoji('${e}',this)">${e}</button>
@@ -368,7 +394,22 @@ function pilihEmoji(emoji, btn) {
   document.getElementById('sukan-baru-icon').value = emoji;
   document.getElementById('ikon-terpilih').textContent = emoji;
   document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('aktif'));
+  document.querySelectorAll('.maskot-picker-btn').forEach(b => b.classList.remove('aktif'));
   btn.classList.add('aktif');
+}
+
+/* Pilih maskot SPARTA XIII sebagai ikon sukan (guna emoji sepadan di sebalik tabir,
+   supaya paparan lain yang cetak ikon sebagai teks — pilihan dropdown, tajuk panel —
+   tetap betul. Kad besar akan papar gambar maskot sebenar ikut nama sukan.) */
+function pilihMaskotIkon(emoji, label, btn) {
+  document.getElementById('sukan-baru-icon').value = emoji;
+  document.getElementById('ikon-terpilih').textContent = emoji;
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('aktif'));
+  document.querySelectorAll('.maskot-picker-btn').forEach(b => b.classList.remove('aktif'));
+  btn.classList.add('aktif');
+
+  const namaEl = document.getElementById('sukan-baru-nama');
+  if (namaEl && !namaEl.value.trim()) namaEl.value = label;
 }
 
 /* Tambah sukan baru sepenuhnya */

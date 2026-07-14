@@ -385,7 +385,7 @@ function janaCetakHTML(sukan, semua, format, peserta = [], termasukJadual = true
 <html lang="ms">
 <head>
   <meta charset="UTF-8"/>
-  <title>Jadual Perlawanan — ${sukan?.nama || 'SPEKMA'}</title>
+  <title>Jadual Perlawanan — ${sukan?.nama || 'SPARTA XIII'}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -612,14 +612,14 @@ function janaCetakHTML(sukan, semua, format, peserta = [], termasukJadual = true
   <!-- Header -->
   <div class="header">
     <div class="header-kiri">
-      <div class="tajuk-utama">SPEKMA 2025</div>
-      <div class="tajuk-sub">Sukan Pelajar TVET MARA</div>
+      <div class="tajuk-utama">SPARTA XIII</div>
+      <div class="tajuk-sub">Sukan Pelajar TVETMARA 2026 &middot; Lumut, Perak</div>
       <div class="tajuk-sukan">
         📋 Jadual Perlawanan — ${sukan?.icon || '🏅'} ${sukan?.nama || 'Semua Sukan'}
       </div>
     </div>
     <div class="header-kanan">
-      <div class="logo-cetak">SPKM</div>
+      <div class="logo-cetak">XIII</div>
       <div>Dicetak: ${tarikhCetak}</div>
     </div>
   </div>
@@ -653,7 +653,7 @@ function janaCetakHTML(sukan, semua, format, peserta = [], termasukJadual = true
 
   <!-- Footer -->
   <div class="footer">
-    <span>SPEKMA 2025 — Sistem Pengurusan Sukan Pelajar TVET MARA</span>
+    <span>SPARTA XIII — Sukan Pelajar TVETMARA 2026, Lumut Perak</span>
     <span>Dicetak: ${tarikhCetak}</span>
   </div>
 

@@ -31,7 +31,7 @@ function renderStreaming() {
       <div class="stream-hero-dot"></div>
       <div class="stream-hero-title">📺 Live Streaming</div>
       <div class="stream-hero-sub">
-        Tonton siaran langsung perlawanan SPEKMA 2025
+        Tonton siaran langsung perlawanan SPARTA XIII
       </div>
     </div>
 
@@ -89,7 +89,7 @@ function renderUrusStreaming() {
         <div>
           <div class="field-label">Nama Saluran / Platform</div>
           <input type="text" id="stream-nama" class="field-input"
-            placeholder="Contoh: YouTube SPEKMA 2025"
+            placeholder="Contoh: YouTube SPARTA XIII"
             style="padding:9px 12px;font-size:14px"/>
         </div>
         <div>

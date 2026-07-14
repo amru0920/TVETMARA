@@ -336,12 +336,15 @@ function renderJadual() {
     /* "Siap" hanya bila semua perlawanan selesai TERMASUK bracket */
     const siap = total > 0 && selesai === total;
 
+    const maskot = maskotSukan(s.nama);
     return `
-      <div class="jadual-sukan-kad" onclick="pilihJadualSukan('${s.id}')">
+      <div class="jadual-sukan-kad${maskot ? ' ada-maskot' : ''}" onclick="pilihJadualSukan('${s.id}')">
         ${berlangsung > 0 ? '<span class="done-badge" style="background:var(--red)">🔴 LIVE</span>' : ''}
         ${siap ? '<span class="done-badge">✓ Siap</span>' : ''}
 
-        <div class="jadual-sukan-icon">${s.icon || '🏅'}</div>
+        ${maskot
+          ? `<img class="jadual-sukan-icon-maskot" src="${maskot}" alt="${s.nama}"/>`
+          : `<div class="jadual-sukan-icon">${s.icon || '🏅'}</div>`}
         <div class="jadual-sukan-nama">${s.nama}</div>
         <div class="jadual-sukan-format">${formatLabel}</div>
 
@@ -417,7 +420,7 @@ function renderJadualSukan() {
         ⚡ Tambah Perlawanan
       </button>
       ${state.jadual.some(m => m.sukanId === sukanId && m.peringkat === 'kumpulan') ? `
-        <button class="cetak-btn" style="color:#ff8a80;border-color:rgba(231,76,60,0.4)"
+        <button class="cetak-btn" style="color:#ff8a80;border-color:rgba(227,30,36,0.4)"
           onclick="padamSemuaJadualDariJadualTab('${sukanId}')">
           🗑 Reset Jadual Kumpulan
         </button>

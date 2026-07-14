@@ -12,10 +12,13 @@ function renderKeputusan() {
   const kards = state.sukan.map(s => {
     const done = countDone(s);
     const siap = done === s.acara.length && s.acara.length > 0;
+    const maskot = maskotSukan(s.nama);
     return `
-      <div class="sukan-card" onclick="pilihSukan('${s.id}')">
+      <div class="sukan-card${maskot ? ' ada-maskot' : ''}" onclick="pilihSukan('${s.id}')">
         ${siap ? '<span class="done-badge">✓ Siap</span>' : ''}
-        <div class="sukan-icon">${s.icon || '🏅'}</div>
+        ${maskot
+          ? `<img class="sukan-icon-maskot" src="${maskot}" alt="${s.nama}"/>`
+          : `<div class="sukan-icon">${s.icon || '🏅'}</div>`}
         <div class="sukan-name">${s.nama}</div>
         <div class="sukan-count">${done} / ${s.acara.length} acara selesai</div>
       </div>
