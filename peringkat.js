@@ -270,6 +270,84 @@ function renderBracketPaparan(sukanId) {
 
 
 /* ================================================================
+   PILIH / TUKAR NAMA PASUKAN DALAM FORM EDIT
+   Dipakai oleh form edit bracket (peringkat.js) & form set badminton
+   (badminton.js). Berguna bila slot masih placeholder seperti
+   "JUARA A" / "NAIB JUARA H" dan staff nak isi nama sebenar.
+   ================================================================ */
+
+/* Render dropdown pasukan + pilihan taip manual.
+   Nilai sebenar sentiasa disimpan dalam <input hidden id="${idPrefix}"> */
+function renderPilihPasukanEdit(idPrefix, nilai) {
+  const senarai     = state.pasukan || [];
+  const nilaiKini   = nilai || '';
+  const dariSenarai = nilaiKini === '' || senarai.includes(nilaiKini);
+
+  const ops = ['', ...senarai].map(n =>
+    `<option value="${n}" ${(dariSenarai && n === nilaiKini) ? 'selected' : ''}>${n || '-- Pilih Pasukan --'}</option>`
+  ).join('') +
+  `<option value="__manual__" ${!dariSenarai ? 'selected' : ''}>✏️ Taip Manual…</option>`;
+
+  return `
+    <select id="${idPrefix}-sel" class="podium-select"
+      style="padding:8px 10px;font-size:13px;width:100%"
+      onchange="togolPasukanEdit('${idPrefix}', this.value)">
+      ${ops}
+    </select>
+    <input type="text" id="${idPrefix}-manual" class="field-input"
+      style="padding:8px 10px;font-size:13px;width:100%;margin-top:6px;display:${!dariSenarai ? 'block' : 'none'}"
+      placeholder="Taip nama pasukan…"
+      value="${!dariSenarai ? nilaiKini : ''}"
+      oninput="syncPasukanEdit('${idPrefix}')"/>
+    <input type="hidden" id="${idPrefix}" value="${nilaiKini}"/>
+  `;
+}
+
+/* Tukar antara dropdown & input manual */
+function togolPasukanEdit(idPrefix, nilai) {
+  const manual = document.getElementById(idPrefix + '-manual');
+  const hidden = document.getElementById(idPrefix);
+  if (!manual || !hidden) return;
+
+  if (nilai === '__manual__') {
+    manual.style.display = 'block';
+    hidden.value = manual.value.trim();
+    manual.focus();
+  } else {
+    manual.style.display = 'none';
+    manual.value = '';
+    hidden.value = nilai;
+  }
+  lukisNamaPasukanEdit(idPrefix);
+}
+
+/* Sync input manual → hidden field, dan kemaskini label di skrin */
+function syncPasukanEdit(idPrefix) {
+  const manual = document.getElementById(idPrefix + '-manual');
+  const hidden = document.getElementById(idPrefix);
+  if (manual && hidden && manual.style.display !== 'none') {
+    hidden.value = manual.value.trim();
+  }
+  lukisNamaPasukanEdit(idPrefix);
+}
+
+/* Kemaskini semua paparan nama (header, kotak score, baris set) secara live */
+function lukisNamaPasukanEdit(idPrefix) {
+  const hidden = document.getElementById(idPrefix);
+  if (!hidden) return;
+  const nama = hidden.value.trim() || '?';
+  document.querySelectorAll(`[data-nama-for="${idPrefix}"]`)
+    .forEach(el => { el.textContent = nama; });
+}
+
+/* Baca nilai akhir (sync dulu, kalau-kalau user taip tanpa blur) */
+function bacaPasukanEdit(idPrefix) {
+  syncPasukanEdit(idPrefix);
+  return (document.getElementById(idPrefix)?.value || '').trim();
+}
+
+
+/* ================================================================
    KAD BRACKET (satu perlawanan dalam bracket)
    ================================================================ */
 function renderKadBracket(sukanId, m, mi, fasa) {
@@ -298,9 +376,23 @@ function renderKadBracket(sukanId, m, mi, fasa) {
       <div class="kad-perlawanan edit-mode" style="margin-bottom:8px">
         <div class="acara-header" style="margin-bottom:14px">
           <div style="font-weight:700;font-size:16px">
-            ${m.rumah||'?'} <span style="color:var(--muted);font-weight:400">vs</span> ${m.tamu||'?'}
+            <span data-nama-for="bk-rumah-${fasa}-${mi}">${m.rumah||'?'}</span>
+            <span style="color:var(--muted);font-weight:400">vs</span>
+            <span data-nama-for="bk-tamu-${fasa}-${mi}">${m.tamu||'?'}</span>
           </div>
           <div class="acara-status edit">✏️ Kemaskini Score</div>
+        </div>
+
+        <!-- Pasukan (boleh tukar bila slot masih placeholder) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div>
+            <div class="field-label">🏠 Tuan Rumah</div>
+            ${renderPilihPasukanEdit('bk-rumah-' + fasa + '-' + mi, m.rumah)}
+          </div>
+          <div>
+            <div class="field-label">✈️ Pasukan Tamu</div>
+            ${renderPilihPasukanEdit('bk-tamu-' + fasa + '-' + mi, m.tamu)}
+          </div>
         </div>
 
         <!-- Tarikh, Masa, Gelanggang -->
@@ -340,13 +432,13 @@ function renderKadBracket(sukanId, m, mi, fasa) {
           <div class="score-edit-box">
             <div class="score-edit-label">⚽ Masukkan Score Akhir</div>
             <div class="score-edit-row">
-              <div class="score-edit-pasukan">${m.rumah||'?'}</div>
+              <div class="score-edit-pasukan" data-nama-for="bk-rumah-${fasa}-${mi}">${m.rumah||'?'}</div>
               <input type="number" id="bk-sr-${fasa}-${mi}" class="score-big-input"
                 min="0" value="${r}" placeholder="0"/>
               <div class="score-edit-dash">—</div>
               <input type="number" id="bk-st-${fasa}-${mi}" class="score-big-input"
                 min="0" value="${t}" placeholder="0"/>
-              <div class="score-edit-pasukan">${m.tamu||'?'}</div>
+              <div class="score-edit-pasukan" data-nama-for="bk-tamu-${fasa}-${mi}">${m.tamu||'?'}</div>
             </div>
           </div>
         </div>
@@ -391,11 +483,9 @@ function renderKadBracket(sukanId, m, mi, fasa) {
             ✓ Tamat + Score
           </button>
         ` : ''}
-        ${!tba ? `
-          <button class="aksi-btn" onclick="mulaEditBracket('${sukanId}','${fasa}',${mi})">
-            ✏️ Edit
-          </button>
-        ` : ''}
+        <button class="aksi-btn" onclick="mulaEditBracket('${sukanId}','${fasa}',${mi})">
+          ✏️ Edit
+        </button>
         <button class="aksi-btn hapus" title="Padam perlawanan ini"
           onclick="padamSatuBracket('${sukanId}','${fasa}',${mi})">🗑</button>
       </div>
@@ -656,6 +746,17 @@ function simpanBracketPerlawanan(sukanId, fasa, mi) {
   if (!bracket?.[fasa]?.[mi]) return;
 
   const m = bracket[fasa][mi];
+
+  /* Nama pasukan — boleh ditukar bila slot masih placeholder (cth "JUARA A") */
+  const namaRumah = bacaPasukanEdit('bk-rumah-' + fasa + '-' + mi);
+  const namaTamu  = bacaPasukanEdit('bk-tamu-'  + fasa + '-' + mi);
+  if (namaRumah && namaTamu && namaRumah === namaTamu) {
+    alert('Tuan rumah dan pasukan tamu tidak boleh sama.');
+    return;
+  }
+  m.rumah = namaRumah;
+  m.tamu  = namaTamu;
+
   m.tarikh     = document.getElementById('bk-tarikh-'  + fasa + '-' + mi)?.value || '';
   m.masa       = document.getElementById('bk-masa-'    + fasa + '-' + mi)?.value || '';
   m.gelanggang = document.getElementById('bk-gel-'     + fasa + '-' + mi)?.value?.trim() || '';

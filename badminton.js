@@ -89,9 +89,23 @@ function renderFormSetBadminton(sukanId, perlId, isBracket, fasa, mi) {
     <div class="kad-perlawanan edit-mode" style="margin-bottom:8px">
       <div class="acara-header" style="margin-bottom:14px">
         <div style="font-weight:700;font-size:15px">
-          ${p.rumah||'?'} <span style="color:var(--muted);font-weight:400">vs</span> ${p.tamu||'?'}
+          <span data-nama-for="${formId}-rumah">${p.rumah||'?'}</span>
+          <span style="color:var(--muted);font-weight:400">vs</span>
+          <span data-nama-for="${formId}-tamu">${p.tamu||'?'}</span>
         </div>
         <div class="acara-status edit">🏸 Score Set</div>
+      </div>
+
+      <!-- Pasukan (boleh tukar bila slot masih placeholder) -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div>
+          <div class="field-label">🏠 Tuan Rumah</div>
+          ${renderPilihPasukanEdit(formId + '-rumah', p.rumah)}
+        </div>
+        <div>
+          <div class="field-label">✈️ Pasukan Tamu</div>
+          ${renderPilihPasukanEdit(formId + '-tamu', p.tamu)}
+        </div>
       </div>
 
       <!-- Tarikh, Masa, Gelanggang -->
@@ -146,7 +160,7 @@ function renderFormSetBadminton(sukanId, perlId, isBracket, fasa, mi) {
             style="${si===2?'opacity:0.5':''}">
             <div class="bdk-set-label">Set ${si+1}</div>
             <div style="display:flex;align-items:center;gap:10px;flex:1">
-              <div class="bdk-pasukan-nama">${p.rumah||'?'}</div>
+              <div class="bdk-pasukan-nama" data-nama-for="${formId}-rumah">${p.rumah||'?'}</div>
               <input type="number" id="${formId}-s${si}-r" class="bdk-score-inp"
                 min="0" max="30" value="${setsAda[si]?.r||0}"
                 oninput="updateBadmintonPreview('${formId}')"/>
@@ -154,7 +168,7 @@ function renderFormSetBadminton(sukanId, perlId, isBracket, fasa, mi) {
               <input type="number" id="${formId}-s${si}-t" class="bdk-score-inp"
                 min="0" max="30" value="${setsAda[si]?.t||0}"
                 oninput="updateBadmintonPreview('${formId}')"/>
-              <div class="bdk-pasukan-nama" style="text-align:right">${p.tamu||'?'}</div>
+              <div class="bdk-pasukan-nama" style="text-align:right" data-nama-for="${formId}-tamu">${p.tamu||'?'}</div>
             </div>
           </div>
         `).join('')}
@@ -240,6 +254,16 @@ function simpanBadmintonScore(sukanId, perlId, isBracket, fasa, mi, formId) {
     p = state.jadual.find(m => m.id === perlId);
   }
   if (!p) return;
+
+  /* Nama pasukan — boleh ditukar bila slot masih placeholder (cth "JUARA A") */
+  const namaRumah = bacaPasukanEdit(formId + '-rumah');
+  const namaTamu  = bacaPasukanEdit(formId + '-tamu');
+  if (namaRumah && namaTamu && namaRumah === namaTamu) {
+    alert('Tuan rumah dan pasukan tamu tidak boleh sama.');
+    return;
+  }
+  p.rumah = namaRumah;
+  p.tamu  = namaTamu;
 
   p.tarikh     = tarikh;
   p.masa       = masa;
@@ -329,14 +353,12 @@ function renderKadBadminton(p, isStaff, isBracket, fasa, mi) {
               ✓ Tamat + Score
             </button>
           ` : ''}
-          ${p.rumah && p.tamu ? `
-            <button class="aksi-btn"
-              onclick="${isBracket
-                ? `mulaEditBracket('${sukanId}','${fasa}',${mi})`
-                : `bukaEditBadminton('${perlId}',false)`}">
-              ✏️ Edit
-            </button>
-          ` : ''}
+          <button class="aksi-btn"
+            onclick="${isBracket
+              ? `mulaEditBracket('${sukanId}','${fasa}',${mi})`
+              : `bukaEditBadminton('${perlId}',false)`}">
+            ✏️ Edit
+          </button>
           ${isBracket ? `
             <button class="aksi-btn hapus" onclick="padamSatuBracket('${sukanId}','${fasa}',${mi})">🗑</button>
           ` : ''}
