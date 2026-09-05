@@ -107,10 +107,62 @@ const MASKOT_SUKAN = {
   esports:         "assets/maskot/maskot-esukan.png",
 };
 
+/* Kata kunci separa — untuk nama sukan yang ada tambahan di belakang,
+   contoh "E-Sport PUBG", "Bola Sepak Lelaki", "Badminton Beregu".
+   Susunan penting: yang lebih spesifik mesti didahulukan. */
+const MASKOT_KUNCI = [
+  ["sepaktakraw",  "assets/maskot/maskot-sepak-takraw.png"],
+  ["takraw",       "assets/maskot/maskot-sepak-takraw.png"],
+  ["bolasepak",    "assets/maskot/maskot-bola-sepak.png"],
+  ["bolatampar",   "assets/maskot/maskot-bola-tampar.png"],
+  ["bolajaring",   "assets/maskot/maskot-bola-jaring.png"],
+  ["netball",      "assets/maskot/maskot-bola-jaring.png"],
+  ["bolabaling",   "assets/maskot/maskot-bola-baling.png"],
+  ["handball",     "assets/maskot/maskot-bola-baling.png"],
+  ["futsal",       "assets/maskot/maskot-futsal.png"],
+  ["badminton",    "assets/maskot/maskot-badminton.png"],
+  ["pingpong",     "assets/maskot/maskot-ping-pong.png"],
+  ["tenismeja",    "assets/maskot/maskot-ping-pong.png"],
+  ["tabletennis",  "assets/maskot/maskot-ping-pong.png"],
+  ["catur",        "assets/maskot/maskot-catur.png"],
+  ["chess",        "assets/maskot/maskot-catur.png"],
+  ["petanque",     "assets/maskot/maskot-petanque.png"],
+  ["boling",       "assets/maskot/maskot-petanque.png"],
+  ["bowling",      "assets/maskot/maskot-petanque.png"],
+  ["dart",         "assets/maskot/maskot-dart.png"],
+  ["panah",        "assets/maskot/maskot-dart.png"],
+  /* e-Sukan — termasuk nama permainan */
+  ["esukan",       "assets/maskot/maskot-esukan.png"],
+  ["esport",       "assets/maskot/maskot-esukan.png"],
+  ["egame",        "assets/maskot/maskot-esukan.png"],
+  ["pubg",         "assets/maskot/maskot-esukan.png"],
+  ["mobilelegend", "assets/maskot/maskot-esukan.png"],
+  ["mlbb",         "assets/maskot/maskot-esukan.png"],
+  ["dota",         "assets/maskot/maskot-esukan.png"],
+  ["valorant",     "assets/maskot/maskot-esukan.png"],
+  ["freefire",     "assets/maskot/maskot-esukan.png"],
+  ["fifa",         "assets/maskot/maskot-esukan.png"],
+  /* Umum */
+  ["olahraga",     "assets/maskot/maskot-umum.png"],
+  ["larian",       "assets/maskot/maskot-umum.png"],
+  ["balapan",      "assets/maskot/maskot-umum.png"],
+  ["padang",       "assets/maskot/maskot-umum.png"],
+];
+
 function maskotSukan(nama) {
   if (!nama) return null;
   const key = nama.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return MASKOT_SUKAN[key] || null;
+  if (!key) return null;
+
+  /* 1. Padanan tepat */
+  if (MASKOT_SUKAN[key]) return MASKOT_SUKAN[key];
+
+  /* 2. Padanan kata kunci — nama ada tambahan, cth "E-Sport PUBG" */
+  for (const [kunci, fail] of MASKOT_KUNCI) {
+    if (key.includes(kunci)) return fail;
+  }
+
+  return null;
 }
 
 /* ================================================================
