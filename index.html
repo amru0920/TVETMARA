@@ -21,6 +21,15 @@
   <meta name="twitter:image" content="https://spekma-live-score.vercel.app/assets/og-image.png"/>
 
   <link rel="icon" type="image/png" href="assets/logo-sparta-xiii.png"/>
+
+  <!-- PWA — pasang ke skrin utama telefon -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#0F1F52"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="SPARTA XIII"/>
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
@@ -91,6 +100,25 @@
 
 
   <!-- =============================================
+       KAD PASANG APLIKASI (PWA)
+       Dipapar hanya di pelayar; hilang bila sudah dipasang.
+  ============================================= -->
+  <div class="pwa-kad-wrap" id="pwa-kad" style="display:none">
+    <div class="pwa-kad">
+      <img class="pwa-kad-ikon" src="assets/icon-192.png" alt="Ikon SPARTA XIII"/>
+      <div class="pwa-kad-teks">
+        <div class="pwa-kad-tajuk">Pasang SPARTA XIII</div>
+        <div class="pwa-kad-sub">
+          Letak di skrin utama telefon &mdash; buka terus tanpa perlu cari pautan
+        </div>
+      </div>
+      <button class="pwa-kad-btn" onclick="pwaPasang()">⬇ Pasang</button>
+      <button class="pwa-kad-x" onclick="pwaTutupKad()" title="Tutup">×</button>
+    </div>
+  </div>
+
+
+  <!-- =============================================
        KANDUNGAN UTAMA
   ============================================= -->
   <main class="main-content" id="main-content"></main>
@@ -128,6 +156,79 @@
 
 
   <!-- =============================================
+       MODAL ARAHAN PASANG (Android / iPhone)
+  ============================================= -->
+  <div class="pwa-modal" id="pwa-modal" style="display:none" onclick="pwaTutupArahan(event)">
+    <div class="pwa-modal-box">
+      <div class="pwa-modal-grip"></div>
+      <div class="pwa-modal-tajuk">📲 Pasang SPARTA XIII</div>
+      <div class="pwa-modal-sub">
+        Letak di skrin utama &mdash; guna macam aplikasi biasa,<br/>
+        skor tetap dikemas kini secara masa nyata.
+      </div>
+
+      <div class="pwa-tabs">
+        <button class="pwa-tab aktif" data-pwa-tab="android" onclick="pwaTukarTab('android')">
+          🤖 Android
+        </button>
+        <button class="pwa-tab" data-pwa-tab="ios" onclick="pwaTukarTab('ios')">
+          🍎 iPhone / iPad
+        </button>
+      </div>
+
+      <!-- Langkah Android -->
+      <div class="pwa-langkah" data-pwa-panel="android">
+        <div class="pwa-baris">
+          <div class="pwa-no">1</div>
+          <div class="pwa-baris-teks">Buka halaman ini dalam <b>Google Chrome</b></div>
+        </div>
+        <div class="pwa-baris">
+          <div class="pwa-no">2</div>
+          <div class="pwa-baris-teks">Tekan ikon <b>⋮ Menu</b> (tiga titik) di penjuru kanan atas</div>
+        </div>
+        <div class="pwa-baris">
+          <div class="pwa-no">3</div>
+          <div class="pwa-baris-teks">Pilih <b>"Tambah ke skrin utama"</b> atau <b>"Add to Home screen"</b></div>
+        </div>
+        <div class="pwa-baris">
+          <div class="pwa-no">4</div>
+          <div class="pwa-baris-teks">Tekan <b>"Pasang"</b> — ikon SPARTA XIII akan muncul di skrin utama!</div>
+        </div>
+      </div>
+
+      <!-- Langkah iOS -->
+      <div class="pwa-langkah" data-pwa-panel="ios" style="display:none">
+        <div class="pwa-baris">
+          <div class="pwa-no">1</div>
+          <div class="pwa-baris-teks">Buka halaman ini dalam <b>Safari</b> (bukan Chrome/Firefox)</div>
+        </div>
+        <div class="pwa-baris">
+          <div class="pwa-no">2</div>
+          <div class="pwa-baris-teks">Tekan ikon <b>Kongsi</b> ⬆ di bar menu bawah Safari</div>
+        </div>
+        <div class="pwa-baris">
+          <div class="pwa-no">3</div>
+          <div class="pwa-baris-teks">Skrol ke bawah dan pilih <b>"Add to Home Screen"</b></div>
+        </div>
+        <div class="pwa-baris">
+          <div class="pwa-no">4</div>
+          <div class="pwa-baris-teks">Tekan <b>"Add"</b> — ikon SPARTA XIII akan muncul di skrin utama!</div>
+        </div>
+      </div>
+
+      <button class="pwa-modal-tutup" onclick="pwaTutupArahan()">Tutup</button>
+    </div>
+  </div>
+
+
+  <!-- Toast: ada versi baharu -->
+  <div class="pwa-toast" id="pwa-toast" style="display:none">
+    <span>✨ Versi baharu SPARTA XIII tersedia</span>
+    <button class="pwa-toast-btn" id="pwa-toast-btn">Muat Semula</button>
+  </div>
+
+
+  <!-- =============================================
        URUTAN IMPORT JAVASCRIPT
        PENTING: jangan ubah susunan ini
   ============================================= -->
@@ -149,6 +250,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase.js"></script>
   <script src="init.js"></script>
+  <script src="pwa.js"></script>
 
 </body>
 </html>

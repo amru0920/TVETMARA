@@ -2375,3 +2375,233 @@ input[type="time"] { color-scheme: light; }
   border-color: var(--gold);
   outline: none;
 }
+
+/* ================================================================
+   PWA — KAD PASANG APLIKASI, MODAL ARAHAN & TOAST KEMAS KINI
+   ================================================================ */
+.pwa-kad-wrap {
+  max-width: 1100px;
+  margin: 18px auto 0;
+  padding: 0 20px;
+}
+.pwa-kad {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(115deg, var(--navy-deep) 0%, var(--navy-deep2) 100%);
+  border: 1px solid rgba(245,166,35,0.35);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 20px rgba(15,31,82,0.18);
+}
+.pwa-kad-ikon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #fff;
+  padding: 3px;
+  object-fit: contain;
+}
+.pwa-kad-teks { flex: 1; min-width: 0; }
+.pwa-kad-tajuk {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 0.5px;
+  color: #fff;
+  line-height: 1.15;
+}
+.pwa-kad-sub {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.72);
+  margin-top: 2px;
+  line-height: 1.35;
+}
+.pwa-kad-btn {
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--gold2) 100%);
+  color: var(--dark);
+  border: none;
+  border-radius: 9px;
+  padding: 10px 20px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+.pwa-kad-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.pwa-kad-x {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.8);
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+.pwa-kad-x:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+@media (max-width: 560px) {
+  .pwa-kad-wrap { padding: 0 12px; margin-top: 12px; }
+  .pwa-kad { flex-wrap: wrap; gap: 10px; padding: 12px 13px; }
+  .pwa-kad-teks { flex: 1 1 auto; }
+  .pwa-kad-btn { flex: 1 1 100%; order: 3; padding: 11px 16px; }
+}
+
+/* ── Modal arahan pemasangan ── */
+.pwa-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,22,40,0.62);
+  backdrop-filter: blur(3px);
+  z-index: 900;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+.pwa-modal-box {
+  background: var(--card);
+  width: 100%;
+  max-width: 460px;
+  border-radius: 20px 20px 0 0;
+  padding: 10px 20px 22px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 34px rgba(10,22,40,0.35);
+}
+.pwa-modal-grip {
+  width: 42px;
+  height: 4px;
+  border-radius: 3px;
+  background: var(--border);
+  margin: 0 auto 16px;
+}
+.pwa-modal-tajuk {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 21px;
+  letter-spacing: 0.5px;
+  color: var(--navy-deep);
+  text-align: center;
+}
+.pwa-modal-sub {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  margin: 6px 0 16px;
+  line-height: 1.45;
+}
+.pwa-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.pwa-tab {
+  padding: 12px 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.pwa-tab:hover { border-color: var(--navy-deep2); }
+.pwa-tab.aktif {
+  background: var(--navy-deep);
+  border-color: var(--navy-deep);
+  color: #fff;
+}
+.pwa-baris {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--card2);
+  border-radius: 11px;
+  padding: 13px 14px;
+  margin-bottom: 9px;
+}
+.pwa-no {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--navy-deep);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pwa-baris-teks {
+  font-size: 13.5px;
+  color: var(--text);
+  line-height: 1.5;
+  padding-top: 3px;
+}
+.pwa-baris-teks b { color: var(--gold2); }
+.pwa-modal-tutup {
+  width: 100%;
+  margin-top: 12px;
+  padding: 13px;
+  border: none;
+  border-radius: 11px;
+  background: var(--card2);
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+.pwa-modal-tutup:hover { background: var(--navy3); color: var(--text); }
+
+/* ── Toast versi baharu ── */
+.pwa-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--navy-deep);
+  color: #fff;
+  border: 1px solid rgba(245,166,35,0.4);
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  box-shadow: 0 8px 26px rgba(10,22,40,0.4);
+  max-width: calc(100vw - 32px);
+}
+.pwa-toast-btn {
+  background: var(--gold);
+  color: var(--dark);
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Bila dibuka sebagai app terpasang — sembunyi apa-apa ajakan pasang */
+@media (display-mode: standalone) {
+  .pwa-kad-wrap { display: none !important; }
+}

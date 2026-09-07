@@ -1,0 +1,61 @@
+{
+  "name": "SPARTA XIII — Sukan Pelajar TVETMARA 2026",
+  "short_name": "SPARTA XIII",
+  "description": "Papan kedudukan rasmi SPARTA XIII — keputusan, jadual & kedudukan pasukan secara masa nyata. Lumut, Perak.",
+  "lang": "ms",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "id": "sparta-xiii",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#F4F7FF",
+  "theme_color": "#0F1F52",
+  "categories": ["sports", "education"],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Kedudukan Pasukan",
+      "short_name": "Kedudukan",
+      "url": "./?tab=kedudukan",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Jadual Perlawanan",
+      "short_name": "Jadual",
+      "url": "./?tab=jadual",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Keputusan",
+      "short_name": "Keputusan",
+      "url": "./?tab=keputusan",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Siaran Live",
+      "short_name": "Live",
+      "url": "./?tab=streaming",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
