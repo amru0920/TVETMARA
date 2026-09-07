@@ -11,10 +11,8 @@
    sama — data masih datang terus dari Firebase secara masa-nyata.
    ================================================================ */
 
-var _promptPasang   = null;                   /* event beforeinstallprompt */
-var _KUNCI_TOLAK    = 'sparta_pasang_tolak';  /* ingat bila user tekan × */
-var _KUNCI_SIAP     = 'sparta_pasang_siap';   /* ingat pemasangan berjaya */
-var _TEMPOH_TOLAK   = 7 * 24 * 60 * 60 * 1000; /* sembunyi 7 hari */
+var _promptPasang = null;                   /* event beforeinstallprompt */
+var _KUNCI_SIAP   = 'sparta_pasang_siap';   /* ingat pemasangan berjaya */
 
 
 /* ================================================================
@@ -43,16 +41,15 @@ function pwaPaparKad() {
   /* Jangan ganggu kalau sedang dibuka sebagai app terpasang */
   if (pwaSudahDipasang()) { kad.style.display = 'none'; return; }
 
+  /* Sudah pernah pasang? Jangan ajak lagi walaupun dibuka dalam pelayar.
+     (Chrome tak hantar beforeinstallprompt untuk app yang sudah dipasang,
+     jadi tanpa semakan ini kad akan mengganggu tanpa henti.) */
   try {
-    /* Sudah pernah pasang? Jangan ajak lagi walaupun dibuka dalam pelayar.
-       (Chrome tak hantar beforeinstallprompt untuk app yang sudah dipasang,
-       jadi tanpa semakan ini kad akan mengganggu tanpa henti.) */
     if (localStorage.getItem(_KUNCI_SIAP)) { kad.style.display = 'none'; return; }
-
-    /* Hormati "×" yang ditekan sebelum ini */
-    const tolak = parseInt(localStorage.getItem(_KUNCI_TOLAK) || '0', 10);
-    if (tolak && Date.now() - tolak < _TEMPOH_TOLAK) { kad.style.display = 'none'; return; }
   } catch (e) { /* localStorage disekat — teruskan papar */ }
+
+  /* Tiada ingatan lain: kad muncul semula setiap kali halaman dibuka.
+     "×" hanya menyembunyikannya buat kali ini sahaja. */
 
   kad.style.display = 'block';
 }
@@ -60,7 +57,6 @@ function pwaPaparKad() {
 function pwaTutupKad() {
   const kad = document.getElementById('pwa-kad');
   if (kad) kad.style.display = 'none';
-  try { localStorage.setItem(_KUNCI_TOLAK, String(Date.now())); } catch (e) {}
 }
 
 
