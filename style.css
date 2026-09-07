@@ -2381,77 +2381,92 @@ input[type="time"] { color-scheme: light; }
    ================================================================ */
 .pwa-kad-wrap {
   max-width: 1100px;
-  margin: 18px auto 0;
+  margin: 14px auto 0;
   padding: 0 20px;
 }
 .pwa-kad {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 11px;
   background: linear-gradient(115deg, var(--navy-deep) 0%, var(--navy-deep2) 100%);
-  border: 1px solid rgba(245,166,35,0.35);
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: 0 6px 20px rgba(15,31,82,0.18);
+  border: 1px solid rgba(245,166,35,0.3);
+  border-radius: 12px;
+  padding: 10px 11px;
+  box-shadow: 0 4px 14px rgba(15,31,82,0.16);
 }
 .pwa-kad-ikon {
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: 9px;
   background: #fff;
-  padding: 3px;
+  padding: 2px;
   object-fit: contain;
 }
 .pwa-kad-teks { flex: 1; min-width: 0; }
 .pwa-kad-tajuk {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 800;
-  font-size: 17px;
-  letter-spacing: 0.5px;
+  font-size: 16px;
+  letter-spacing: 0.4px;
   color: #fff;
   line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .pwa-kad-sub {
-  font-size: 12.5px;
-  color: rgba(255,255,255,0.72);
-  margin-top: 2px;
-  line-height: 1.35;
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.68);
+  margin-top: 1px;
+  line-height: 1.3;
 }
 .pwa-kad-btn {
   flex-shrink: 0;
   background: linear-gradient(180deg, var(--gold) 0%, var(--gold2) 100%);
   color: var(--dark);
   border: none;
-  border-radius: 9px;
-  padding: 10px 20px;
+  border-radius: 8px;
+  padding: 9px 17px;
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 800;
-  font-size: 15px;
+  font-size: 14.5px;
   letter-spacing: 0.6px;
   cursor: pointer;
-  transition: transform 0.12s ease, filter 0.12s ease;
+  white-space: nowrap;
+  transition: filter 0.12s ease;
 }
-.pwa-kad-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.pwa-kad-btn:hover { filter: brightness(1.08); }
 .pwa-kad-x {
   flex-shrink: 0;
-  background: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.65);
   border: none;
-  border-radius: 8px;
-  width: 32px;
-  height: 32px;
-  font-size: 17px;
+  border-radius: 7px;
+  width: 27px;
+  height: 27px;
+  font-size: 15px;
   line-height: 1;
   cursor: pointer;
+  padding: 0;
 }
-.pwa-kad-x:hover { background: rgba(255,255,255,0.2); color: #fff; }
+.pwa-kad-x:hover { background: rgba(255,255,255,0.18); color: #fff; }
 
+/* Telefon — kekal SATU baris, cuma dikecilkan */
 @media (max-width: 560px) {
-  .pwa-kad-wrap { padding: 0 12px; margin-top: 12px; }
-  .pwa-kad { flex-wrap: wrap; gap: 10px; padding: 12px 13px; }
-  .pwa-kad-teks { flex: 1 1 auto; }
-  .pwa-kad-btn { flex: 1 1 100%; order: 3; padding: 11px 16px; }
+  .pwa-kad-wrap { padding: 0 12px; margin-top: 10px; }
+  .pwa-kad      { gap: 9px; padding: 9px 10px; border-radius: 11px; }
+  .pwa-kad-ikon { width: 36px; height: 36px; border-radius: 8px; }
+  .pwa-kad-tajuk { font-size: 15px; }
+  .pwa-kad-sub   { font-size: 10.5px; }
+  .pwa-kad-btn  { padding: 8px 13px; font-size: 13.5px; }
+  .pwa-kad-x    { width: 25px; height: 25px; font-size: 14px; }
+}
+
+/* Skrin sangat sempit — buang teks kecil supaya tak berpecah baris */
+@media (max-width: 370px) {
+  .pwa-kad-sub  { display: none; }
+  .pwa-kad-btn  { padding: 8px 11px; }
 }
 
 /* ── Modal arahan pemasangan ── */
