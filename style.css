@@ -2620,3 +2620,325 @@ input[type="time"] { color-scheme: light; }
 @media (display-mode: standalone) {
   .pwa-kad-wrap { display: none !important; }
 }
+
+
+/* ================================================================
+   KEPUTUSAN — TEMPAT KE-4 & SETERUSNYA (acara format Ranking)
+   ================================================================ */
+.tempat-lain-blok {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+.tempat-lain-kepala {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.tempat-lain-tajuk {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--text);
+}
+.tempat-lain-nota {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.tambah-tempat-btn {
+  background: var(--card2);
+  border: 1px dashed var(--border);
+  color: var(--navy-deep2);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.tambah-tempat-btn:hover {
+  border-color: var(--gold);
+  border-style: solid;
+  color: var(--gold2);
+  background: var(--navy2);
+}
+.tempat-lain-wrap { display: flex; flex-direction: column; gap: 8px; }
+.tempat-baris {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 10px;
+}
+.tempat-no {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--navy-deep);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 3px;
+}
+.tempat-isi { flex: 1; min-width: 0; }
+.tempat-buang {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  margin-top: 3px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  border-radius: 7px;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.tempat-buang:hover { border-color: var(--red); color: var(--red); }
+
+/* ── Paparan awam: senarai kedudukan penuh ── */
+.rank-senarai {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+.rank-tajuk {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.rank-baris {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 7px;
+}
+.rank-baris:nth-child(even) { background: var(--card2); }
+.rank-no {
+  flex-shrink: 0;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--navy3);
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rank-nama { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; color: var(--text); }
+.rank-score { flex-shrink: 0; font-size: 12px; color: var(--muted); }
+
+@media (max-width: 500px) {
+  .tempat-lain-kepala { align-items: flex-start; }
+  .tambah-tempat-btn  { width: 100%; }
+}
+
+
+/* ================================================================
+   SISTEM MARKAH — pemilih, peringkat dicapai & legenda
+   ================================================================ */
+.sistem-pilih-blok { margin-bottom: 14px; }
+.sistem-pilih-blok .podium-select { max-width: 320px; }
+
+.sistem-chip {
+  display: inline-block;
+  margin: 8px 0 2px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* ── Borang: tanda pasukan ikut peringkat ── */
+.peringkat-blok {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+.pr-blok {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 11px;
+  margin-bottom: 9px;
+}
+.pr-kepala {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.pr-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--navy-deep2);
+}
+.pr-mata {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold2);
+  background: var(--navy2);
+  border-radius: 20px;
+  padding: 2px 9px;
+}
+.pr-senarai {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 4px;
+}
+.pr-pilih {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 7px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.pr-pilih:hover { background: var(--navy2); }
+.pr-pilih input { flex-shrink: 0; width: 15px; height: 15px; accent-color: var(--gold2); cursor: pointer; }
+.pr-pilih span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Paparan awam: peringkat dicapai ── */
+.pr-papar { padding: 7px 8px; border-radius: 7px; }
+.pr-papar:nth-child(even) { background: var(--card2); }
+.pr-papar-kepala { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+.pr-papar-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  text-transform: uppercase; color: var(--navy-deep2);
+}
+.pr-papar-nama { font-size: 12.5px; color: var(--text); line-height: 1.45; }
+
+/* ── Legenda sistem markah di bawah jadual kedudukan ── */
+.mata-legenda { display: grid; gap: 7px; }
+.mata-sistem {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.mata-sistem-nama {
+  font-size: 11.5px; font-weight: 700; color: var(--navy-deep2);
+  letter-spacing: 0.3px; margin-bottom: 3px;
+}
+.mata-sistem-baris { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+@media (max-width: 500px) {
+  .pr-senarai { grid-template-columns: 1fr 1fr; }
+  .pr-pilih   { font-size: 11.5px; padding: 5px 4px; }
+}
+
+
+/* ================================================================
+   KAD KOSONG — bila sukan belum ada kategori
+   ================================================================ */
+.kosong-kad {
+  background: var(--card);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 32px 22px;
+  text-align: center;
+  margin-top: 6px;
+}
+.kosong-ikon { font-size: 34px; margin-bottom: 10px; opacity: 0.75; }
+.kosong-tajuk {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 0.4px;
+  color: var(--navy-deep);
+  margin-bottom: 8px;
+}
+.kosong-teks {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 420px;
+  margin: 0 auto 16px;
+}
+.kosong-teks strong { color: var(--gold2); }
+.kosong-kad .edit-btn { display: inline-block; }
+
+
+/* Badge mata pada setiap tempat dalam borang keputusan */
+.tempat-mata {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: var(--navy2);
+  color: var(--gold2);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-transform: none;
+  vertical-align: middle;
+}
+.tempat-baris .tempat-mata { margin: 0 0 5px; display: block; width: fit-content; }
+.tempat-mata.sifar { color: var(--muted); background: var(--card2); }
+
+
+/* Kad "Muat Senarai Rasmi" dalam Tetapan > Sukan & Kategori */
+.rasmi-kad {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(115deg, var(--navy-deep) 0%, var(--navy-deep2) 100%);
+  border: 1px solid rgba(245,166,35,0.35);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 14px 0 20px;
+}
+.rasmi-teks { flex: 1; min-width: 0; }
+.rasmi-tajuk {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 16px; letter-spacing: 0.4px;
+  color: #fff; margin-bottom: 4px;
+}
+.rasmi-nota { font-size: 12px; color: rgba(255,255,255,0.72); line-height: 1.5; }
+.rasmi-nota strong { color: var(--gold); }
+.rasmi-btn {
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--gold2) 100%);
+  color: var(--dark); border: none; border-radius: 9px;
+  padding: 10px 20px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 15px; letter-spacing: 0.5px;
+  cursor: pointer; white-space: nowrap;
+}
+.rasmi-btn:hover { filter: brightness(1.08); }
+@media (max-width: 560px) {
+  .rasmi-kad { flex-wrap: wrap; }
+  .rasmi-btn { width: 100%; }
+}

@@ -40,17 +40,45 @@ function _bersihkanStatus() {
    KIRA KEDUDUKAN
    ================================================================ */
 function getKedudukan() {
-  return state.pasukan.map(p => {
-    let emas = 0, perak = 0, gangsa = 0, mata = 0;
-    Object.values(state.keputusan).forEach(r => {
-      if (r[1] === p) { emas++;   mata += MATA[1]; }
-      if (r[2] === p) { perak++;  mata += MATA[2]; }
-      if (r[3] === p) { gangsa++; mata += MATA[3]; }
+  /* Kira sekali sahaja: untuk setiap acara, siapa dapat berapa mata.
+     Mata bergantung pada sistem markah acara itu (lihat SISTEM_MARKAH
+     dalam data.js) — jadi kita perlu objek acara, bukan hanya keputusan. */
+  const mataPasukan = {};
+  const medal       = {};
+  state.pasukan.forEach(p => { mataPasukan[p] = 0; medal[p] = [0, 0, 0]; });
+
+  const tambah = (nama, mata, tempat) => {
+    if (!nama || !(nama in mataPasukan)) return;   /* pasukan sudah dibuang */
+    mataPasukan[nama] += mata;
+    if (tempat >= 1 && tempat <= 3) medal[nama][tempat - 1]++;
+  };
+
+  state.sukan.forEach(s => (s.acara || []).forEach(a => {
+    const r = state.keputusan[a.id];
+    if (!r || !r[1]) return;
+    const sistemId = sistemAcara(a);
+
+    /* Tempat bernombor — berhenti pada lompang pertama */
+    for (let pos = 1; r[pos]; pos++) tambah(r[pos], mataTempat(sistemId, pos), pos);
+
+    /* Peringkat dicapai (Liga+Kalah Mati / Kalah Mati) */
+    const pr = r.peringkat || {};
+    Object.keys(pr).forEach(id => {
+      const mata = mataPeringkat(sistemId, id);
+      (pr[id] || []).forEach(nama => tambah(nama, mata, 0));
     });
-    return { nama: p, emas, perak, gangsa, mata };
-  }).sort((a, b) =>
-    b.emas - a.emas || b.perak - a.perak ||
-    b.gangsa - a.gangsa || b.mata - a.mata
+  }));
+
+  return state.pasukan.map(p => ({
+    nama:   p,
+    emas:   medal[p][0],
+    perak:  medal[p][1],
+    gangsa: medal[p][2],
+    mata:   mataPasukan[p],
+  })).sort((a, b) =>
+    /* Sistem rasmi berasaskan MATA — jadi mata mendahului kiraan pingat */
+    b.mata - a.mata || b.emas - a.emas ||
+    b.perak - a.perak || b.gangsa - a.gangsa
   );
 }
 
@@ -88,7 +116,7 @@ function renderKedudukan() {
       </div>
       <div class="stat-card">
         <div class="stat-num">${totalAcara()}</div>
-        <div class="stat-lbl">Acara</div>
+        <div class="stat-lbl">Kategori</div>
       </div>
       <div class="stat-card">
         <div class="stat-num">${totalSelesai()}</div>
@@ -107,9 +135,25 @@ function renderKedudukan() {
       <tbody>${rows}</tbody>
     </table>
     <div class="nota-mata">
-      🥇 Emas = ${MATA[1]} mata &nbsp;|&nbsp;
-      🥈 Perak = ${MATA[2]} mata &nbsp;|&nbsp;
-      🥉 Gangsa = ${MATA[3]} mata
+      <div style="font-weight:700;margin-bottom:6px">Sistem Kiraan Markah</div>
+      <div class="mata-legenda">
+        ${Object.keys(SISTEM_MARKAH).map(k => {
+          const S = SISTEM_MARKAH[k];
+          const tempat = Object.keys(S.tempat).map(n => 'Tempat ' + n + ' = ' + S.tempat[n]);
+          const lain = S.julat
+            ? S.julat.map(j => 'Tempat ' + j.min +
+                (j.max === Infinity ? ' ke atas' : '-' + j.max) + ' = ' + j.mata)
+            : S.peringkat.map(pr => pr.label + ' = ' + pr.mata);
+          return `
+            <div class="mata-sistem">
+              <div class="mata-sistem-nama">${S.icon} ${S.label}</div>
+              <div class="mata-sistem-baris">${tempat.concat(lain).join(' &nbsp;·&nbsp; ')}</div>
+            </div>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:8px;font-size:11px">
+        *Tiada markah diberikan bagi kontinjen yang tidak menghantar penyertaan.
+      </div>
     </div>
   `;
 }

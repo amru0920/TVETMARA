@@ -990,7 +990,7 @@ function renderFormEditPerlawanan() {
 
   const opsAcara = sukanKini
     ? ['', ...sukanKini.acara.map(a => a.nama)]
-        .map(n => `<option value="${n}" ${n===d.kategori?'selected':''}>${n||'-- Pilih Acara --'}</option>`).join('')
+        .map(n => `<option value="${n}" ${n===d.kategori?'selected':''}>${n||'-- Pilih Kategori --'}</option>`).join('')
     : '';
 
   /* Helper: buat dropdown + input manual untuk pilih pasukan */
@@ -1047,7 +1047,7 @@ function renderFormEditPerlawanan() {
           </select>
         </div>
         <div class="form-group">
-          <label class="field-label">Acara / Kategori</label>
+          <label class="field-label">Kategori</label>
           <select id="fp-kategori" class="podium-select" style="padding:10px 12px;font-size:14px"
             id="fp-kategori">
             ${opsAcara}
@@ -1233,7 +1233,7 @@ function renderPanelTambahCepat(sukanId) {
       <div style="display:grid;grid-template-columns:${format==='kumpulan'?'1fr 1fr 1fr':'1fr 1fr'};gap:10px;margin-bottom:10px">
         ${semuaKat.length > 0 ? `
           <div>
-            <div class="field-label">📂 Kategori / Acara</div>
+            <div class="field-label">📂 Kategori</div>
             <select id="tc-kategori" class="podium-select" style="padding:9px 12px;font-size:13px;width:100%">
               <option value="">-- Tiada / Umum --</option>
               ${semuaKat.map(k => `<option value="${k}">${k}</option>`).join('')}
@@ -1456,7 +1456,7 @@ function kemaskiniFormSukan(sukanId) {
   const sel = document.getElementById('fp-kategori');
   if (sel) {
     sel.innerHTML = ['', ...sukan.acara.map(a => a.nama)]
-      .map(n => `<option value="${n}">${n||'-- Pilih Acara --'}</option>`).join('');
+      .map(n => `<option value="${n}">${n||'-- Pilih Kategori --'}</option>`).join('');
   }
   /* Kemas kini kumpulan */
   const kSel = document.getElementById('fp-kumpulan');

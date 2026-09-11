@@ -2,11 +2,158 @@
    data.js — DATA PASUKAN & SUKAN
    ================================================================ */
 
-const MATA = {
-  1: 5,
-  2: 3,
-  3: 1,
+/* ================================================================
+   SISTEM KIRAAN MARKAH RASMI SPARTA XIII
+   ================================================================
+   Tiga sistem, ikut format acara. Tempat 1-4 sama bagi ketiga-tiga;
+   perbezaannya bermula selepas tempat ke-4:
+
+   · Ranking          → mata ikut NOMBOR TEMPAT (5-10, 11-15, ...)
+   · Liga+Kalah Mati  → mata ikut PERINGKAT DICAPAI (Suku Akhir dll.)
+   · Kalah Mati       → sama, cuma nama peringkat terakhir berbeza
+
+   Peringkat guna id yang sama bagi kedua-dua sistem berperingkat,
+   supaya tukar sistem tidak menghilangkan data yang sudah dimasukkan.
+
+   *Tiada markah bagi kontinjen yang tidak menghantar penyertaan.
+   ================================================================ */
+const SISTEM_MARKAH = {
+  liga_kalah_mati: {
+    label: 'Liga + Kalah Mati',
+    icon:  '🏆',
+    tempat: { 1: 20, 2: 16, 3: 14, 4: 12 },
+    peringkat: [
+      { id: 'suku_akhir',     label: 'Suku Akhir',        mata: 8 },
+      { id: 'pusingan_kedua', label: 'Pusingan Kedua',    mata: 4 },
+      { id: 'peringkat_awal', label: 'Pusingan Kumpulan', mata: 2 },
+    ],
+  },
+  ranking: {
+    label: 'Ranking',
+    icon:  '📊',
+    tempat: { 1: 20, 2: 16, 3: 14, 4: 12 },
+    julat: [
+      { min:  5, max: 10,       mata: 8 },
+      { min: 11, max: 15,       mata: 4 },
+      { min: 16, max: 26,       mata: 2 },
+      { min: 27, max: Infinity, mata: 1 },
+    ],
+  },
+  kalah_mati: {
+    label: 'Kalah Mati',
+    icon:  '⚔️',
+    tempat: { 1: 20, 2: 16, 3: 14, 4: 12 },
+    peringkat: [
+      { id: 'suku_akhir',     label: 'Suku Akhir',       mata: 8 },
+      { id: 'pusingan_kedua', label: 'Pusingan Kedua',   mata: 4 },
+      { id: 'peringkat_awal', label: 'Pusingan Pertama', mata: 2 },
+    ],
+  },
 };
+
+const SISTEM_ASAL = 'liga_kalah_mati';   /* kebanyakan acara guna ini */
+
+/* Sistem markah bagi satu acara */
+function sistemAcara(acara) {
+  const id = acara && acara.sistem;
+  return SISTEM_MARKAH[id] ? id : SISTEM_ASAL;
+}
+
+/* Mata bagi satu kedudukan bernombor */
+function mataTempat(sistemId, pos) {
+  const S = SISTEM_MARKAH[sistemId] || SISTEM_MARKAH[SISTEM_ASAL];
+  pos = parseInt(pos, 10);
+  if (!pos || pos < 1) return 0;
+  if (S.tempat[pos] != null) return S.tempat[pos];
+  /* Sistem berperingkat: selepas tempat 4 mata datang dari peringkat,
+     bukan dari nombor tempat. */
+  if (!S.julat) return 0;
+  const j = S.julat.find(x => pos >= x.min && pos <= x.max);
+  return j ? j.mata : 0;
+}
+
+/* Mata bagi satu peringkat yang dicapai */
+function mataPeringkat(sistemId, peringkatId) {
+  const S = SISTEM_MARKAH[sistemId] || SISTEM_MARKAH[SISTEM_ASAL];
+  const p = (S.peringkat || []).find(x => x.id === peringkatId);
+  return p ? p.mata : 0;
+}
+
+/* Senarai peringkat bagi satu sistem (kosong bagi Ranking) */
+function senaraiPeringkat(sistemId) {
+  const S = SISTEM_MARKAH[sistemId] || SISTEM_MARKAH[SISTEM_ASAL];
+  return S.peringkat || [];
+}
+
+/* ================================================================
+   SENARAI RASMI SPARTA XIII — Jadual 2
+   ================================================================
+   Sukan, kategori dan sistem markah, terus dari dokumen rasmi.
+   Sistem sudah ditetapkan bagi setiap kategori, jadi admin tidak
+   perlu memilihnya — cuma masukkan keputusan.
+
+   Dua pemetaan yang saya buat sendiri kerana dokumen tidak
+   menyenaraikan jadual markah berasingan untuknya:
+     · "Double Knock Out + Kalah Mati" (Petanque) → Kalah Mati
+     · "Swiss Ranking" (Catur)                    → Ranking
+   ================================================================ */
+const SUKAN_RASMI = [
+  { nama: 'Bola Sepak',   icon: '⚽',   jenis: 'pasukan', kategori: [
+      { nama: 'Berpasukan Lelaki', sistem: 'liga_kalah_mati' } ] },
+
+  { nama: 'Futsal',       icon: '🥅', jenis: 'pasukan', kategori: [
+      { nama: 'Berpasukan Lelaki', sistem: 'liga_kalah_mati' } ] },
+
+  { nama: 'Bola Tampar',  icon: '🏐', jenis: 'pasukan', kategori: [
+      { nama: 'Berpasukan Lelaki', sistem: 'liga_kalah_mati' } ] },
+
+  { nama: 'Sepak Takraw', icon: '🪀', jenis: 'pasukan', kategori: [
+      { nama: 'Berpasukan Lelaki', sistem: 'liga_kalah_mati' } ] },
+
+  { nama: 'Bola Baling',  icon: '🤾', jenis: 'pasukan', kategori: [
+      { nama: 'Berpasukan Lelaki', sistem: 'liga_kalah_mati' } ] },
+
+  { nama: 'Bola Jaring',  icon: '🏀', jenis: 'pasukan', kategori: [
+      { nama: 'Berpasukan Wanita', sistem: 'liga_kalah_mati' } ] },
+
+  { nama: 'Badminton',    icon: '🏸', jenis: 'pasukan', kategori: [
+      { nama: 'Beregu Lelaki 1', sistem: 'liga_kalah_mati' },
+      { nama: 'Beregu Lelaki 2', sistem: 'liga_kalah_mati' },
+      { nama: 'Beregu Wanita',   sistem: 'liga_kalah_mati' } ] },
+
+  { nama: 'Ping Pong',    icon: '🏓', jenis: 'pasukan', kategori: [
+      { nama: 'Perseorangan Wanita', sistem: 'liga_kalah_mati' },
+      { nama: 'Beregu Lelaki',       sistem: 'liga_kalah_mati' },
+      { nama: 'Beregu Wanita',       sistem: 'liga_kalah_mati' } ] },
+
+  { nama: 'Dart',         icon: '🎯', jenis: 'pasukan', kategori: [
+      { nama: 'Threesome',       sistem: 'liga_kalah_mati' },
+      { nama: 'Beregu Campuran', sistem: 'liga_kalah_mati' },
+      { nama: 'Beregu Lelaki',   sistem: 'liga_kalah_mati' } ] },
+
+  { nama: 'Petanque',     icon: '🎳', jenis: 'pasukan', kategori: [
+      { nama: 'Triple Lelaki', sistem: 'kalah_mati' },
+      { nama: 'Triple Wanita', sistem: 'kalah_mati' } ] },
+
+  { nama: 'E-Sport Mobile Legend', icon: '🎮', jenis: 'pasukan', kategori: [
+      { nama: 'Berpasukan (MLBB)', sistem: 'kalah_mati' } ] },
+
+  { nama: 'E-Sport PUBG', icon: '🎮', jenis: 'pasukan', kategori: [
+      { nama: 'Berpasukan (PUBG)', sistem: 'ranking' } ] },
+
+  { nama: 'TVET Run',     icon: '🏃', jenis: 'individu', kategori: [
+      { nama: 'Lelaki',    sistem: 'ranking' },
+      { nama: 'Perempuan', sistem: 'ranking' } ] },
+
+  { nama: 'Catur',        icon: '♟️', jenis: 'individu', kategori: [
+      { nama: 'Terbuka', sistem: 'ranking' } ] },
+];
+
+/* Padankan nama tanpa mengira huruf besar/kecil, ruang atau tanda */
+function _kunciNama(n) {
+  return String(n || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
 
 const PASUKAN_ASAL = [
   "MRSM Kepala Batas",

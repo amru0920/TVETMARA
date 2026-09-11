@@ -19,7 +19,7 @@ function renderSubTabBar() {
     { id: 'urus_akaun',      icon: '🔑', label: 'Urus Akaun' },
     { id: 'tambah_staff',    icon: '👤', label: 'Tambah Staff' },
     { id: 'senarai_pasukan', icon: '🏫', label: 'Pasukan' },
-    { id: 'sukan_acara',     icon: '🏅', label: 'Sukan & Acara' },
+    { id: 'sukan_acara',     icon: '🏅', label: 'Sukan & Kategori' },
     { id: 'format_sukan',    icon: '🗂️', label: 'Format Sukan' },
     { id: 'urus_kumpulan',   icon: '🔵', label: 'Urus Kumpulan' },
     { id: 'round_robin',     icon: '🔄', label: 'Round Robin' },
@@ -276,8 +276,21 @@ function panelSukanAcara() {
   ];
 
   return `
-    <div class="set-panel-title">🏅 Sukan &amp; Acara</div>
-    <div class="set-panel-desc">Tambah sukan baharu dan urus acara dalam setiap sukan.</div>
+    <div class="set-panel-title">🏅 Sukan &amp; Kategori</div>
+    <div class="set-panel-desc">Tambah sukan baharu dan urus kategori dalam setiap sukan.</div>
+
+    <!-- ── MUAT SENARAI RASMI (Jadual 2) ── -->
+    <div class="rasmi-kad">
+      <div class="rasmi-teks">
+        <div class="rasmi-tajuk">📋 Muat Senarai Rasmi SPARTA XIII</div>
+        <div class="rasmi-nota">
+          Isi terus <strong>14 sukan</strong> dan <strong>22 kategori</strong> dari Jadual 2,
+          lengkap dengan sistem markah setiap satu — admin tak perlu pilih sistem lagi.
+          Menggabung sahaja: tiada sukan, kategori atau keputusan sedia ada dipadam.
+        </div>
+      </div>
+      <button class="rasmi-btn" onclick="muatSenaraiRasmi()">Muat Senarai</button>
+    </div>
 
     <!-- ── FORM TAMBAH SUKAN BARU ── -->
     <div class="set-card" style="border-color:rgba(245,166,35,0.3);margin-bottom:20px">
@@ -361,7 +374,7 @@ function panelSukanAcara() {
 
         <div class="tag-list" style="margin-bottom:10px">
           ${s.acara.length === 0
-            ? `<span style="color:var(--muted);font-size:13px">Tiada acara lagi.</span>`
+            ? `<span style="color:var(--muted);font-size:13px">Tiada kategori lagi.</span>`
             : s.acara.map((a, ai) => `
                 <div class="tag" style="font-size:12px">
                   ${a.nama}
@@ -373,7 +386,7 @@ function panelSukanAcara() {
 
         <div class="input-row" style="margin-bottom:0">
           <input type="text" id="input-acara-${s.id}"
-            placeholder="Nama acara baru..."
+            placeholder="Nama kategori baru..."
             style="font-size:13px"
             onkeydown="if(event.key==='Enter') tambahAcara('${s.id}')"/>
           <button class="add-btn" style="font-size:12px;padding:7px 14px"
@@ -444,7 +457,7 @@ function tambahSukanBaru() {
 /* Padam sukan */
 function padamSukan(si) {
   const s = state.sukan[si];
-  if (!confirm('Padam sukan "' + s.nama + '"?\n\nSemua acara dan keputusan berkaitan akan dipadam.')) return;
+  if (!confirm('Padam sukan "' + s.nama + '"?\n\nSemua kategori dan keputusan berkaitan akan dipadam.')) return;
 
   /* Padam semua keputusan acara dalam sukan ini */
   s.acara.forEach(a => delete state.keputusan[a.id]);
@@ -500,9 +513,107 @@ function tambahAcara(sukanId) {
 
 function padamAcara(si, ai) {
   const acara = state.sukan[si].acara[ai];
-  if (!confirm('Padam acara "' + acara.nama + '"?\n\nKeputusan acara ini juga akan dipadam.')) return;
+  if (!confirm('Padam kategori "' + acara.nama + '"?\n\nKeputusan kategori ini juga akan dipadam.')) return;
   delete state.keputusan[acara.id];
   state.sukan[si].acara.splice(ai, 1);
   simpanData();
   render();
+}
+
+/* ================================================================
+   MUAT SENARAI RASMI SPARTA XIII (Jadual 2)
+   ================================================================
+   Mengisi semua sukan, kategori dan sistem markah sekali gus,
+   supaya admin tak perlu taip 22 kategori satu per satu.
+
+   Bersifat MENGGABUNG, bukan menggantikan:
+     · Sukan/kategori yang sudah ada  → dikekalkan, cuma sistem
+       markahnya ditetapkan ikut dokumen rasmi
+     · Yang belum ada                 → ditambah
+     · Tiada apa-apa dipadam          → keputusan sedia ada selamat
+   Boleh dijalankan berulang kali dengan selamat.
+   ================================================================ */
+
+function _ringkasanRasmi() {
+  const tambahSukan = [], tambahKat = [], tukarSistem = [];
+
+  SUKAN_RASMI.forEach(function (rs) {
+    const sukan = state.sukan.find(s => _kunciNama(s.nama) === _kunciNama(rs.nama));
+    if (!sukan) {
+      tambahSukan.push(rs.nama);
+      rs.kategori.forEach(rk => tambahKat.push(rs.nama + ' \u2192 ' + rk.nama));
+      return;
+    }
+    rs.kategori.forEach(function (rk) {
+      const kat = (sukan.acara || []).find(a => _kunciNama(a.nama) === _kunciNama(rk.nama));
+      if (!kat) tambahKat.push(sukan.nama + ' \u2192 ' + rk.nama);
+      else if (kat.sistem !== rk.sistem) tukarSistem.push(sukan.nama + ' \u2192 ' + kat.nama);
+    });
+  });
+
+  return { tambahSukan, tambahKat, tukarSistem };
+}
+
+function muatSenaraiRasmi() {
+  if (!state.staffLogin) { bukaPanelLogin(); return; }
+
+  const r = _ringkasanRasmi();
+  if (!r.tambahSukan.length && !r.tambahKat.length && !r.tukarSistem.length) {
+    alert('Semua sukan, kategori dan sistem markah sudah sepadan dengan Jadual 2. Tiada perubahan diperlukan.');
+    return;
+  }
+
+  const baris = [];
+  if (r.tambahSukan.length) baris.push('Tambah ' + r.tambahSukan.length + ' sukan baharu:\n  \u00b7 ' + r.tambahSukan.join('\n  \u00b7 '));
+  if (r.tambahKat.length)   baris.push('Tambah ' + r.tambahKat.length + ' kategori:\n  \u00b7 ' + r.tambahKat.join('\n  \u00b7 '));
+  if (r.tukarSistem.length) baris.push('Tetapkan sistem markah bagi ' + r.tukarSistem.length + ' kategori sedia ada:\n  \u00b7 ' + r.tukarSistem.join('\n  \u00b7 '));
+
+  if (!confirm('MUAT SENARAI RASMI SPARTA XIII\n\n' + baris.join('\n\n') +
+               '\n\nTiada sukan, kategori atau keputusan sedia ada akan dipadam.\n\nTeruskan?')) return;
+
+  /* Jana id unik yang tidak berlanggar dengan id sedia ada */
+  const idAda = new Set();
+  state.sukan.forEach(s => {
+    idAda.add(s.id);
+    (s.acara || []).forEach(a => idAda.add(a.id));
+  });
+  const idUnik = function (asas) {
+    let id = asas, n = 2;
+    while (idAda.has(id)) id = asas + '_' + (n++);
+    idAda.add(id);
+    return id;
+  };
+
+  SUKAN_RASMI.forEach(function (rs) {
+    let sukan = state.sukan.find(s => _kunciNama(s.nama) === _kunciNama(rs.nama));
+
+    if (!sukan) {
+      sukan = { id: idUnik('sk_' + _kunciNama(rs.nama)), nama: rs.nama,
+                icon: rs.icon, jenis: rs.jenis, acara: [] };
+      state.sukan.push(sukan);
+      /* Sukan individu tiada jadual perlawanan */
+      state.formatSukan[sukan.id] = rs.jenis === 'individu' ? 'individu' : 'biasa';
+    }
+    if (!sukan.acara) sukan.acara = [];
+
+    rs.kategori.forEach(function (rk) {
+      const kat = sukan.acara.find(a => _kunciNama(a.nama) === _kunciNama(rk.nama));
+      if (kat) kat.sistem = rk.sistem;   /* kekalkan id & keputusan sedia ada */
+      else sukan.acara.push({
+        id: idUnik(sukan.id + '_' + _kunciNama(rk.nama)),
+        nama: rk.nama,
+        sistem: rk.sistem,
+      });
+    });
+  });
+
+  if (typeof tambahLog === 'function') {
+    tambahLog('senarai_rasmi',
+      'Muat Jadual 2: +' + r.tambahSukan.length + ' sukan, +' + r.tambahKat.length +
+      ' kategori, ' + r.tukarSistem.length + ' sistem ditetapkan');
+  }
+
+  simpanData();
+  render();
+  alert('Selesai. Semua kategori dan sistem markah sudah ditetapkan ikut Jadual 2.');
 }
