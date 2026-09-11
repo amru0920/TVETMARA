@@ -289,9 +289,13 @@ const MASKOT_KUNCI = [
   ["valorant",     "assets/maskot/maskot-esukan.png"],
   ["freefire",     "assets/maskot/maskot-esukan.png"],
   ["fifa",         "assets/maskot/maskot-esukan.png"],
-  /* Umum */
+  /* Larian & umum — maskot-umum.png ialah maskot sedang berlari */
+  ["tvetrun",      "assets/maskot/maskot-umum.png"],
   ["olahraga",     "assets/maskot/maskot-umum.png"],
   ["larian",       "assets/maskot/maskot-umum.png"],
+  ["lari",         "assets/maskot/maskot-umum.png"],
+  ["run",          "assets/maskot/maskot-umum.png"],
+  ["merentasdesa", "assets/maskot/maskot-umum.png"],
   ["balapan",      "assets/maskot/maskot-umum.png"],
   ["padang",       "assets/maskot/maskot-umum.png"],
 ];

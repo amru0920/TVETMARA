@@ -41,7 +41,10 @@
   <header class="topbar">
     <div class="topbar-inner">
 
-      <div class="topbar-brand">
+      <div class="topbar-brand" role="button" tabindex="0"
+        title="Kembali ke Kedudukan"
+        onclick="setTab('kedudukan')"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setTab('kedudukan')}">
         <div class="topbar-logo"><img class="topbar-logo-img" src="assets/logo-sparta-xiii.png" alt="Logo SPARTA XIII"/></div>
         <div class="topbar-titles">
           <span class="topbar-name">SPARTA <span class="xiii">XIII</span></span>

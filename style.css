@@ -62,7 +62,19 @@ body {
   align-items: center;
   gap: 16px;
 }
-.topbar-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.topbar-brand {
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  cursor: pointer;                       /* tekan logo → balik ke Kedudukan */
+  border-radius: 8px;
+  padding: 4px 6px;
+  margin-left: -6px;
+  outline: none;
+  transition: background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.topbar-brand:hover        { background: rgba(255,255,255,0.08); }
+.topbar-brand:active       { background: rgba(255,255,255,0.14); }
+.topbar-brand:focus-visible { box-shadow: 0 0 0 2px var(--gold); }
 .topbar-logo {
   width: 42px; height: 42px;
   background: #fff;
