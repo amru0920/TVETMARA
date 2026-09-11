@@ -118,23 +118,6 @@ body {
 }
 .logout-btn:hover { background: rgba(227,30,36,0.2); border-color: var(--red); }
 
-.hamburger {
-  display: none;
-  background: none; border: 1px solid rgba(255,255,255,0.25); color: #fff;
-  font-size: 18px; padding: 5px 10px; border-radius: 6px; cursor: pointer; margin-left: auto;
-}
-.mobile-menu {
-  background: var(--navy-deep); border-top: 1px solid rgba(255,255,255,0.12);
-  padding: 10px 16px; display: flex; flex-direction: column; gap: 4px;
-}
-.mob-btn {
-  width: 100%; text-align: left; padding: 10px 14px;
-  background: transparent; border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.8); border-radius: 7px; cursor: pointer; font-size: 14px; transition: all 0.2s;
-}
-.mob-btn:hover { border-color: var(--gold); color: var(--gold); }
-.mob-login-btn { color: var(--gold); border-color: rgba(245,166,35,0.5); }
-
 
 /* ================================================================
    HERO BANNER
@@ -509,8 +492,7 @@ body {
    RESPONSIVE
    ================================================================ */
 @media (max-width: 640px) {
-  .topbar-nav { display: none; }
-  .hamburger  { display: block; }
+  .topbar-nav { display: none; }   /* diganti bar navigasi bawah */
   .topbar-sub { display: none; }
   .stats-bar  { grid-template-columns: repeat(3,1fr); }
   .sukan-grid { grid-template-columns: repeat(2,1fr); }
@@ -2942,3 +2924,95 @@ input[type="time"] { color-scheme: light; }
   .rasmi-kad { flex-wrap: wrap; }
   .rasmi-btn { width: 100%; }
 }
+
+
+/* ================================================================
+   BAR NAVIGASI BAWAH — telefon sahaja
+   ================================================================
+   Menggantikan menu ☰. Semua tab kelihatan serentak supaya
+   pengguna tahu sistem ini bukan papan kedudukan sahaja.
+   ================================================================ */
+.bawah-nav { display: none; }
+
+@media (max-width: 640px) {
+  .bawah-nav {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 300;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -2px 14px rgba(15,31,82,0.10);
+    /* Elak bertindih dengan bar gerak isyarat telefon */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .bawah-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 2px 7px;
+    background: none;
+    border: none;
+    border-top: 2.5px solid transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s ease;
+  }
+  .bawah-ikon { font-size: 19px; line-height: 1; filter: grayscale(0.55); opacity: 0.7; }
+  .bawah-teks {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    line-height: 1.1;
+    text-align: center;
+  }
+  /* Tab aktif — jalur emas di atas, ikon berwarna penuh */
+  .bawah-btn.active { color: var(--navy-deep); border-top-color: var(--gold); }
+  .bawah-btn.active .bawah-ikon { filter: none; opacity: 1; }
+  .bawah-btn.active .bawah-teks { font-weight: 700; }
+
+  /* Ruang supaya kandungan terakhir tidak tersorok di bawah bar */
+  body { padding-bottom: 62px; }
+}
+
+/* Skrin sangat sempit — kecilkan teks supaya "Kedudukan" tidak terpotong */
+@media (max-width: 360px) {
+  .bawah-teks { font-size: 9px; }
+  .bawah-ikon { font-size: 17px; }
+}
+
+
+/* Baris staff + Log Keluar di atas panel Tetapan.
+   Satu-satunya jalan log keluar pada telefon. */
+.staff-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+.staff-bar-nama { font-size: 13px; color: var(--muted); }
+.staff-bar-nama strong { color: var(--text); }
+.staff-bar-keluar {
+  flex-shrink: 0;
+  background: rgba(227,30,36,0.08);
+  border: 1px solid rgba(227,30,36,0.35);
+  color: var(--red);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+.staff-bar-keluar:hover { background: rgba(227,30,36,0.16); }

@@ -110,25 +110,14 @@ function logKeluar() {
   render();
 }
 
-/* Kemas kini menu mobile ikut status login */
+/* Kemas kini butang terakhir dalam bar navigasi bawah ikut status login:
+   belum log masuk → "🔒 Staff"  |  sudah log masuk → "⚙️ Tetapan" */
 function kemaskinMobAuth() {
-  const mobAuth = document.getElementById('mob-auth');
-  if (!mobAuth) return;
-  if (state.staffLogin) {
-    mobAuth.innerHTML = `
-      <div style="padding:8px 14px;font-size:13px;color:var(--muted)">
-        Login: <strong style="color:var(--text)">${state.staffLogin.nama}</strong>
-      </div>
-      <button class="mob-btn" onclick="setTab('tetapan');togolMobileMenu()">⚙️ Tetapan</button>
-      <button class="mob-btn" style="color:#ff8a80;border-color:rgba(231,76,60,0.4)"
-        onclick="logKeluar();togolMobileMenu()">Log Keluar</button>
-    `;
-  } else {
-    mobAuth.innerHTML = `
-      <button class="mob-btn mob-login-btn"
-        onclick="bukaPanelLogin();togolMobileMenu()">🔒 Staff Login</button>
-    `;
-  }
+  const btn = document.getElementById('bawah-staff');
+  if (!btn) return;
+  const masuk = !!state.staffLogin;
+  btn.querySelector('.bawah-ikon').textContent = masuk ? '⚙️'   : '🔒';
+  btn.querySelector('.bawah-teks').textContent = masuk ? 'Tetapan' : 'Staff';
 }
 
 

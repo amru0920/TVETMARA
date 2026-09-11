@@ -18,7 +18,7 @@
    supaya cache lama dibuang automatik.
    ================================================================ */
 
-const VERSI       = 'v9';
+const VERSI       = 'v11';
 const CACHE_SHELL = 'sparta-shell-' + VERSI;
 const CACHE_MEDIA = 'sparta-media-' + VERSI;
 

@@ -120,17 +120,14 @@ function _htmlPilihanPasukan(acaraId, pos, label, wajib, nilaiSedia) {
    Esports PUBG dsb.) di mana markah diberi sampai tempat ke-26+.
    Tempat 1-3 kekal di podium; selebihnya senarai tanpa had.
 
-   Disimpan dalam rekod yang sama: r[4], r[5], ... dan
-   r.score4, r.score5, ... — jadi rekod lama (3 tempat)
-   tetap berfungsi tanpa perubahan.
+   Disimpan dalam rekod yang sama: r[4], r[5], ... — jadi rekod
+   lama (3 tempat) tetap berfungsi tanpa perubahan.
    ---------------------------------------------------------------- */
 
 /* Kumpul tempat 4, 5, 6, ... dari satu rekod keputusan */
 function _senaraiTempatLain(r) {
   const senarai = [];
-  for (let pos = 4; r && r[pos]; pos++) {
-    senarai.push({ pos: pos, nama: r[pos], score: r['score' + pos] || '' });
-  }
+  for (let pos = 4; r && r[pos]; pos++) senarai.push(r[pos]);
   return senarai;
 }
 
@@ -145,7 +142,7 @@ function _bacaNilaiTempat(acaraId, pos) {
 }
 
 /* Satu baris input untuk tempat ke-4 dan seterusnya */
-function _htmlBarisTempat(acaraId, pos, nilai, score, sistemId) {
+function _htmlBarisTempat(acaraId, pos, nilai, sistemId) {
   const mata = mataTempat(sistemId || _sistemBorang(acaraId), pos);
   return '<div class="tempat-baris" data-pos="' + pos + '">' +
            '<div class="tempat-no">' + pos + '</div>' +
@@ -153,9 +150,6 @@ function _htmlBarisTempat(acaraId, pos, nilai, score, sistemId) {
              '<div class="tempat-mata" data-mata-pos="' + pos + '">' +
                (mata ? mata + ' mata' : 'tiada mata') + '</div>' +
              _htmlPilihanPasukan(acaraId, pos, 'Tempat ' + pos, false, nilai || '') +
-             '<input type="text" id="score-' + pos + '-' + acaraId + '" class="score-sub-input"' +
-             ' style="margin-top:6px" placeholder="Masa / Jarak / Markah"' +
-             ' value="' + (score || '') + '"/>' +
            '</div>' +
            '<button class="tempat-buang" title="Buang tempat ' + pos + '"' +
            ' onclick="buangTempatKeputusan(' + "'" + acaraId + "'" + ',' + pos + ')">✕</button>' +
@@ -172,11 +166,7 @@ function _bacaTempatLain(acaraId) {
   const wrap = document.getElementById('tempat-lain-' + acaraId);
   if (!wrap) return [];
   return Array.prototype.map.call(wrap.querySelectorAll('.tempat-baris'), function(baris) {
-    const pos = baris.dataset.pos;
-    return {
-      nama:  _bacaNilaiTempat(acaraId, pos),
-      score: document.getElementById('score-' + pos + '-' + acaraId)?.value?.trim() || '',
-    };
+    return _bacaNilaiTempat(acaraId, baris.dataset.pos);
   });
 }
 
@@ -187,8 +177,8 @@ function _lukisTempatLain(acaraId, senarai) {
   const wrap = document.getElementById('tempat-lain-' + acaraId);
   if (!wrap) return;
   const sistemId = _sistemBorang(acaraId);
-  wrap.innerHTML = senarai.map(function(t, i) {
-    return _htmlBarisTempat(acaraId, i + 4, t.nama, t.score, sistemId);
+  wrap.innerHTML = senarai.map(function(nama, i) {
+    return _htmlBarisTempat(acaraId, i + 4, nama, sistemId);
   }).join('');
   const kira = document.getElementById('kira-tempat-' + acaraId);
   if (kira) kira.textContent = senarai.length
@@ -198,7 +188,7 @@ function _lukisTempatLain(acaraId, senarai) {
 
 function tambahTempatKeputusan(acaraId) {
   const senarai = _bacaTempatLain(acaraId);
-  senarai.push({ nama: '', score: '' });
+  senarai.push('');
   _lukisTempatLain(acaraId, senarai);
   /* Fokus terus ke dropdown yang baru ditambah */
   const baru = document.getElementById('sel-' + (senarai.length + 3) + '-' + acaraId);
@@ -305,20 +295,13 @@ function tukarSistemAcara(acaraId, sistemId) {
    ---------------------------------------------------------------- */
 function renderFormEdit(acara, sukan, isPasukan) {
   const r         = state.keputusan[acara.id] || {};
-  const scoreLabel = isPasukan ? 'Score Perlawanan (contoh: 3 - 1)' : 'Masa / Jarak / Markah';
-  const scorePh   = isPasukan ? 'Contoh: 3 - 1' : 'Contoh: 10.45s / 45.2m';
-  const scoreHint = isPasukan
-    ? 'Masukkan score akhir perlawanan. Contoh: <strong>3 - 1</strong>, <strong>21 - 18</strong>'
-    : 'Masukkan masa atau jarak. Contoh: <strong>10.45s</strong>, <strong>45.20m</strong>';
-  const scorePH12 = isPasukan ? 'Score pasukan ini' : 'Masa / Jarak';
-
   const html1 = _htmlPilihanPasukan(acara.id, 1, 'Tempat 1', true,  r[1] || '');
   const html2 = _htmlPilihanPasukan(acara.id, 2, 'Tempat 2', false, r[2] || '');
   const html3 = _htmlPilihanPasukan(acara.id, 3, 'Tempat 3', false, r[3] || '');
 
   /* Tempat ke-4 dan seterusnya */
   const lain      = _senaraiTempatLain(r);
-  const lainHTML  = lain.map(t => _htmlBarisTempat(acara.id, t.pos, t.nama, t.score)).join('');
+  const lainHTML  = lain.map((nama, i) => _htmlBarisTempat(acara.id, i + 4, nama, sistemAcara(acara))).join('');
   const lainKira  = lain.length
     ? 'Jumlah ' + (lain.length + 3) + ' tempat'
     : 'Belum ada — podium 3 tempat sahaja';
@@ -352,34 +335,21 @@ function renderFormEdit(acara, sukan, isPasukan) {
         </div>
       </div>
 
-      <div class="score-input-group">
-        <label class="score-label">📊 ${scoreLabel}</label>
-        <input type="text" id="score-keseluruhan-${acara.id}" class="score-input"
-          placeholder="${scorePh}" value="${r.score || ''}"/>
-        <div class="score-hint">${scoreHint}</div>
-      </div>
-
       <div class="podium-edit-grid">
 
         <div class="podium-edit-slot">
           <div class="podium-edit-label p1">🥇 Tempat 1<span class="tempat-mata" data-mata-pos="1">${mataTempat(sistemKini, 1)} mata</span></div>
           ${html1}
-          <input type="text" id="score-1-${acara.id}" class="score-sub-input"
-            placeholder="${scorePH12}" value="${r.score1 || ''}"/>
         </div>
 
         <div class="podium-edit-slot">
           <div class="podium-edit-label p2">🥈 Tempat 2<span class="tempat-mata" data-mata-pos="2">${mataTempat(sistemKini, 2)} mata</span></div>
           ${html2}
-          <input type="text" id="score-2-${acara.id}" class="score-sub-input"
-            placeholder="${scorePH12}" value="${r.score2 || ''}"/>
         </div>
 
         <div class="podium-edit-slot">
           <div class="podium-edit-label p3">🥉 Tempat 3<span class="tempat-mata" data-mata-pos="3">${mataTempat(sistemKini, 3)} mata</span></div>
           ${html3}
-          <input type="text" id="score-3-${acara.id}" class="score-sub-input"
-            placeholder="${scorePH12}" value="${r.score3 || ''}"/>
         </div>
 
       </div>
@@ -447,26 +417,19 @@ function renderPaparAcara(acara, r, isStaff, isPasukan) {
     `;
   }
 
-  const scoreBadge = r.score ? `
-    <div class="score-badge">${isPasukan ? '⚽' : '⏱'} ${r.score}</div>
-  ` : '';
-
   const podiumHTML = `
     <div class="podium-result">
       <div class="podium-result-slot">
         <div class="podium-result-label p1">🥇 Tempat 1</div>
         <div class="podium-result-nama e">${r[1]}</div>
-        ${r.score1 ? `<div class="podium-score">${r.score1}</div>` : ''}
       </div>
       <div class="podium-result-slot">
         <div class="podium-result-label p2">🥈 Tempat 2</div>
         <div class="podium-result-nama p">${r[2] || '—'}</div>
-        ${r.score2 ? `<div class="podium-score">${r.score2}</div>` : ''}
       </div>
       <div class="podium-result-slot">
         <div class="podium-result-label p3">🥉 Tempat 3</div>
         <div class="podium-result-nama g">${r[3] || '—'}</div>
-        ${r.score3 ? `<div class="podium-score">${r.score3}</div>` : ''}
       </div>
     </div>
   `;
@@ -476,11 +439,10 @@ function renderPaparAcara(acara, r, isStaff, isPasukan) {
   const lainHTML = lain.length ? `
     <div class="rank-senarai">
       <div class="rank-tajuk">📋 Kedudukan Penuh — ${lain.length + 3} tempat</div>
-      ${lain.map(t => `
+      ${lain.map((nama, i) => `
         <div class="rank-baris">
-          <div class="rank-no">${t.pos}</div>
-          <div class="rank-nama">${t.nama}</div>
-          ${t.score ? `<div class="rank-score">${t.score}</div>` : ''}
+          <div class="rank-no">${i + 4}</div>
+          <div class="rank-nama">${nama}</div>
         </div>
       `).join('')}
     </div>
@@ -512,7 +474,6 @@ function renderPaparAcara(acara, r, isStaff, isPasukan) {
         <div class="acara-status done">✓ Selesai</div>
       </div>
       <div class="sistem-chip">${SISTEM_MARKAH[sistemId].icon} ${SISTEM_MARKAH[sistemId].label}</div>
-      ${scoreBadge}
       ${podiumHTML}
       ${lainHTML}
       ${prHTML}
@@ -569,8 +530,8 @@ function simpanKeputusan(acaraId) {
   const lain = _bacaTempatLain(acaraId);
 
   /* Buang baris kosong di hujung senarai; kosong di tengah = ranking terputus */
-  while (lain.length && !lain[lain.length - 1].nama) lain.pop();
-  const kosong = lain.findIndex(t => !t.nama);
+  while (lain.length && !lain[lain.length - 1]) lain.pop();
+  const kosong = lain.findIndex(nama => !nama);
   if (kosong !== -1) {
     alert('Tempat ' + (kosong + 4) + ' masih kosong. Ranking mesti berturutan — ' +
           'isi tempat itu, atau tekan ✕ untuk membuangnya.');
@@ -584,7 +545,7 @@ function simpanKeputusan(acaraId) {
 
   /* Satu pasukan hanya boleh muncul sekali — merentas tempat DAN peringkat,
      kalau tidak mata akan dikira dua kali. */
-  const pil = [s1, s2, s3].concat(lain.map(t => t.nama)).filter(Boolean);
+  const pil = [s1, s2, s3].concat(lain).filter(Boolean);
   if (peringkat) {
     Object.keys(peringkat).forEach(k => { pil.push.apply(pil, peringkat[k]); });
   }
@@ -595,16 +556,8 @@ function simpanKeputusan(acaraId) {
     return;
   }
 
-  const score  = document.getElementById('score-keseluruhan-' + acaraId)?.value?.trim() || '';
-  const score1 = document.getElementById('score-1-' + acaraId)?.value?.trim() || '';
-  const score2 = document.getElementById('score-2-' + acaraId)?.value?.trim() || '';
-  const score3 = document.getElementById('score-3-' + acaraId)?.value?.trim() || '';
-
-  const rekod = { 1: s1, 2: s2, 3: s3, score, score1, score2, score3 };
-  lain.forEach(function(t, i) {
-    rekod[i + 4]             = t.nama;
-    rekod['score' + (i + 4)] = t.score;
-  });
+  const rekod = { 1: s1, 2: s2, 3: s3 };
+  lain.forEach(function(nama, i) { rekod[i + 4] = nama; });
   if (peringkat && Object.keys(peringkat).length) rekod.peringkat = peringkat;
 
   /* Sistem disimpan pada acara (bukan pada keputusan) supaya ia kekal
@@ -620,7 +573,6 @@ function simpanKeputusan(acaraId) {
     (s2 ? ' 🥈' + s2 : '') + (s3 ? ' 🥉' + s3 : '') +
     (lain.length ? ' +' + lain.length + ' tempat' : '') +
     (peringkat && Object.keys(peringkat).length ? ' +peringkat' : '') +
-    (score ? ' [' + score + ']' : '') +
     ' (' + SISTEM_MARKAH[sistemId].label + ')';
   if (typeof tambahLog === 'function') tambahLog('keputusan_simpan', _log);
 

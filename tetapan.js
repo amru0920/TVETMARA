@@ -62,7 +62,19 @@ function renderTetapan() {
   else if (state.subTab === 'round_robin')     panel = renderUrusRoundRobinPage();
   else if (state.subTab === 'log_aktiviti')    panel = renderLogAktiviti();
 
-  return renderSubTabBar() + `<div class="set-panel">${panel}</div>`;
+  /* Baris staff + Log Keluar.
+     Wajib ada di sini: pada telefon .topbar-nav tersembunyi, jadi butang
+     Keluar di topbar tak dapat dicapai langsung. */
+  const barStaff = `
+    <div class="staff-bar">
+      <div class="staff-bar-nama">
+        👤 Log masuk sebagai <strong>${state.staffLogin.nama}</strong>
+      </div>
+      <button class="staff-bar-keluar" onclick="logKeluar()">Log Keluar</button>
+    </div>
+  `;
+
+  return barStaff + renderSubTabBar() + `<div class="set-panel">${panel}</div>`;
 }
 
 /* Tukar sub-tab */

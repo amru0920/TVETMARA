@@ -68,20 +68,32 @@
         </div>
       </nav>
 
-      <button class="hamburger" onclick="togolMobileMenu()">☰</button>
-    </div>
-
-    <!-- Mobile dropdown -->
-    <div class="mobile-menu" id="mobile-menu" style="display:none">
-      <button class="mob-btn" onclick="setTab('kedudukan');togolMobileMenu()">🏆 Kedudukan</button>
-      <button class="mob-btn" onclick="setTab('keputusan');togolMobileMenu()">📋 Keputusan</button>
-      <button class="mob-btn" onclick="setTab('jadual');togolMobileMenu()">📅 Jadual</button>
-      <button class="mob-btn" onclick="setTab('streaming');togolMobileMenu()">📺 Live</button>
-      <div id="mob-auth">
-        <button class="mob-btn mob-login-btn" onclick="bukaPanelLogin();togolMobileMenu()">🔒 Staff Login</button>
-      </div>
     </div>
   </header>
+
+
+  <!-- =============================================
+       BAR NAVIGASI BAWAH (telefon sahaja)
+       Menggantikan menu ☰ — semua tab kelihatan terus,
+       tak perlu pengguna teka ada menu tersembunyi.
+  ============================================= -->
+  <nav class="bawah-nav" id="bawah-nav">
+    <button class="bawah-btn active" data-tab="kedudukan" onclick="setTab('kedudukan')">
+      <span class="bawah-ikon">🏆</span><span class="bawah-teks">Kedudukan</span>
+    </button>
+    <button class="bawah-btn" data-tab="keputusan" onclick="setTab('keputusan')">
+      <span class="bawah-ikon">📋</span><span class="bawah-teks">Keputusan</span>
+    </button>
+    <button class="bawah-btn" data-tab="jadual" onclick="setTab('jadual')">
+      <span class="bawah-ikon">📅</span><span class="bawah-teks">Jadual</span>
+    </button>
+    <button class="bawah-btn" data-tab="streaming" onclick="setTab('streaming')">
+      <span class="bawah-ikon">📺</span><span class="bawah-teks">Live</span>
+    </button>
+    <button class="bawah-btn" data-tab="tetapan" id="bawah-staff" onclick="bawahStaff()">
+      <span class="bawah-ikon">🔒</span><span class="bawah-teks">Staff</span>
+    </button>
+  </nav>
 
 
   <!-- =============================================

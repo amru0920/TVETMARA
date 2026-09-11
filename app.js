@@ -170,6 +170,10 @@ function render() {
   const tetapanBtn = document.querySelector('.tetapan-btn');
   if (tetapanBtn) tetapanBtn.classList.toggle('active', state.tab === 'tetapan');
 
+  /* Bar navigasi bawah (telefon) */
+  document.querySelectorAll('.bawah-btn').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.tab === state.tab));
+
   const el = document.getElementById('main-content');
   if (!el) return;
 
@@ -200,9 +204,10 @@ function setTab(tab) {
 function pilihSukan(id)  { state.selectedSukan = id; state.editingAcara = null; render(); }
 function goBack()        { state.selectedSukan = null; state.editingAcara = null; render(); }
 
-function togolMobileMenu() {
-  const m = document.getElementById('mobile-menu');
-  if (m) m.style.display = m.style.display === 'none' ? 'flex' : 'none';
+/* Butang terakhir bar bawah — log masuk, atau terus ke Tetapan */
+function bawahStaff() {
+  if (state.staffLogin) setTab('tetapan');
+  else bukaPanelLogin();
 }
 
 function togolJadualPenuh(sukanId) {
