@@ -134,27 +134,6 @@ function renderKedudukan() {
       </thead>
       <tbody>${rows}</tbody>
     </table>
-    <div class="nota-mata">
-      <div style="font-weight:700;margin-bottom:6px">Sistem Kiraan Markah</div>
-      <div class="mata-legenda">
-        ${Object.keys(SISTEM_MARKAH).map(k => {
-          const S = SISTEM_MARKAH[k];
-          const tempat = Object.keys(S.tempat).map(n => 'Tempat ' + n + ' = ' + S.tempat[n]);
-          const lain = S.julat
-            ? S.julat.map(j => 'Tempat ' + j.min +
-                (j.max === Infinity ? ' ke atas' : '-' + j.max) + ' = ' + j.mata)
-            : S.peringkat.map(pr => pr.label + ' = ' + pr.mata);
-          return `
-            <div class="mata-sistem">
-              <div class="mata-sistem-nama">${S.icon} ${S.label}</div>
-              <div class="mata-sistem-baris">${tempat.concat(lain).join(' &nbsp;·&nbsp; ')}</div>
-            </div>`;
-        }).join('')}
-      </div>
-      <div style="margin-top:8px;font-size:11px">
-        *Tiada markah diberikan bagi kontinjen yang tidak menghantar penyertaan.
-      </div>
-    </div>
   `;
 }
 

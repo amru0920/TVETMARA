@@ -234,8 +234,6 @@ body {
 .pts-badge { background: var(--gold); color: var(--dark); font-weight: 700; font-size: 13px; padding: 4px 14px; border-radius: 20px; font-family: 'Barlow Condensed',sans-serif; }
 .top3 { background: var(--card); }
 .leader-bar { height: 3px; background: linear-gradient(90deg,var(--gold),transparent); border-radius: 2px; margin-bottom: 4px; }
-.nota-mata { margin-top: 12px; font-size: 12px; color: var(--muted); text-align: right; }
-
 
 /* ================================================================
    TAB KEPUTUSAN — GRID KAD SUKAN
@@ -2835,19 +2833,6 @@ input[type="time"] { color-scheme: light; }
 .pr-papar-nama { font-size: 12.5px; color: var(--text); line-height: 1.45; }
 
 /* ── Legenda sistem markah di bawah jadual kedudukan ── */
-.mata-legenda { display: grid; gap: 7px; }
-.mata-sistem {
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-}
-.mata-sistem-nama {
-  font-size: 11.5px; font-weight: 700; color: var(--navy-deep2);
-  letter-spacing: 0.3px; margin-bottom: 3px;
-}
-.mata-sistem-baris { font-size: 11px; color: var(--muted); line-height: 1.6; }
-
 @media (max-width: 500px) {
   .pr-senarai { grid-template-columns: 1fr 1fr; }
   .pr-pilih   { font-size: 11.5px; padding: 5px 4px; }
