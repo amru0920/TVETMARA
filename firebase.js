@@ -14,6 +14,16 @@ const firebaseConfig = {
 let db = null;
 let firestoreInitialized = false;
 
+/* Salinan terakhir yang diterima dari server. simpanData() membandingkan
+   state dengannya supaya hanya medan yang berubah dihantar. */
+let _dataJauh = {};
+
+/* Medan yang disegerakkan ke Firebase (logAktiviti kekal di localStorage) */
+const MEDAN_SEGERAK = [
+  'pasukan', 'sukan', 'formatSukan', 'kumpulanSukan', 'jadual',
+  'roundRobin', 'bracket', 'keputusan', 'staff', 'password', 'streaming',
+];
+
 /* ── Init Firebase ── */
 async function initFirebase() {
   if (firestoreInitialized) return;
@@ -52,21 +62,22 @@ async function simpanData() {
   if (!db) await initFirebase();
   if (!db) return;
 
+  /* Hantar HANYA medan yang benar-benar berubah.
+     Dulu kesemua 11 medan ditulis setiap kali — jadi admin yang
+     mengemas kini jadual turut menimpa keputusan, pasukan dan
+     tetapan yang sedang disunting admin lain. */
   try {
-    await db.collection('spekma').doc('mainData').set({
-      pasukan:       state.pasukan,
-      sukan:         state.sukan,
-      formatSukan:   state.formatSukan,
-      kumpulanSukan: state.kumpulanSukan,
-      jadual:        state.jadual,
-      roundRobin:    state.roundRobin,
-      bracket:       state.bracket,
-      keputusan:     state.keputusan,
-      staff:         state.staff,
-      password:      state.password,
-      streaming:     state.streaming,
-      lastUpdated:   firebase.firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
+    const kemaskini = {};
+    MEDAN_SEGERAK.forEach(function (k) {
+      if (JSON.stringify(state[k]) !== JSON.stringify(_dataJauh[k])) {
+        kemaskini[k] = state[k];
+      }
+    });
+
+    if (Object.keys(kemaskini).length === 0) return;   /* tiada perubahan */
+
+    kemaskini.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection('spekma').doc('mainData').set(kemaskini, { merge: true });
   } catch (e) {
     console.warn('Firebase sync fail:', e);
   }
@@ -109,8 +120,13 @@ async function muatData() {
 
       console.log('⚡ Data SPEKMA dikemaskini secara Real-time!');
       
+      _dataJauh = data;   /* asas perbandingan untuk simpanData() */
+
       if (typeof _bersihkanStatus === 'function') _bersihkanStatus();
-      render(); 
+
+      /* JANGAN render() terus — admin lain mungkin sedang mengisi borang.
+         renderSelamat() akan menangguhkannya sehingga borang ditutup. */
+      if (typeof renderSelamat === 'function') renderSelamat(); else render(); 
     } else {
         console.log("Dokumen mainData belum wujud di Firebase. Gunakan data lokal.");
         muatDataOffline();

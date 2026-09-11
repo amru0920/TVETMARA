@@ -177,6 +177,9 @@ function render() {
   const el = document.getElementById('main-content');
   if (!el) return;
 
+  /* Paparan dibina semula — amaran segerak tak relevan lagi */
+  if (typeof tutupToastSegerak === 'function') tutupToastSegerak();
+
   if      (state.tab === 'kedudukan') el.innerHTML = renderKedudukan();
   else if (state.tab === 'keputusan') el.innerHTML = renderKeputusan();
   else if (state.tab === 'jadual')    el.innerHTML = renderJadual();
@@ -228,3 +231,48 @@ function togolDrawMode(sukanId) {
    muatData() dipanggil dari firebase.js selepas data diload
    ================================================================ */
 /* dimulakan dari init.js */
+
+/* ================================================================
+   PENYEGERAKAN SELAMAT — bila beberapa admin guna serentak
+   ================================================================
+   Masalah: onSnapshot mencetuskan render() setiap kali MANA-MANA
+   admin menyimpan. render() menulis semula innerHTML, jadi borang
+   yang admin lain sedang isi terus lenyap di tengah jalan.
+
+   Penyelesaian: state SENTIASA dikemas kini dari server (supaya
+   tiada data hilang semasa simpan), tetapi PAPARAN ditangguhkan
+   selagi ada borang terbuka. Bila admin tekan Simpan atau Batal,
+   render() biasa berjalan dan terus memaparkan data terkini.
+   ================================================================ */
+
+/* Adakah pengguna sedang mengisi sesuatu? */
+function adaBorangTerbuka() {
+  if (state.editingPerlawanan || state.editingAcara ||
+      state.bracketEdit || state.rrEditingMatch) return true;
+
+  /* Panel Tetapan tiada bendera edit — semak kursor pengguna pula */
+  const el = document.activeElement;
+  return !!(el && /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName));
+}
+
+/* Dipanggil oleh onSnapshot, bukan oleh tindakan pengguna */
+function renderSelamat() {
+  if (adaBorangTerbuka()) { paparToastSegerak(); return; }
+  render();
+}
+
+/* Beritahu admin bahawa data berubah, tanpa mengganggu borang */
+var _masaToastSegerak = null;
+function paparToastSegerak() {
+  const t = document.getElementById('sync-toast');
+  if (!t) return;
+  t.style.display = 'flex';
+  clearTimeout(_masaToastSegerak);
+  _masaToastSegerak = setTimeout(() => { t.style.display = 'none'; }, 6000);
+}
+
+function tutupToastSegerak() {
+  const t = document.getElementById('sync-toast');
+  if (t) t.style.display = 'none';
+  clearTimeout(_masaToastSegerak);
+}
