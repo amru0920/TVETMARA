@@ -263,9 +263,19 @@ function _bacaPeringkat(acaraId) {
    dalam borang yang belum disimpan tidak hilang. */
 function tukarSistemAcara(acaraId, sistemId) {
   const adaPeringkat = senaraiPeringkat(sistemId).length > 0;
+  const markahTerus  = sistemMarkahTerus(sistemId);
 
-  const blokPr = document.getElementById('bhg-peringkat-' + acaraId);
-  if (blokPr) blokPr.style.display = adaPeringkat ? 'block' : 'none';
+  /* Ranking Sum tak guna podium / senarai tempat langsung */
+  const papar = function (id, tunjuk, jenis) {
+    const el = document.getElementById(id + '-' + acaraId);
+    if (el) el.style.display = tunjuk ? (jenis || 'block') : 'none';
+  };
+  papar('bhg-podium',    !markahTerus, 'grid');
+  papar('bhg-tempat',    !markahTerus);
+  papar('bhg-markah',     markahTerus);
+  papar('bhg-peringkat',  adaPeringkat && !markahTerus);
+
+  if (markahTerus) kiraRingkasanMarkah(acaraId);
 
   /* Hanya label peringkat terakhir berbeza antara dua sistem berperingkat;
      id-nya sama, jadi pasukan yang sudah ditanda kekal ditanda. */
@@ -291,6 +301,57 @@ function tukarSistemAcara(acaraId, sistemId) {
 
 
 /* ----------------------------------------------------------------
+   MARKAH TERUS — sistem Ranking Sum (TVET Run)
+   ----------------------------------------------------------------
+   Admin taip markah akhir setiap kontinjen; tiada pemilihan tempat
+   langsung. Kedudukan (Tempat 1, 2, 3 …) dijana sendiri dari markah
+   tertinggi semasa simpan, supaya pingat dan paparan awam tetap
+   berfungsi seperti acara lain.
+   ---------------------------------------------------------------- */
+
+/* Satu baris markah bagi setiap kontinjen */
+function _htmlMarkahTerus(acaraId, markah) {
+  const m = markah || {};
+  return (state.pasukan || []).map(function (nama, i) {
+    const id = 'mk-' + acaraId + '-' + i;
+    return '<div class="mk-baris">' +
+             '<label class="mk-nama" for="' + id + '">' + nama + '</label>' +
+             '<input type="number" class="mk-input" id="' + id + '"' +
+             ' data-nama="' + nama + '" min="0" step="1" placeholder="0"' +
+             ' value="' + (m[nama] != null ? m[nama] : '') + '"' +
+             ' oninput="kiraRingkasanMarkah(' + "'" + acaraId + "'" + ')"/>' +
+           '</div>';
+  }).join('');
+}
+
+/* Baca semua markah yang ditaip — hanya yang lebih daripada 0 disimpan */
+function _bacaMarkahTerus(acaraId) {
+  const hasil = {};
+  const wrap  = document.getElementById('markah-' + acaraId);
+  if (!wrap) return hasil;
+  Array.prototype.forEach.call(wrap.querySelectorAll('.mk-input'), function (inp) {
+    const n = parseInt(inp.value, 10);
+    if (n > 0) hasil[inp.dataset.nama] = n;
+  });
+  return hasil;
+}
+
+/* Ringkasan langsung di bawah senarai: berapa kontinjen & siapa teratas */
+function kiraRingkasanMarkah(acaraId) {
+  const el = document.getElementById('mk-ringkas-' + acaraId);
+  if (!el) return;
+  const markah = _bacaMarkahTerus(acaraId);
+  const susun  = susunIkutMarkah(markah);
+  if (!susun.length) { el.textContent = 'Belum ada markah dimasukkan.'; return; }
+  const ikon = ['🥇', '🥈', '🥉'];
+  const tiga = susun.slice(0, 3)
+    .map((n, i) => ikon[i] + ' ' + n + ' (' + markah[n] + ')')
+    .join('   ');
+  el.textContent = susun.length + ' kontinjen bermarkah   ·   ' + tiga;
+}
+
+
+/* ----------------------------------------------------------------
    FORM EDIT KEPUTUSAN (staff sahaja)
    ---------------------------------------------------------------- */
 function renderFormEdit(acara, sukan, isPasukan) {
@@ -307,8 +368,10 @@ function renderFormEdit(acara, sukan, isPasukan) {
     : 'Belum ada — podium 3 tempat sahaja';
 
   /* Sistem markah acara ini */
-  const sistemKini  = sistemAcara(acara);
-  const adaPeringkat = senaraiPeringkat(sistemKini).length > 0;
+  const sistemKini   = sistemAcara(acara);
+  const adaPeringkat  = senaraiPeringkat(sistemKini).length > 0;
+  const markahTerus   = sistemMarkahTerus(sistemKini);
+  const markahHTML    = _htmlMarkahTerus(acara.id, r.markah);
   const opsSistem = Object.keys(SISTEM_MARKAH).map(k =>
     `<option value="${k}" ${k === sistemKini ? 'selected' : ''}>` +
     `${SISTEM_MARKAH[k].icon} ${SISTEM_MARKAH[k].label}</option>`
@@ -335,7 +398,8 @@ function renderFormEdit(acara, sukan, isPasukan) {
         </div>
       </div>
 
-      <div class="podium-edit-grid">
+      <div class="podium-edit-grid" id="bhg-podium-${acara.id}"
+        style="display:${markahTerus ? 'none' : 'grid'}">
 
         <div class="podium-edit-slot">
           <div class="podium-edit-label p1">🥇 Tempat 1<span class="tempat-mata" data-mata-pos="1">${mataTempat(sistemKini, 1)} mata</span></div>
@@ -355,7 +419,8 @@ function renderFormEdit(acara, sukan, isPasukan) {
       </div>
 
       <!-- Tempat ke-4 dan seterusnya — untuk acara format Ranking -->
-      <div class="tempat-lain-blok">
+      <div class="tempat-lain-blok" id="bhg-tempat-${acara.id}"
+        style="display:${markahTerus ? 'none' : 'block'}">
         <div class="tempat-lain-kepala">
           <div>
             <div class="tempat-lain-tajuk">📋 Tempat Ke-4 &amp; Seterusnya</div>
@@ -378,6 +443,18 @@ function renderFormEdit(acara, sukan, isPasukan) {
           Beberapa pasukan boleh berkongsi peringkat yang sama.
         </div>
         <div id="peringkat-${acara.id}">${peringkatHTML}</div>
+      </div>
+
+      <!-- Markah terus — sistem Ranking Sum (TVET Run) -->
+      <div class="markah-blok" id="bhg-markah-${acara.id}"
+        style="display:${markahTerus ? 'block' : 'none'}">
+        <div class="tempat-lain-tajuk">🧮 Markah Setiap Kontinjen</div>
+        <div class="tempat-lain-nota" style="margin-bottom:10px">
+          Taip markah akhir yang sudah dikira. Markah ini terus menjadi mata
+          dalam Kedudukan. Biarkan kosong bagi kontinjen yang tidak menyertai.
+        </div>
+        <div class="mk-senarai" id="markah-${acara.id}">${markahHTML}</div>
+        <div class="mk-ringkas" id="mk-ringkas-${acara.id}"></div>
       </div>
 
       <div class="btn-group">
@@ -422,14 +499,20 @@ function renderPaparAcara(acara, r, isStaff, isPasukan) {
       <div class="podium-result-slot">
         <div class="podium-result-label p1">🥇 Tempat 1</div>
         <div class="podium-result-nama e">${r[1]}</div>
+        ${r.markah && r[1] && r.markah[r[1]] != null
+          ? `<div class="podium-mata">${r.markah[r[1]]} mata</div>` : ''}
       </div>
       <div class="podium-result-slot">
         <div class="podium-result-label p2">🥈 Tempat 2</div>
         <div class="podium-result-nama p">${r[2] || '—'}</div>
+        ${r.markah && r[2] && r.markah[r[2]] != null
+          ? `<div class="podium-mata">${r.markah[r[2]]} mata</div>` : ''}
       </div>
       <div class="podium-result-slot">
         <div class="podium-result-label p3">🥉 Tempat 3</div>
         <div class="podium-result-nama g">${r[3] || '—'}</div>
+        ${r.markah && r[3] && r.markah[r[3]] != null
+          ? `<div class="podium-mata">${r.markah[r[3]]} mata</div>` : ''}
       </div>
     </div>
   `;
@@ -443,6 +526,8 @@ function renderPaparAcara(acara, r, isStaff, isPasukan) {
         <div class="rank-baris">
           <div class="rank-no">${i + 4}</div>
           <div class="rank-nama">${nama}</div>
+          ${r.markah && r.markah[nama] != null
+            ? `<div class="rank-mata">${r.markah[nama]} mata</div>` : ''}
         </div>
       `).join('')}
     </div>
@@ -519,6 +604,39 @@ function batalEdit() {
 
 function simpanKeputusan(acaraId) {
   if (!state.staffLogin) return;
+
+  const _sukanAcara0 = state.sukan.find(s => s.acara.some(a => a.id === acaraId));
+  const _objAcara0   = _sukanAcara0?.acara.find(a => a.id === acaraId);
+  const sistemPilih  = document.getElementById('sistem-' + acaraId)?.value || SISTEM_ASAL;
+
+  /* ── Ranking Sum: admin taip markah, kedudukan dijana dari markah ── */
+  if (sistemMarkahTerus(sistemPilih)) {
+    const markah = _bacaMarkahTerus(acaraId);
+    const susun  = susunIkutMarkah(markah);
+
+    if (!susun.length) {
+      alert('Sila masukkan markah untuk sekurang-kurangnya satu kontinjen.');
+      return;
+    }
+
+    const rekod = { markah: markah };
+    susun.forEach(function (nama, i) { rekod[i + 1] = nama; });
+
+    if (_objAcara0) _objAcara0.sistem = sistemPilih;
+
+    if (typeof tambahLog === 'function') {
+      tambahLog('keputusan_simpan',
+        (_objAcara0?.nama || acaraId) + ' → markah ' + susun.length +
+        ' kontinjen, teratas ' + susun[0] + ' (' + markah[susun[0]] + ')' +
+        ' (' + SISTEM_MARKAH[sistemPilih].label + ')');
+    }
+
+    state.keputusan[acaraId] = rekod;
+    state.editingAcara = null;
+    simpanData();
+    render();
+    return;
+  }
 
   const s1 = _bacaNilaiTempat(acaraId, 1);
   const s2 = _bacaNilaiTempat(acaraId, 2);

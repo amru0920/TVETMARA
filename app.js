@@ -58,8 +58,17 @@ function getKedudukan() {
     if (!r || !r[1]) return;
     const sistemId = sistemAcara(a);
 
-    /* Tempat bernombor — berhenti pada lompang pertama */
+    /* Tempat bernombor — berhenti pada lompang pertama.
+       Bagi Ranking Sum, mataTempat() pulangkan 0: kedudukan hanya
+       menentukan pingat, manakala mata datang dari r.markah di bawah. */
     for (let pos = 1; r[pos]; pos++) tambah(r[pos], mataTempat(sistemId, pos), pos);
+
+    /* Ranking Sum — markah yang admin taip terus jadi mata */
+    if (r.markah) {
+      Object.keys(r.markah).forEach(nama => {
+        tambah(nama, parseInt(r.markah[nama], 10) || 0, 0);
+      });
+    }
 
     /* Peringkat dicapai (Liga+Kalah Mati / Kalah Mati) */
     const pr = r.peringkat || {};

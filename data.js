@@ -39,6 +39,15 @@ const SISTEM_MARKAH = {
       { min: 27, max: Infinity, mata: 1 },
     ],
   },
+  ranking_sum: {
+    label: 'Ranking Sum',
+    icon:  '🧮',
+    /* Admin taip markah akhir setiap kontinjen terus — tiada penukaran
+       nombor tempat kepada mata. Untuk acara yang pengiraannya dibuat
+       di luar sistem (cth TVET Run: himpunan mata setiap pelari). */
+    markahTerus: true,
+    tempat: {},
+  },
   kalah_mati: {
     label: 'Kalah Mati',
     icon:  '⚔️',
@@ -77,6 +86,21 @@ function mataPeringkat(sistemId, peringkatId) {
   const S = SISTEM_MARKAH[sistemId] || SISTEM_MARKAH[SISTEM_ASAL];
   const p = (S.peringkat || []).find(x => x.id === peringkatId);
   return p ? p.mata : 0;
+}
+
+/* Sistem yang admin taip markah terus, bukan nombor tempat? */
+function sistemMarkahTerus(sistemId) {
+  const S = SISTEM_MARKAH[sistemId] || SISTEM_MARKAH[SISTEM_ASAL];
+  return !!S.markahTerus;
+}
+
+/* Susun nama kontinjen ikut markah menurun.
+   Markah 0 / kosong dilangkau — sepadan dengan peraturan rasmi:
+   "tiada markah bagi kontinjen yang tidak menghantar penyertaan". */
+function susunIkutMarkah(markah) {
+  return Object.keys(markah || {})
+    .filter(n => Number(markah[n]) > 0)
+    .sort((a, b) => Number(markah[b]) - Number(markah[a]) || a.localeCompare(b));
 }
 
 /* Senarai peringkat bagi satu sistem (kosong bagi Ranking) */
@@ -142,8 +166,8 @@ const SUKAN_RASMI = [
       { nama: 'Berpasukan (PUBG)', sistem: 'ranking' } ] },
 
   { nama: 'TVET Run',     icon: '🏃', jenis: 'individu', kategori: [
-      { nama: 'Lelaki',    sistem: 'ranking' },
-      { nama: 'Perempuan', sistem: 'ranking' } ] },
+      { nama: 'Lelaki',    sistem: 'ranking_sum' },
+      { nama: 'Perempuan', sistem: 'ranking_sum' } ] },
 
   { nama: 'Catur',        icon: '♟️', jenis: 'individu', kategori: [
       { nama: 'Terbuka', sistem: 'ranking' } ] },
