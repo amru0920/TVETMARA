@@ -33,50 +33,73 @@ let _capJauh = {};
    memadam perlawanan yang admin lain baru simpan.
    ---------------------------------------------------------------- */
 function _gabungTigaHala(asas, lama, baru) {
-  const rentetan = v => JSON.stringify(v);
+  const rentetan  = v => JSON.stringify(v);
   const petaBiasa = v => v && typeof v === 'object' && !Array.isArray(v);
+  const senaraiId = v => Array.isArray(v) &&
+    v.every(x => x && typeof x === 'object' && !Array.isArray(x) && x.id != null);
 
   /* Senarai objek ber-id (jadual) — gabung ikut id */
-  if (Array.isArray(baru) && Array.isArray(lama) &&
-      baru.every(x => x && typeof x === 'object' && x.id != null) &&
-      lama.every(x => x && typeof x === 'object' && x.id != null)) {
-
+  if (senaraiId(baru) && senaraiId(lama)) {
     const hasil = new Map();
     (Array.isArray(asas) ? asas : []).forEach(x => {
       if (x && x.id != null) hasil.set(x.id, x);
     });
 
     const petaLama = new Map();
-    lama.forEach(x => petaLama.set(x.id, rentetan(x)));
+    lama.forEach(x => petaLama.set(x.id, x));
 
     /* Item yang SAYA buang */
     petaLama.forEach((_, id) => {
       if (!baru.some(x => x.id === id)) hasil.delete(id);
     });
 
-    /* Item yang SAYA tambah atau ubah */
     baru.forEach(x => {
-      if (petaLama.get(x.id) !== rentetan(x)) hasil.set(x.id, x);
-      else if (!hasil.has(x.id)) hasil.set(x.id, x);
+      const asalnya = petaLama.get(x.id);
+
+      /* Item baharu, atau saya tidak sentuh langsung */
+      if (asalnya === undefined) { hasil.set(x.id, x); return; }
+      if (rentetan(asalnya) === rentetan(x)) {
+        if (!hasil.has(x.id)) hasil.set(x.id, x);
+        return;
+      }
+
+      /* Saya ubah item ini — gabung IKUT MEDAN, bukan ganti seluruh
+         objek. Jadi kalau admin lain ubah masa pada perlawanan yang
+         sama sementara saya ubah skor, kedua-duanya kekal. */
+      hasil.set(x.id, _gabungTigaHala(hasil.get(x.id), asalnya, x));
     });
 
     return Array.from(hasil.values());
   }
 
-  /* Map berkunci (keputusan, bracket, roundRobin, …) — gabung ikut kunci */
+  /* Objek berkunci — map (keputusan, bracket, …) atau satu rekod
+     perlawanan. Digabung kunci demi kunci, secara rekursif. */
   if (petaBiasa(baru) && petaBiasa(lama)) {
     const hasil = Object.assign({}, petaBiasa(asas) ? asas : {});
+
+    /* Kunci yang SAYA buang */
     Object.keys(lama).forEach(k => { if (!(k in baru)) delete hasil[k]; });
+
     Object.keys(baru).forEach(k => {
-      if (rentetan(lama[k]) !== rentetan(baru[k])) hasil[k] = baru[k];
-      else if (!(k in hasil)) hasil[k] = baru[k];
+      if (rentetan(lama[k]) === rentetan(baru[k])) {
+        /* Saya tak sentuh — kekalkan nilai server kalau ada */
+        if (!(k in hasil)) hasil[k] = baru[k];
+      } else if (petaBiasa(baru[k]) && petaBiasa(lama[k])) {
+        hasil[k] = _gabungTigaHala(hasil[k], lama[k], baru[k]);
+      } else if (senaraiId(baru[k]) && senaraiId(lama[k])) {
+        hasil[k] = _gabungTigaHala(hasil[k], lama[k], baru[k]);
+      } else {
+        hasil[k] = baru[k];
+      }
     });
+
     return hasil;
   }
 
   /* Senarai teks (pasukan) atau nilai mudah (password) — ganti terus */
   return baru;
 }
+
 
 /* Ambil cap JSON semua medan dari satu snapshot server */
 function _rakamCapJauh(data) {
