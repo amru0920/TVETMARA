@@ -589,6 +589,36 @@ function janaBracketSukuAkhir(sukanId, katKey) {
 
   if (layak.length < 2) { alert('Tambah pasukan layak dahulu.'); return; }
 
+  /* Menjana semula MEMBUANG seluruh bracket sedia ada — suku akhir
+     ditulis ganti, separuh akhir dan tempat ke-3 dikosongkan. Tanpa
+     amaran, satu klik memusnahkan semua keputusan kalah mati. */
+  const _br = state.bracket?.[sukanId];
+  if (_br) {
+    const _adaSkor = ['suku_akhir', 'separuh_akhir', 'tempat_ketiga', 'final']
+      .flatMap(f => _br[f] || [])
+      .filter(m => (m.scoreRumah || 0) > 0 || (m.scoreTamu || 0) > 0 || m.status === 'selesai');
+
+    if (_adaSkor.length) {
+      const nl = String.fromCharCode(10);
+      const senarai = _adaSkor.slice(0, 5).map(m =>
+        '   ' + (m.rumah || '?') + ' ' + (m.scoreRumah || 0) + '-' +
+        (m.scoreTamu || 0) + ' ' + (m.tamu || '?')).join(nl);
+      const lagi = _adaSkor.length > 5
+        ? nl + '   … dan ' + (_adaSkor.length - 5) + ' lagi' : '';
+      const pesan = [
+        '⚠ AMARAN — ' + _adaSkor.length + ' perlawanan bracket sudah ada keputusan.',
+        '',
+        senarai + lagi,
+        '',
+        'Menjana semula akan MEMADAM kesemuanya.',
+        'Tindakan ini tidak boleh dibatalkan.',
+        '',
+        'Teruskan?',
+      ].join(nl);
+      if (!confirm(pesan)) return;
+    }
+  }
+
   /* Tentukan pasangan */
   let pasangan = kaedah === 'undi'
     ? _seedingUndi(layak)

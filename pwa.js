@@ -106,7 +106,10 @@ function pwaTukarTab(jenis) {
    DAFTAR SERVICE WORKER
    ================================================================ */
 function pwaDaftarSW() {
-  if (!('serviceWorker' in navigator)) return;
+  /* Semak nilainya, bukan sekadar kewujudan kunci: sesetengah
+     pelayar dalam-app mendedahkan navigator.serviceWorker sebagai
+     undefined, lalu .register() membaling TypeError. */
+  if (!navigator.serviceWorker) return;
   /* Service worker perlu HTTPS (atau localhost) */
   if (location.protocol !== 'https:' && location.hostname !== 'localhost') return;
 

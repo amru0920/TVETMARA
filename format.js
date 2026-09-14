@@ -778,6 +778,31 @@ function janaJadualKumpulan(sukanId, katKey, katNama) {
     return inp?.value?.trim() || 'Gelanggang ' + String.fromCharCode(65 + i);
   });
 
+
+  /* Menjana semula MEMADAM jadual sedia ada dan membinanya semula.
+     Skor dikekalkan hanya bagi pasangan yang MASIH WUJUD dalam
+     susunan baharu — kalau ahli kumpulan diubah atau tuan rumah
+     bertukar, skor perlawanan itu HILANG tanpa jejak. */
+  {
+    const _berskor = state.jadual.filter(m =>
+      m.sukanId === sukanId && m.peringkat === 'kumpulan' &&
+      (!katNama || m.kategori === katNama) &&
+      ((m.scoreRumah || 0) > 0 || (m.scoreTamu || 0) > 0 || m.status === 'selesai'));
+    if (_berskor.length) {
+      const nl = String.fromCharCode(10);
+      const pesan = [
+        '⚠ AMARAN — ' + _berskor.length + ' perlawanan sudah ada skor.',
+        '',
+        'Menjana semula akan membina jadual baharu. Skor dikekalkan',
+        'hanya bagi perlawanan yang masih wujud dengan pasangan yang',
+        'sama. Kalau ahli kumpulan berubah, skor itu akan HILANG.',
+        '',
+        'Teruskan?',
+      ].join(nl);
+      if (!confirm(pesan)) return;
+    }
+  }
+
   /* Kekal score lama (ikut kategori kalau ada) */
   const infoLama = {};
   state.jadual.filter(m =>

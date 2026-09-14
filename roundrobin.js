@@ -807,6 +807,28 @@ function rrKemaskiniNamaGelanggang(sukanId) {
 }
 
 function rrJanaJadual(sukanId) {
+
+  /* Menjana semula MEMADAM jadual sedia ada dan membinanya semula.
+     Skor dikekalkan hanya bagi pasangan yang MASIH WUJUD dalam
+     susunan baharu — kalau ahli kumpulan diubah atau tuan rumah
+     bertukar, skor perlawanan itu HILANG tanpa jejak. */
+  {
+    const _berskor = (state.roundRobin?.[sukanId]?.perlawanan || [])
+      .filter(m => (m.scoreRumah || 0) > 0 || (m.scoreTamu || 0) > 0 || m.status === 'selesai');
+    if (_berskor.length) {
+      const nl = String.fromCharCode(10);
+      const pesan = [
+        '⚠ AMARAN — ' + _berskor.length + ' perlawanan sudah ada skor.',
+        '',
+        'Menjana semula akan membina jadual baharu. Skor dikekalkan',
+        'hanya bagi perlawanan yang masih wujud dengan pasangan yang',
+        'sama. Kalau ahli kumpulan berubah, skor itu akan HILANG.',
+        '',
+        'Teruskan?',
+      ].join(nl);
+      if (!confirm(pesan)) return;
+    }
+  }
   const rr      = rrPastikan(sukanId);
   const peserta = rr.peserta;
   if (peserta.length < 2) { alert('Tambah sekurang-kurangnya 2 peserta dahulu.'); return; }
