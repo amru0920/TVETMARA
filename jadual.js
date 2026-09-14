@@ -1426,16 +1426,19 @@ function hariAktif(sukanId) {
 
 function bukaFormTambah() {
   state.editingPerlawanan = 'BAHARU';
+  lupakanJejakKonflik();      /* perlawanan baharu — tiada konflik */
   render();
 }
 
 function editPerlawanan(id) {
   state.editingPerlawanan = id;
+  mulaJejakKonflik('jadual:' + id, state.jadual.find(m => m.id === id));
   render();
 }
 
 function batalEditPerlawanan() {
   state.editingPerlawanan = null;
+  lupakanJejakKonflik();
   render();
 }
 
@@ -1580,6 +1583,18 @@ function simpanPerlawanan() {
     status, scoreRumah: sRumah, scoreTamu: sTamu,
   };
 
+  /* Ada admin lain menyimpan perlawanan ini semasa borang terbuka? */
+  if (!isBaharu && !izinSimpanKonflik(
+        'jadual:' + id,
+        state.jadual.find(m => m.id === id),
+        ringkasPerlawanan(state.jadual.find(m => m.id === id)),
+        ringkasPerlawanan(data))) {
+    state.editingPerlawanan = null;
+    lupakanJejakKonflik();
+    render();
+    return;
+  }
+
   if (isBaharu) {
     state.jadual.push(data);
     if (!state.selectedHari) state.selectedHari = {};
@@ -1591,6 +1606,7 @@ function simpanPerlawanan() {
   }
 
   state.editingPerlawanan = null;
+  lupakanJejakKonflik();
   simpanData();
   semakAutoStatus(); /* ← semak terus, jangan tunggu 30 saat */
   render();
@@ -1696,6 +1712,7 @@ function cepatSelesai(id) {
   if (!p) return;
 
   state.editingPerlawanan = id;
+  mulaJejakKonflik('jadual:' + id, p);
 
   /* Badminton — terus ke form set, status dah preset selesai */
   if (typeof adaBadminton === 'function' && adaBadminton(p.sukanId)) {

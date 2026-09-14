@@ -242,6 +242,24 @@ function simpanBadmintonScore(sukanId, perlId, isBracket, fasa, mi, formId) {
   }
   if (!p) return;
 
+  /* Ada admin lain menyimpan perlawanan ini semasa borang terbuka? */
+  const kunciK = isBracket
+    ? 'bracket:' + sukanId + ':' + fasa + ':' + mi
+    : 'jadual:' + perlId;
+  const cadangan = Object.assign({}, p, {
+    status: status,
+    scoreRumah: info.menangR,
+    scoreTamu:  info.menangT,
+    masa: masa, gelanggang: gelanggang,
+  });
+  if (!izinSimpanKonflik(kunciK, p, ringkasPerlawanan(p), ringkasPerlawanan(cadangan))) {
+    if (isBracket) { state.bracketEdit = null; state.bracketPresetSelesai = false; }
+    else           { state.editingPerlawanan = null; state.rrEditPresetSelesai = null; }
+    lupakanJejakKonflik();
+    render();
+    return;
+  }
+
   /* Nama pasukan — boleh ditukar bila slot masih placeholder (cth "JUARA A") */
   const namaRumah = bacaPasukanEdit(formId + '-rumah');
   const namaTamu  = bacaPasukanEdit(formId + '-tamu');
@@ -269,6 +287,7 @@ function simpanBadmintonScore(sukanId, perlId, isBracket, fasa, mi, formId) {
     state.rrEditPresetSelesai  = null;
   }
 
+  lupakanJejakKonflik();
   simpanData();
   render();
 }
@@ -276,6 +295,7 @@ function simpanBadmintonScore(sukanId, perlId, isBracket, fasa, mi, formId) {
 function batalEditScore() {
   state.editingPerlawanan   = null;
   state.rrEditPresetSelesai = null;
+  lupakanJejakKonflik();
   render();
 }
 
@@ -358,6 +378,7 @@ function renderKadBadminton(p, isStaff, isBracket, fasa, mi) {
 function bukaEditBadminton(perlId, presetSelesai) {
   state.editingPerlawanan  = perlId;
   state.rrEditPresetSelesai = presetSelesai ? perlId : null;
+  mulaJejakKonflik('jadual:' + perlId, state.jadual.find(m => m.id === perlId));
   render();
 }
 

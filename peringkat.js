@@ -721,11 +721,15 @@ function kemaskiniSemakBracket(sukanId) {
    ================================================================ */
 function mulaEditBracket(sukanId, fasa, mi) {
   state.bracketEdit = sukanId + '_' + fasa + '_' + mi;
+  mulaJejakKonflik('bracket:' + sukanId + ':' + fasa + ':' + mi,
+                   state.bracket?.[sukanId]?.[fasa]?.[mi]);
   render();
 }
 
 function mulaEditBracketSelesai(sukanId, fasa, mi) {
   state.bracketEdit        = sukanId + '_' + fasa + '_' + mi;
+  mulaJejakKonflik('bracket:' + sukanId + ':' + fasa + ':' + mi,
+                   state.bracket?.[sukanId]?.[fasa]?.[mi]);
   state.bracketPresetSelesai = true;
   render();
 }
@@ -733,6 +737,7 @@ function mulaEditBracketSelesai(sukanId, fasa, mi) {
 function batalEditBracket() {
   state.bracketEdit          = null;
   state.bracketPresetSelesai = false;
+  lupakanJejakKonflik();
   render();
 }
 
@@ -746,6 +751,22 @@ function simpanBracketPerlawanan(sukanId, fasa, mi) {
   if (!bracket?.[fasa]?.[mi]) return;
 
   const m = bracket[fasa][mi];
+
+  /* Ada admin lain menyimpan perlawanan ini semasa borang terbuka? */
+  const _st = document.getElementById('bk-status-' + fasa + '-' + mi)?.value || 'akan_datang';
+  const _cadang = Object.assign({}, m, {
+    status: _st,
+    scoreRumah: parseInt(document.getElementById('bk-sr-' + fasa + '-' + mi)?.value) || 0,
+    scoreTamu:  parseInt(document.getElementById('bk-st-' + fasa + '-' + mi)?.value) || 0,
+  });
+  if (!izinSimpanKonflik('bracket:' + sukanId + ':' + fasa + ':' + mi, m,
+                         ringkasPerlawanan(m), ringkasPerlawanan(_cadang))) {
+    state.bracketEdit = null;
+    state.bracketPresetSelesai = false;
+    lupakanJejakKonflik();
+    render();
+    return;
+  }
 
   /* Nama pasukan — boleh ditukar bila slot masih placeholder (cth "JUARA A") */
   const namaRumah = bacaPasukanEdit('bk-rumah-' + fasa + '-' + mi);
@@ -771,6 +792,7 @@ function simpanBracketPerlawanan(sukanId, fasa, mi) {
   state.bracketEdit          = null;
   state.bracketPresetSelesai = false;
 
+  lupakanJejakKonflik();
   kemaskiniSemakBracket(sukanId);
   simpanData();
   render();

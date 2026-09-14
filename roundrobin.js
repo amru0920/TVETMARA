@@ -950,6 +950,8 @@ function rrPadamSemuaJadual(sukanId) {
 
 /* Mula edit perlawanan */
 function rrMulaEdit(sukanId, mi) {
+  mulaJejakKonflik('rr:' + sukanId + ':' + mi,
+                   state.roundRobin?.[sukanId]?.perlawanan?.[mi]);
   state.rrEditingMatch     = sukanId + '___' + mi;
   state.rrEditPresetSelesai = false;
   render();
@@ -957,6 +959,8 @@ function rrMulaEdit(sukanId, mi) {
 
 /* Tamat + Score — buka edit dengan status selesai dipilih */
 function rrMulaEditSelesai(sukanId, mi) {
+  mulaJejakKonflik('rr:' + sukanId + ':' + mi,
+                   state.roundRobin?.[sukanId]?.perlawanan?.[mi]);
   state.rrEditingMatch      = sukanId + '___' + mi;
   state.rrEditPresetSelesai = true;
   render();
@@ -964,6 +968,7 @@ function rrMulaEditSelesai(sukanId, mi) {
 
 /* Batal edit */
 function rrBatalEdit() {
+  lupakanJejakKonflik();
   state.rrEditingMatch      = null;
   state.rrEditPresetSelesai = false;
   render();
@@ -981,15 +986,35 @@ function rrSimpanPerlawanan(sukanId, mi) {
   if (!rr?.perlawanan?.[mi]) return;
 
   const m = rr.perlawanan[mi];
+
+  const _cadang = Object.assign({}, m, {
+    masa:       document.getElementById('rr-e-masa-'   + mi)?.value  || '',
+    gelanggang: document.getElementById('rr-e-gel-'    + mi)?.value?.trim() || '',
+    status:     document.getElementById('rr-e-status-' + mi)?.value  || 'akan_datang',
+    scoreRumah: parseInt(document.getElementById('rr-e-sr-' + mi)?.value) || 0,
+    scoreTamu:  parseInt(document.getElementById('rr-e-st-' + mi)?.value) || 0,
+  });
+
+  /* Ada admin lain menyimpan perlawanan ini semasa borang terbuka? */
+  if (!izinSimpanKonflik('rr:' + sukanId + ':' + mi, m,
+                         ringkasPerlawanan(m), ringkasPerlawanan(_cadang))) {
+    state.rrEditingMatch      = null;
+    state.rrEditPresetSelesai = false;
+    lupakanJejakKonflik();
+    render();
+    return;
+  }
+
   m.tarikh     = document.getElementById('rr-e-tarikh-' + mi)?.value  || '';
-  m.masa       = document.getElementById('rr-e-masa-'   + mi)?.value  || '';
-  m.gelanggang = document.getElementById('rr-e-gel-'    + mi)?.value?.trim() || '';
-  m.status     = document.getElementById('rr-e-status-' + mi)?.value  || 'akan_datang';
-  m.scoreRumah = parseInt(document.getElementById('rr-e-sr-' + mi)?.value) || 0;
-  m.scoreTamu  = parseInt(document.getElementById('rr-e-st-' + mi)?.value) || 0;
+  m.masa       = _cadang.masa;
+  m.gelanggang = _cadang.gelanggang;
+  m.status     = _cadang.status;
+  m.scoreRumah = _cadang.scoreRumah;
+  m.scoreTamu  = _cadang.scoreTamu;
 
   state.rrEditingMatch      = null;
   state.rrEditPresetSelesai = false;
+  lupakanJejakKonflik();
   simpanData();
   render();
 }

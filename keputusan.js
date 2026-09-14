@@ -594,12 +594,21 @@ function togolManualKeputusan(acaraId, pos, nilai) {
 function mulaEdit(acaraId) {
   if (!state.staffLogin) { bukaPanelLogin(); return; }
   state.editingAcara = acaraId;
+  mulaJejakKonflik('keputusan:' + acaraId, state.keputusan[acaraId]);
   render();
 }
 
 function batalEdit() {
   state.editingAcara = null;
+  lupakanJejakKonflik();
   render();
+}
+
+/* Ringkasan pendek satu keputusan, untuk dialog konflik */
+function ringkasKeputusan(r) {
+  if (!r) return '(belum ada keputusan)';
+  const tiga = [1, 2, 3].filter(p => r[p]).map(p => p + '. ' + r[p]).join(',  ');
+  return (tiga || '(kosong)') + (r.markah ? '   (+markah)' : '');
 }
 
 function simpanKeputusan(acaraId) {
@@ -622,6 +631,12 @@ function simpanKeputusan(acaraId) {
     const rekod = { markah: markah };
     susun.forEach(function (nama, i) { rekod[i + 1] = nama; });
 
+    if (!izinSimpanKonflik('keputusan:' + acaraId, state.keputusan[acaraId],
+                           ringkasKeputusan(state.keputusan[acaraId]),
+                           ringkasKeputusan(rekod))) {
+      state.editingAcara = null; lupakanJejakKonflik(); render(); return;
+    }
+
     if (_objAcara0) _objAcara0.sistem = sistemPilih;
 
     if (typeof tambahLog === 'function') {
@@ -633,6 +648,7 @@ function simpanKeputusan(acaraId) {
 
     state.keputusan[acaraId] = rekod;
     state.editingAcara = null;
+    lupakanJejakKonflik();
     simpanData();
     render();
     return;
@@ -700,6 +716,13 @@ function simpanKeputusan(acaraId) {
   lain.forEach(function(nama, i) { rekod[i + 4] = nama; });
   if (peringkat && Object.keys(peringkat).length) rekod.peringkat = peringkat;
 
+  /* Ada admin lain menyimpan keputusan ini semasa borang terbuka? */
+  if (!izinSimpanKonflik('keputusan:' + acaraId, state.keputusan[acaraId],
+                         ringkasKeputusan(state.keputusan[acaraId]),
+                         ringkasKeputusan(rekod))) {
+    state.editingAcara = null; lupakanJejakKonflik(); render(); return;
+  }
+
   /* Sistem disimpan pada acara (bukan pada keputusan) supaya ia kekal
      walaupun keputusan dipadam dan dimasukkan semula. */
   const _sukanAcara = state.sukan.find(s => s.acara.some(a => a.id === acaraId));
@@ -718,6 +741,7 @@ function simpanKeputusan(acaraId) {
 
   state.keputusan[acaraId] = rekod;
   state.editingAcara = null;
+  lupakanJejakKonflik();
   simpanData();
   render();
 }

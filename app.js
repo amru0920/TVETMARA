@@ -293,3 +293,53 @@ function tutupRalatSimpan() {
   const t = document.getElementById('ralat-toast');
   if (t) t.style.display = 'none';
 }
+
+
+/* ================================================================
+   AMARAN KONFLIK SUNTINGAN
+   ================================================================
+   Bila borang dibuka, kita rakam rupa rekod itu pada saat itu.
+   Kerana onSnapshot sentiasa mengemas kini state walaupun borang
+   terbuka, rekod dalam state akan berubah kalau admin lain
+   menyimpannya. Jadi semasa Simpan, cukup bandingkan semula —
+   tiada bacaan tambahan ke server diperlukan.
+
+   Kalau ia berubah, admin diberitahu dan DIA yang putuskan.
+   Tiada apa-apa ditimpa tanpa pengetahuannya.
+   ================================================================ */
+
+var _asasEdit = null;   /* { kunci, cap } */
+
+function mulaJejakKonflik(kunci, rekod) {
+  _asasEdit = { kunci: kunci, cap: JSON.stringify(rekod === undefined ? null : rekod) };
+}
+
+function lupakanJejakKonflik() { _asasEdit = null; }
+
+/* Pulangkan true kalau selamat diteruskan.
+   teksMereka / teksSaya = ringkasan pendek untuk dipapar. */
+function izinSimpanKonflik(kunci, rekodSekarang, teksMereka, teksSaya) {
+  if (!_asasEdit || _asasEdit.kunci !== kunci) return true;
+
+  const cap = JSON.stringify(rekodSekarang === undefined ? null : rekodSekarang);
+  if (cap === _asasEdit.cap) return true;      /* tiada sesiapa menyentuhnya */
+
+  return confirm(
+    '\u26a0 ADMIN LAIN BARU MENGUBAH REKOD INI\n\n' +
+    'Semasa borang anda terbuka, seseorang menyimpan perubahan.\n\n' +
+    'Di server sekarang:\n   ' + teksMereka + '\n\n' +
+    'Yang anda masukkan:\n   ' + teksSaya + '\n\n' +
+    'OK    = simpan nilai ANDA (menimpa nilai mereka)\n' +
+    'Batal = buang suntingan anda dan lihat nilai mereka'
+  );
+}
+
+/* Ringkasan pendek satu perlawanan, untuk dialog di atas */
+function ringkasPerlawanan(m) {
+  if (!m) return '(rekod sudah dipadam)';
+  const skor = (m.status === 'akan_datang')
+    ? 'belum bermula'
+    : (m.scoreRumah || 0) + ' - ' + (m.scoreTamu || 0);
+  return (m.rumah || '?') + ' ' + skor + ' ' + (m.tamu || '?') +
+         '   [' + (m.masa || '-') + ', ' + (m.gelanggang || '-') + ']';
+}
