@@ -304,6 +304,8 @@ function batalEditScore() {
    RENDER — KAD PERLAWANAN BADMINTON (paparan normal)
    ================================================================ */
 function renderKadBadminton(p, isStaff, isBracket, fasa, mi) {
+  p = utkPapar(p);
+
   const selesai = p.status === 'selesai';
   const live    = p.status === 'sedang_berlangsung';
   const menang  = selesai ? (p.scoreRumah > p.scoreTamu ? p.rumah : p.scoreTamu > p.scoreRumah ? p.tamu : null) : null;

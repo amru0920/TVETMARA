@@ -351,6 +351,8 @@ function bacaPasukanEdit(idPrefix) {
    KAD BRACKET (satu perlawanan dalam bracket)
    ================================================================ */
 function renderKadBracket(sukanId, m, mi, fasa) {
+  m = utkPapar(m);
+
   const selesai     = m.status === 'selesai';
   const live        = m.status === 'sedang_berlangsung';
   const menang      = selesai ? pemenangPerlawanan(m) : null;

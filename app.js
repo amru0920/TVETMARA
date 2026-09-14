@@ -19,27 +19,42 @@ Object.assign(state, {
 /* ================================================================
    BERSIHKAN STATUS (LIVE > 4 jam → reset)
    ================================================================ */
-function _bersihkanStatus() {
-  const now = new Date();
+/* ================================================================
+   STATUS PAPARAN — dikira, TIDAK PERNAH disimpan
+   ================================================================
+   Dahulu tiga fungsi mengubah m.status secara automatik mengikut jam
+   (Akan Datang -> LIVE bila masa tiba; LIVE -> Akan Datang selepas
+   4 jam). Mutasi itu berlaku pada salinan TEMPATAN yang mungkin
+   lapuk, kemudian gabungan menganggapnya "perubahan saya" dan
+   menulisnya ke server — memadam status yang admin lain baru simpan,
+   yang seterusnya menyembunyikan skor mereka.
 
-  /* Padamkan lampu LIVE hanya untuk perlawanan yang NYALA SENDIRI
-     tetapi tiada siapa sentuh (masih 0-0).
+   Sekarang status automatik dikira semasa render sahaja. Hanya
+   pilihan admin yang benar-benar disimpan.
+   ================================================================ */
+function statusPaparan(m) {
+  if (!m) return 'akan_datang';
+  const asal = m.status || 'akan_datang';
 
-     Perlawanan yang sudah ada skor DIBIARKAN kekal LIVE: kad hanya
-     memaparkan skor apabila status 'selesai' atau 'sedang_berlangsung',
-     jadi menetapkannya semula ke 'akan_datang' akan MENYEMBUNYIKAN
-     skor yang admin baru masukkan — nampak seperti skor hilang. */
-  const bolehReset = (m) =>
-    m.status === 'sedang_berlangsung' &&
-    m.tarikh && m.masa &&
-    (m.scoreRumah || 0) === 0 && (m.scoreTamu || 0) === 0 &&
-    (now - new Date(m.tarikh + 'T' + m.masa + ':00')) / 3600000 >= 4;
+  /* Pilihan admin sentiasa menang */
+  if (asal === 'selesai') return 'selesai';
+  if (!m.tarikh || !m.masa) return asal;
 
-  state.jadual.forEach(m => { if (bolehReset(m)) m.status = 'akan_datang'; });
+  const bezaJam = (new Date() - new Date(m.tarikh + 'T' + m.masa + ':00')) / 3600000;
+  const adaSkor = (m.scoreRumah || 0) > 0 || (m.scoreTamu || 0) > 0;
 
-  Object.values(state.roundRobin).forEach(rr => {
-    (rr.perlawanan || []).forEach(m => { if (bolehReset(m)) m.status = 'akan_datang'; });
-  });
+  /* Masa sudah tiba (dalam 4 jam) -> papar LIVE */
+  if (asal === 'akan_datang' && bezaJam >= 0 && bezaJam < 4) return 'sedang_berlangsung';
+
+  /* LIVE lebih 4 jam tanpa sebarang skor -> lampu basi, papar Akan Datang */
+  if (asal === 'sedang_berlangsung' && bezaJam >= 4 && !adaSkor) return 'akan_datang';
+
+  return asal;
+}
+
+/* Salinan rekod dengan status paparan — untuk render, bukan untuk simpan */
+function utkPapar(m) {
+  return m ? Object.assign({}, m, { status: statusPaparan(m) }) : m;
 }
 
 
@@ -318,10 +333,22 @@ function tutupRalatSimpan() {
 var _asasEdit = null;   /* { kunci, cap } */
 
 function mulaJejakKonflik(kunci, rekod) {
-  _asasEdit = { kunci: kunci, cap: JSON.stringify(rekod === undefined ? null : rekod) };
+  _asasEdit = {
+    kunci: kunci,
+    cap:   JSON.stringify(rekod === undefined ? null : rekod),
+    /* Salinan rekod SEPERTI YANG DIPAPAR dalam borang. Inilah dasar
+       sebenar niat admin: apa-apa medan yang mereka tidak sentuh akan
+       sama dengan salinan ini, jadi ia mesti dikira "bukan perubahan
+       saya" dan nilai server dikekalkan. */
+    rekod: (rekod === undefined || rekod === null)
+      ? null : JSON.parse(JSON.stringify(rekod)),
+  };
 }
 
 function lupakanJejakKonflik() { _asasEdit = null; }
+
+/* Dibaca oleh simpanData() dalam firebase.js */
+function asasBorang() { return _asasEdit; }
 
 /* Pulangkan true kalau selamat diteruskan.
    teksMereka / teksSaya = ringkasan pendek untuk dipapar. */

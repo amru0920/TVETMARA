@@ -101,6 +101,54 @@ function _gabungTigaHala(asas, lama, baru) {
 }
 
 
+/* ----------------------------------------------------------------
+   DASAR BAGI REKOD YANG SEDANG DISUNTING
+   ----------------------------------------------------------------
+   Bagi rekod yang borangnya terbuka, dasar perbandingan MESTILAH
+   rupa rekod seperti yang dipapar kepada admin — bukan nilai server
+   terkini.
+
+   Sebabnya: paparan ditangguhkan semasa borang terbuka (supaya
+   taipan admin tidak lenyap), jadi skrin boleh memaparkan nilai
+   lama. Kalau kita bandingkan dengan nilai server terkini, setiap
+   medan yang admin TIDAK sentuh akan kelihatan seperti "admin ubah
+   balik kepada nilai lama" — lalu skor admin lain ditulis ganti.
+
+   Dengan dasar ini, medan yang tidak disentuh sama dengan yang
+   dipapar, jadi ia dikira bukan perubahan dan nilai server kekal.
+   ---------------------------------------------------------------- */
+function _dasarBorang(medan, lama) {
+  const a = (typeof asasBorang === 'function') ? asasBorang() : null;
+  if (!a || !a.rekod || !a.kunci) return lama;
+
+  const b = a.kunci.split(':');
+  const salin = v => JSON.parse(JSON.stringify(v));
+
+  if (b[0] === 'jadual' && medan === 'jadual' && Array.isArray(lama)) {
+    const ada = lama.some(x => x && x.id === b[1]);
+    return ada ? lama.map(x => (x && x.id === b[1]) ? a.rekod : x)
+               : lama.concat([a.rekod]);
+  }
+
+  if (b[0] === 'keputusan' && medan === 'keputusan' && lama && typeof lama === 'object') {
+    const h = Object.assign({}, lama); h[b[1]] = a.rekod; return h;
+  }
+
+  if (b[0] === 'bracket' && medan === 'bracket' && lama && typeof lama === 'object') {
+    const h = salin(lama);
+    if (h[b[1]] && Array.isArray(h[b[1]][b[2]])) h[b[1]][b[2]][Number(b[3])] = a.rekod;
+    return h;
+  }
+
+  if (b[0] === 'rr' && medan === 'roundRobin' && lama && typeof lama === 'object') {
+    const h = salin(lama);
+    if (h[b[1]] && Array.isArray(h[b[1]].perlawanan)) h[b[1]].perlawanan[Number(b[2])] = a.rekod;
+    return h;
+  }
+
+  return lama;
+}
+
 /* Ambil cap JSON semua medan dari satu snapshot server */
 function _rakamCapJauh(data) {
   const cap = {};
@@ -177,9 +225,10 @@ async function simpanData() {
 
       const tulis = {};
       medanUbah.forEach(function (k) {
-        const lama = (_capJauh[k] !== undefined)
+        let lama = (_capJauh[k] !== undefined)
           ? JSON.parse(_capJauh[k])
           : (Array.isArray(state[k]) ? [] : {});
+        lama = _dasarBorang(k, lama);          /* rekod dalam borang */
         tulis[k] = _gabungTigaHala(diServer[k], lama, state[k]);
       });
       tulis.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
@@ -244,7 +293,6 @@ async function muatData() {
         _capJauh = _rakamCapJauh(data);
       }
 
-      if (typeof _bersihkanStatus === 'function') _bersihkanStatus();
 
       /* JANGAN render() terus — admin lain mungkin sedang mengisi borang.
          renderSelamat() akan menangguhkannya sehingga borang ditutup. */

@@ -632,6 +632,8 @@ function renderJadualRoundRobinFormat(sukanId, _unused, isStaff) {
 
 /* Kad perlawanan untuk paparan awam */
 function rrRenderKadAwam(m, isStaff, sukanId) {
+  m = utkPapar(m);
+
   const mi = (state.roundRobin[sukanId]?.perlawanan || []).indexOf(m);
 
   const statusKls   = m.status === 'selesai'             ? 'selesai'
@@ -732,26 +734,8 @@ function rrKiraKedudukan(peserta, perlawanan) {
    AUTO STATUS — semak perlawanan RR
    ================================================================ */
 function semakAutoStatusRR() {
-  const sekarang = new Date();
-  let berubah    = false;
-
-  Object.entries(state.roundRobin).forEach(([sukanId, rr]) => {
-    if (!rr?.perlawanan) return;
-
-    rr.perlawanan.forEach(m => {
-      if (m.status === 'selesai' || !m.tarikh || !m.masa) return;
-      const masaMula  = new Date(m.tarikh + 'T' + m.masa + ':00');
-      const bezaJam   = (sekarang - masaMula) / 3600000;
-
-      /* Jadi LIVE hanya kalau dalam masa 4 jam dari masa mula */
-      if (bezaJam >= 0 && bezaJam < 4 && m.status === 'akan_datang') {
-        m.status = 'sedang_berlangsung';
-        berubah  = true;
-      }
-    });
-  });
-
-  if (berubah) { simpanData(); render(); }
+  /* Lihat nota dalam semakAutoStatus() — paparan sahaja, tiada
+     mutasi dan tiada simpanan. */
 }
 
 

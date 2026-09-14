@@ -871,6 +871,9 @@ function renderJadualKedudukan(sukanId, kumpulanId, katKey) {
    KAD PERLAWANAN
    ================================================================ */
 function renderKadPerlawanan(p, isStaff) {
+  /* Status automatik dikira di sini sahaja — state tidak disentuh */
+  p = utkPapar(p);
+
   /* Badminton — guna form set khas */
   const isBdk = typeof adaBadminton === 'function' && adaBadminton(p.sukanId);
 
@@ -1686,24 +1689,12 @@ const DURASI_SUKAN = {
 
 /* Semak dan kemaskini status perlawanan */
 function semakAutoStatus() {
-  const sekarang = new Date();
-  let adaPerubahan = false;
-
-  state.jadual.forEach(m => {
-    if (m.status === 'selesai') return;
-    if (!m.tarikh || !m.masa)   return;
-
-    const masaMula = new Date(m.tarikh + 'T' + m.masa + ':00');
-    const bezaJam  = (sekarang - masaMula) / 3600000;
-
-    /* Jadi LIVE hanya kalau dalam masa 4 jam dari masa mula */
-    if (bezaJam >= 0 && bezaJam < 4 && m.status === 'akan_datang') {
-      m.status = 'sedang_berlangsung';
-      adaPerubahan = true;
-    }
-  });
-
-  if (adaPerubahan) { simpanData(); render(); }
+  /* Status LIVE kini dikira semasa render oleh statusPaparan().
+     Fungsi ini sengaja TIDAK mengubah state dan TIDAK menyimpan:
+     mutasi automatik pada salinan lapuk pernah menimpa skor admin
+     lain. Cukup lukis semula supaya lencana LIVE muncul tepat pada
+     masanya. */
+  render();
 }
 
 /* Butang cepat "Tamat + Score" untuk perlawanan LIVE */
