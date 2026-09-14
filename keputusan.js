@@ -661,17 +661,39 @@ function simpanKeputusan(acaraId) {
   const adaPeringkat = senaraiPeringkat(sistemId).length > 0;
   const peringkat   = adaPeringkat ? _bacaPeringkat(acaraId) : null;
 
-  /* Satu pasukan hanya boleh muncul sekali — merentas tempat DAN peringkat,
-     kalau tidak mata akan dikira dua kali. */
-  const pil = [s1, s2, s3].concat(lain).filter(Boolean);
+  /* Kontinjen yang SAMA dibenarkan mengisi beberapa tempat.
+     Dalam acara lari dan perseorangan, satu kontinjen menghantar
+     beberapa peserta — mereka boleh habis di tempat 1, 2 dan 3
+     serentak, dan setiap kedudukan itu berhak mendapat matanya.
+
+     Yang masih disekat hanyalah percanggahan yang mustahil:
+     kontinjen tak boleh berada di satu tempat DAN tersingkir di
+     satu peringkat, atau tersingkir di dua peringkat berbeza —
+     kedua-duanya akan mengira mata dua kali. */
   if (peringkat) {
-    Object.keys(peringkat).forEach(k => { pil.push.apply(pil, peringkat[k]); });
-  }
-  const berulang = pil.filter((n, i) => pil.indexOf(n) !== i);
-  if (berulang.length) {
-    alert('"' + berulang[0] + '" muncul lebih daripada sekali. ' +
-          'Setiap pasukan hanya boleh diletakkan pada satu tempat atau satu peringkat sahaja.');
-    return;
+    const tempatSemua = [s1, s2, s3].concat(lain).filter(Boolean);
+    const kunciPr     = Object.keys(peringkat);
+
+    /* Satu kontinjen dalam dua peringkat berbeza */
+    const dilihat = {};
+    for (const k of kunciPr) {
+      for (const nama of (peringkat[k] || [])) {
+        if (dilihat[nama]) {
+          alert('"' + nama + '" ditanda pada dua peringkat berbeza. ' +
+                'Satu kontinjen hanya boleh tersingkir di satu peringkat sahaja.');
+          return;
+        }
+        dilihat[nama] = k;
+      }
+    }
+
+    /* Sudah ada tempat, tapi ditanda tersingkir juga */
+    const bercanggah = tempatSemua.find(n => dilihat[n]);
+    if (bercanggah) {
+      alert('"' + bercanggah + '" sudah diletakkan pada satu tempat, ' +
+            'jadi ia tidak boleh ditanda tersingkir di peringkat juga.');
+      return;
+    }
   }
 
   const rekod = { 1: s1, 2: s2, 3: s3 };
