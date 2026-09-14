@@ -21,6 +21,11 @@ let firestoreInitialized = false;
    perbandingan "ada perubahan?" akan sentiasa kata tiada. */
 let _capJauh = {};
 
+/* Adakah kita sudah menerima data SEBENAR dari server?
+   Sebelum ini benar, state masih mengandungi data benih demo
+   (JADUAL_ASAL) dan MENULISNYA akan mencemarkan jadual sebenar. */
+let _dataServerSedia = false;
+
 /* ----------------------------------------------------------------
    GABUNGAN TIGA-HALA
    ----------------------------------------------------------------
@@ -200,6 +205,16 @@ async function simpanData() {
   if (!db) await initFirebase();
   if (!db) return;
 
+  /* JANGAN tulis sebelum data sebenar dimuat.
+     Kalau snapshot pertama belum tiba, state.jadual masih data demo
+     JADUAL_ASAL (33 perlawanan MRSM/2025) — menulisnya akan
+     mencemarkan jadual pertandingan sebenar. */
+  if (!_dataServerSedia) {
+    console.error('[SIMPAN] Ditolak — data server belum dimuat.');
+    if (typeof paparRalatSimpan === 'function') paparRalatSimpan({ code: 'belum-sedia' });
+    return;
+  }
+
   /* Hantar HANYA medan yang benar-benar berubah.
      Dulu kesemua 11 medan ditulis setiap kali — jadi admin yang
      mengemas kini jadual turut menimpa keputusan, pasukan dan
@@ -291,6 +306,7 @@ async function muatData() {
          kalau rules menolaknya, kita masih perlu cuba hantar semula. */
       if (!doc.metadata || !doc.metadata.hasPendingWrites) {
         _capJauh = _rakamCapJauh(data);
+        _dataServerSedia = true;
       }
 
 
@@ -309,12 +325,31 @@ async function muatData() {
 
 /* Fallback kalau internet down */
 function muatDataOffline() {
-  try {
-    const k = localStorage.getItem('spekma_keputusan');
-    if (k) state.keputusan = JSON.parse(k);
-    // ... sambung parse yang lain kalau perlu ...
-    render();
-  } catch (e) { console.error("Backup lokal pun gagal:", e); }
+  /* Dulu fungsi ini hanya memulihkan 'keputusan'. Semua medan lain
+     kekal sebagai data benih demo yang ditetapkan semasa aplikasi
+     bermula — jadi bila sambungan gagal, skrin menunjukkan jadual
+     MRSM/2025 dan skor sebenar admin "hilang". */
+  const ambil = (kunci, gantian) => {
+    try {
+      const v = localStorage.getItem(kunci);
+      return v ? JSON.parse(v) : gantian;
+    } catch (e) { return gantian; }
+  };
+
+  state.keputusan     = ambil('spekma_keputusan',  {});
+  state.pasukan       = ambil('spekma_pasukan',    []);
+  state.sukan         = ambil('spekma_sukan',      []);
+  /* Kosong lebih baik daripada data demo: jadual palsu mengelirukan
+     admin dan boleh ditulis ke server. */
+  state.jadual        = ambil('spekma_jadual',     []);
+  state.formatSukan   = ambil('spekma_format',     {});
+  state.kumpulanSukan = ambil('spekma_kumpulan',   {});
+  state.roundRobin    = ambil('spekma_roundrobin', {});
+  state.bracket       = ambil('spekma_bracket',    {});
+  state.streaming     = ambil('spekma_streaming',  {});
+
+  console.warn('[MUAT] Offline — guna salinan localStorage. Simpanan dikunci.');
+  render();
 }
 
 initFirebase();

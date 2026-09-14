@@ -303,6 +303,9 @@ function paparRalatSimpan(e) {
     msg.textContent =
       (e && e.code === 'permission-denied')
         ? 'Server menolak simpanan (permission denied). Skor BELUM tersimpan — hubungi pentadbir sistem.'
+      : (e && e.code === 'belum-sedia')
+        ? 'Data server belum dimuat sepenuhnya. Simpanan DIHALANG untuk ' +
+          'melindungi jadual sebenar. Muat semula halaman dan cuba lagi.'
       : (e && e.code === 'mismatch')
         ? 'Simpanan TIDAK mendarat di server (' + (e.medan || []).join(', ') + '). ' +
           'Kemungkinan admin lain menimpanya pada masa yang sama — sila periksa dan simpan semula.'
