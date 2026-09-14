@@ -14,9 +14,19 @@ const firebaseConfig = {
 let db = null;
 let firestoreInitialized = false;
 
-/* Salinan terakhir yang diterima dari server. simpanData() membandingkan
-   state dengannya supaya hanya medan yang berubah dihantar. */
-let _dataJauh = {};
+/* Cap JSON bagi setiap medan seperti yang ada di server.
+   WAJIB disimpan sebagai STRING, bukan rujukan objek: state.jadual dan
+   data.jadual adalah objek yang SAMA selepas snapshot, jadi menyimpan
+   rujukan bermakna ia berubah serentak dengan suntingan admin — dan
+   perbandingan "ada perubahan?" akan sentiasa kata tiada. */
+let _capJauh = {};
+
+/* Ambil cap JSON semua medan dari satu snapshot server */
+function _rakamCapJauh(data) {
+  const cap = {};
+  MEDAN_SEGERAK.forEach(function (k) { cap[k] = JSON.stringify(data[k]); });
+  return cap;
+}
 
 /* Medan yang disegerakkan ke Firebase (logAktiviti kekal di localStorage) */
 const MEDAN_SEGERAK = [
@@ -69,17 +79,20 @@ async function simpanData() {
   try {
     const kemaskini = {};
     MEDAN_SEGERAK.forEach(function (k) {
-      if (JSON.stringify(state[k]) !== JSON.stringify(_dataJauh[k])) {
-        kemaskini[k] = state[k];
-      }
+      if (JSON.stringify(state[k]) !== _capJauh[k]) kemaskini[k] = state[k];
     });
 
     if (Object.keys(kemaskini).length === 0) return;   /* tiada perubahan */
 
     kemaskini.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
     await db.collection('spekma').doc('mainData').set(kemaskini, { merge: true });
+    if (typeof tutupRalatSimpan === 'function') tutupRalatSimpan();
   } catch (e) {
-    console.warn('Firebase sync fail:', e);
+    /* JANGAN senyap. Semasa pertandingan, simpan yang gagal tanpa
+       amaran bermakna skor hilang dan tiada siapa perasan sehingga
+       halaman dimuat semula. */
+    console.error('Firebase sync fail:', e);
+    if (typeof paparRalatSimpan === 'function') paparRalatSimpan(e);
   }
 }
 
@@ -120,7 +133,12 @@ async function muatData() {
 
       console.log('⚡ Data SPEKMA dikemaskini secara Real-time!');
       
-      _dataJauh = data;   /* asas perbandingan untuk simpanData() */
+      /* Hanya snapshot yang sudah disahkan server jadi asas perbandingan.
+         Snapshot tempatan (hasPendingWrites) belum tentu diterima server —
+         kalau rules menolaknya, kita masih perlu cuba hantar semula. */
+      if (!doc.metadata || !doc.metadata.hasPendingWrites) {
+        _capJauh = _rakamCapJauh(data);
+      }
 
       if (typeof _bersihkanStatus === 'function') _bersihkanStatus();
 

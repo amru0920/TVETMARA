@@ -264,3 +264,28 @@ function tutupToastSegerak() {
   if (t) t.style.display = 'none';
   clearTimeout(_masaToastSegerak);
 }
+
+
+/* ================================================================
+   AMARAN SIMPAN GAGAL
+   ================================================================
+   simpanData() dulu hanya console.warn bila Firebase menolak tulisan.
+   Semasa pertandingan itu bermakna skor hilang secara senyap dan admin
+   hanya sedar selepas muat semula. Sekarang ia dipapar terus.
+   ================================================================ */
+function paparRalatSimpan(e) {
+  const t = document.getElementById('ralat-toast');
+  if (!t) { alert('Gagal simpan ke server: ' + (e && e.message ? e.message : e)); return; }
+  const msg = document.getElementById('ralat-toast-teks');
+  if (msg) {
+    msg.textContent = (e && e.code === 'permission-denied')
+      ? 'Server menolak simpanan (permission denied). Skor BELUM tersimpan — hubungi pentadbir sistem.'
+      : 'Gagal simpan ke server. Skor BELUM tersimpan — semak internet dan cuba simpan semula.';
+  }
+  t.style.display = 'flex';
+}
+
+function tutupRalatSimpan() {
+  const t = document.getElementById('ralat-toast');
+  if (t) t.style.display = 'none';
+}
