@@ -206,7 +206,7 @@ function janaCetakHTML(sukan, semua, format, peserta = [], termasukJadual = true
           const cls = skR > skT ? 'mx-w' : skR < skT ? 'mx-l' : 'mx-d';
           const lbl = skR > skT ? 'W'    : skR < skT ? 'L'    : 'D';
           return `<td class="mx-result ${cls}"><span class="mx-lbl ${cls}">${lbl}</span><br/>${skR}—${skT}</td>`;
-        } else if (m.status === 'sedang_berlangsung') {
+        } else if (statusPaparan(m) === 'sedang_berlangsung') {
           return `<td class="mx-result mx-live">LIVE<br/>${skR}—${skT}</td>`;
         } else {
           return `<td class="mx-pending">${m.masa || 'vs'}</td>`;
@@ -264,12 +264,12 @@ function janaCetakHTML(sukan, semua, format, peserta = [], termasukJadual = true
           <tbody>
             ${senarai.map((m, i) => {
               const statusKls = m.status === 'selesai' ? 'selesai'
-                              : m.status === 'sedang_berlangsung' ? 'live'
+                              : statusPaparan(m) === 'sedang_berlangsung' ? 'live'
                               : '';
               const statusLabel = m.status === 'selesai'             ? '✓ Selesai'
-                                : m.status === 'sedang_berlangsung'  ? '🔴 Live'
+                                : statusPaparan(m) === 'sedang_berlangsung'  ? '🔴 Live'
                                 : 'Akan Datang';
-              const score = (m.status === 'selesai' || m.status === 'sedang_berlangsung')
+              const score = (m.status === 'selesai' || statusPaparan(m) === 'sedang_berlangsung')
                 ? `${m.scoreRumah || 0} — ${m.scoreTamu || 0}`
                 : 'vs';
 
@@ -357,7 +357,7 @@ function janaCetakHTML(sukan, semua, format, peserta = [], termasukJadual = true
                 const r = parseInt(m.scoreRumah)||0, t = parseInt(m.scoreTamu)||0;
                 const selesai = m.status === 'selesai';
                 const menang  = selesai ? (r>t ? m.rumah : r<t ? m.tamu : 'Seri') : '—';
-                const score   = selesai || m.status==='sedang_berlangsung' ? `${r} — ${t}` : 'vs';
+                const score   = selesai || statusPaparan(m) === 'sedang_berlangsung' ? `${r} — ${t}` : 'vs';
                 return `
                   <tr class="${i%2===0?'genap':'ganjil'} ${selesai?'selesai':''}">
                     <td class="masa">${m.masa||'—'}</td>
@@ -639,11 +639,11 @@ function janaCetakHTML(sukan, semua, format, peserta = [], termasukJadual = true
       <div class="stat-lbl">Selesai</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num">${semua.filter(m => m.status === 'sedang_berlangsung').length}</div>
+      <div class="stat-num">${semua.filter(m => statusPaparan(m) === 'sedang_berlangsung').length}</div>
       <div class="stat-lbl">Sedang Berlangsung</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num">${semua.filter(m => m.status === 'akan_datang').length}</div>
+      <div class="stat-num">${semua.filter(m => statusPaparan(m) === 'akan_datang').length}</div>
       <div class="stat-lbl">Akan Datang</div>
     </div>
   </div>

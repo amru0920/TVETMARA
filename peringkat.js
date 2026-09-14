@@ -354,7 +354,7 @@ function renderKadBracket(sukanId, m, mi, fasa) {
   m = utkPapar(m);
 
   const selesai     = m.status === 'selesai';
-  const live        = m.status === 'sedang_berlangsung';
+  const live        = statusPaparan(m) === 'sedang_berlangsung';
   const menang      = selesai ? pemenangPerlawanan(m) : null;
   const r           = parseInt(m.scoreRumah)||0;
   const t           = parseInt(m.scoreTamu)||0;
@@ -536,7 +536,7 @@ function renderBracketJadual(sukanId, isStaff) {
 /* Kad bracket untuk paparan awam */
 function renderKadBracketAwam(m) {
   const selesai = m.status === 'selesai';
-  const live    = m.status === 'sedang_berlangsung';
+  const live    = statusPaparan(m) === 'sedang_berlangsung';
   const menang  = selesai ? pemenangPerlawanan(m) : null;
   const r = parseInt(m.scoreRumah)||0, t = parseInt(m.scoreTamu)||0;
   const statusKls = selesai ? 'selesai' : live ? 'berlangsung' : 'akan-datang';

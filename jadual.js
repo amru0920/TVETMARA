@@ -314,7 +314,7 @@ function renderJadual() {
     if (fmt === 'round_robin') {
       const prl = state.roundRobin[s.id]?.perlawanan || [];
       selesai     = prl.filter(m => m.status === 'selesai').length;
-      berlangsung = prl.filter(m => m.status === 'sedang_berlangsung').length;
+      berlangsung = prl.filter(m => statusPaparan(m) === 'sedang_berlangsung').length;
       total       = prl.length;
     } else {
       /* Jadual biasa + bracket (suku akhir, separuh akhir, final) */
@@ -325,7 +325,7 @@ function renderJadual() {
       const semua  = [...pSukan, ...bPrl];
 
       selesai     = semua.filter(m => m.status === 'selesai').length;
-      berlangsung = semua.filter(m => m.status === 'sedang_berlangsung').length;
+      berlangsung = semua.filter(m => statusPaparan(m) === 'sedang_berlangsung').length;
       total       = semua.length;
     }
 
@@ -385,8 +385,8 @@ function renderJadualSukan() {
     : [];
   const semuaPrl    = [...perlawananSukan, ...bracketPrl];
   const selesai     = semuaPrl.filter(m => m.status === 'selesai').length;
-  const berlangsung = semuaPrl.filter(m => m.status === 'sedang_berlangsung').length;
-  const akanDatang  = semuaPrl.filter(m => m.status === 'akan_datang').length;
+  const berlangsung = semuaPrl.filter(m => statusPaparan(m) === 'sedang_berlangsung').length;
+  const akanDatang  = semuaPrl.filter(m => statusPaparan(m) === 'akan_datang').length;
 
   /* Stats bar */
   const statsHTML = `
@@ -459,7 +459,7 @@ function renderJadualSukan() {
         ${kategoriKumpulan.map(k => {
           const bilK = perlawananSukan.filter(m => m.kategori === k).length;
           const slsK = perlawananSukan.filter(m => m.kategori === k && m.status === 'selesai').length;
-          const liveK = perlawananSukan.filter(m => m.kategori === k && m.status === 'sedang_berlangsung').length;
+          const liveK = perlawananSukan.filter(m => m.kategori === k && statusPaparan(m) === 'sedang_berlangsung').length;
           return `
             <button class="kat-tab-btn ${katAktif === k ? 'active' : ''}"
               data-kat="${k}"
@@ -489,7 +489,7 @@ function renderJadualSukan() {
           📋 Semua
         </button>
         ${kategoriSukan.map(k => {
-          const bilLive = perlawananSukan.filter(m => m.kategori === k && m.status === 'sedang_berlangsung').length;
+          const bilLive = perlawananSukan.filter(m => m.kategori === k && statusPaparan(m) === 'sedang_berlangsung').length;
           const bilKat  = perlawananSukan.filter(m => m.kategori === k).length;
           const selesaiKat = perlawananSukan.filter(m => m.kategori === k && m.status === 'selesai').length;
           return `
@@ -570,7 +570,7 @@ function renderJadualKumpulanFormat(sukanId, senarai, isStaff, katAktif) {
     <div class="hari-tab-wrap">
       <div class="hari-tab-bar">
         ${hari.map(h => {
-          const live = senarai.some(m => m.tarikh === h && m.status === 'sedang_berlangsung');
+          const live = senarai.some(m => m.tarikh === h && statusPaparan(m) === 'sedang_berlangsung');
           return `
             <button class="hari-tab-btn ${h === aktif ? 'active' : ''}"
               onclick="pilihHari('${h}','${sukanId}')">
@@ -626,7 +626,7 @@ function renderJadualKumpulanFormat(sukanId, senarai, isStaff, katAktif) {
       ${kumpulanDalamHari.map(kid => {
         const k       = kumpulan.find(g => g.id === kid);
         const bilLive = (ikutPeringkat['kumpulan']||[])
-          .filter(m => m.kumpulan===kid && m.status==='sedang_berlangsung').length;
+          .filter(m => m.kumpulan===kid && statusPaparan(m) === 'sedang_berlangsung').length;
         return `
           <button class="kump-tab-btn"
             onclick="document.getElementById('kump-${sukanId}-${kid}')?.scrollIntoView({behavior:'smooth',block:'start'})">
@@ -744,7 +744,7 @@ function renderJadualBiasaFormat(sukanId, senarai, isStaff) {
     <div class="hari-tab-wrap">
       <div class="hari-tab-bar">
         ${hari.map(h => {
-          const live = senarai.some(m => m.tarikh === h && m.status === 'sedang_berlangsung');
+          const live = senarai.some(m => m.tarikh === h && statusPaparan(m) === 'sedang_berlangsung');
           return `
             <button class="hari-tab-btn ${h === aktif ? 'active' : ''}"
               onclick="pilihHari('${h}','${sukanId}')">
@@ -892,15 +892,15 @@ function renderKadPerlawanan(p, isStaff) {
   }
 
   const statusKls   = p.status === 'selesai' ? 'selesai'
-                    : p.status === 'sedang_berlangsung' ? 'berlangsung'
+                    : statusPaparan(p) === 'sedang_berlangsung' ? 'berlangsung'
                     : 'akan-datang';
   const statusLabel = p.status === 'selesai'           ? '✓ Selesai'
-                    : p.status === 'sedang_berlangsung' ? '🔴 LIVE'
+                    : statusPaparan(p) === 'sedang_berlangsung' ? '🔴 LIVE'
                     : '📅 Akan Datang';
 
   /* Countdown untuk perlawanan akan datang */
   let countdownHTML = '';
-  if (p.status === 'akan_datang' && p.tarikh && p.masa) {
+  if (statusPaparan(p) === 'akan_datang' && p.tarikh && p.masa) {
     const masaMula  = new Date(p.tarikh + 'T' + p.masa + ':00');
     const sekarang  = new Date();
     const beza      = masaMula - sekarang;
@@ -920,7 +920,7 @@ function renderKadPerlawanan(p, isStaff) {
 
   const rumahMenang = p.status === 'selesai' && p.scoreRumah > p.scoreTamu;
   const tamuMenang  = p.status === 'selesai' && p.scoreTamu  > p.scoreRumah;
-  const selesai     = p.status === 'selesai' || p.status === 'sedang_berlangsung';
+  const selesai     = p.status === 'selesai' || statusPaparan(p) === 'sedang_berlangsung';
 
   /* Score — badminton tunjuk set info */
   let scoreHTML;
@@ -1128,8 +1128,8 @@ function renderFormEditPerlawanan() {
           <label class="field-label">📊 Status</label>
           <select id="fp-status" class="podium-select" style="padding:10px 12px;font-size:14px"
             onchange="togolScoreSection(this.value)">
-            <option value="akan_datang"       ${d.status==='akan_datang'       ?'selected':''}>📅 Akan Datang</option>
-            <option value="sedang_berlangsung" ${d.status==='sedang_berlangsung'?'selected':''}>🔴 Sedang Berlangsung</option>
+            <option value="akan_datang"       ${statusPaparan(d) === 'akan_datang'       ?'selected':''}>📅 Akan Datang</option>
+            <option value="sedang_berlangsung" ${statusPaparan(d) === 'sedang_berlangsung'?'selected':''}>🔴 Sedang Berlangsung</option>
             <option value="selesai"            ${d.status==='selesai'           ?'selected':''}>✓ Selesai</option>
           </select>
         </div>
@@ -1844,7 +1844,7 @@ function renderJadualPenuh(sukanId, format) {
     <div class="hari-tab-wrap" style="margin-bottom:16px">
       <div class="hari-tab-bar">
         ${tarikhKeys.map(h => {
-          const live = (ikutTarikh[h] || []).some(m => m.status === 'sedang_berlangsung');
+          const live = (ikutTarikh[h] || []).some(m => statusPaparan(m) === 'sedang_berlangsung');
           return `
             <button class="hari-tab-btn ${h === aktifHari ? 'active' : ''}"
               onclick="state.jadualPenuhHari=state.jadualPenuhHari||{};state.jadualPenuhHari['${sukanId}']='${h}';render()">
@@ -1892,7 +1892,7 @@ function renderJadualPenuh(sukanId, format) {
         <tbody>
           ${papar.map((m, i) => {
             const selesai = m.status === 'selesai';
-            const live    = m.status === 'sedang_berlangsung';
+            const live    = statusPaparan(m) === 'sedang_berlangsung';
             const rumahMenang = selesai && m.scoreRumah > m.scoreTamu;
             const tamuMenang  = selesai && m.scoreTamu  > m.scoreRumah;
             const score = selesai || live
@@ -1962,7 +1962,7 @@ function renderJadualPenuh(sukanId, format) {
             <tbody>
               ${items.map((m, i) => {
                 const selesai = m.status === 'selesai';
-                const live    = m.status === 'sedang_berlangsung';
+                const live    = statusPaparan(m) === 'sedang_berlangsung';
                 const rumahMenang = selesai && m.scoreRumah > m.scoreTamu;
                 const tamuMenang  = selesai && m.scoreTamu  > m.scoreRumah;
                 const score = selesai || live

@@ -95,7 +95,7 @@ function renderRRKandungan(sukanId, sukan, rr) {
   const n          = peserta.length;
   const bilPerlw   = n > 1 ? (n * (n - 1)) / 2 : 0;
   const selesai    = perlawanan.filter(m => m.status === 'selesai').length;
-  const live       = perlawanan.filter(m => m.status === 'sedang_berlangsung').length;
+  const live       = perlawanan.filter(m => statusPaparan(m) === 'sedang_berlangsung').length;
   const adaJadual  = perlawanan.length > 0;
 
   /* Pasukan yang belum jadi peserta */
@@ -270,10 +270,10 @@ function rrRenderKadEdit(sukanId, m, mi) {
   const isEdit   = state.rrEditingMatch === editKey;
 
   const statusKls   = m.status === 'selesai'             ? 'selesai'
-                    : m.status === 'sedang_berlangsung'   ? 'berlangsung'
+                    : statusPaparan(m) === 'sedang_berlangsung'   ? 'berlangsung'
                     : 'akan-datang';
   const statusLabel = m.status === 'selesai'             ? '✓ Selesai'
-                    : m.status === 'sedang_berlangsung'   ? '🔴 LIVE'
+                    : statusPaparan(m) === 'sedang_berlangsung'   ? '🔴 LIVE'
                     : '📅 Akan Datang';
 
   const rumahMenang = m.status === 'selesai' && m.scoreRumah > m.scoreTamu;
@@ -323,11 +323,11 @@ function rrRenderKadEdit(sukanId, m, mi) {
             style="padding:9px 12px;font-size:14px;width:100%;max-width:280px"
             onchange="rrTogolScore(this.value, ${mi})">
             <option value="akan_datang"
-              ${!state.rrEditPresetSelesai && m.status === 'akan_datang' ? 'selected' : ''}>
+              ${!state.rrEditPresetSelesai && statusPaparan(m) === 'akan_datang' ? 'selected' : ''}>
               📅 Akan Datang
             </option>
             <option value="sedang_berlangsung"
-              ${!state.rrEditPresetSelesai && m.status === 'sedang_berlangsung' ? 'selected' : ''}>
+              ${!state.rrEditPresetSelesai && statusPaparan(m) === 'sedang_berlangsung' ? 'selected' : ''}>
               🔴 Sedang Berlangsung
             </option>
             <option value="selesai"
@@ -558,7 +558,7 @@ function renderJadualRoundRobinFormat(sukanId, _unused, isStaff) {
                     const cls = skR > skT ? 'mx-w' : skR < skT ? 'mx-l' : 'mx-d';
                     const lbl = skR > skT ? 'W'    : skR < skT ? 'L'    : 'D';
                     return '<td class="rr-mx-result ' + cls + '" title="' + rumah + ' ' + skR + '\u2014' + skT + ' ' + tamu + '"><span class="mx-badge ' + cls + '">' + lbl + '</span><span class="mx-score">' + skR + '\u2014' + skT + '</span></td>';
-                  } else if (m.status === 'sedang_berlangsung') {
+                  } else if (statusPaparan(m) === 'sedang_berlangsung') {
                     return '<td class="rr-mx-result mx-live"><span class="mx-badge mx-live">\u25cf</span><span class="mx-score">' + skR + '\u2014' + skT + '</span></td>';
                   } else {
                     return '<td class="rr-mx-pending"><span class="mx-masa">' + (m.masa || 'vs') + '</span></td>';
@@ -588,7 +588,7 @@ function renderJadualRoundRobinFormat(sukanId, _unused, isStaff) {
     <div class="hari-tab-wrap">
       <div class="hari-tab-bar">
         ${hariList.map(h => {
-          const live = perlawanan.some(m => m.tarikh === h && m.status === 'sedang_berlangsung');
+          const live = perlawanan.some(m => m.tarikh === h && statusPaparan(m) === 'sedang_berlangsung');
           return `<button class="hari-tab-btn ${h === aktif ? 'active' : ''}"
             onclick="pilihHari('${h}','${sukanId}')">
             ${formatTarikhPendek(h)}${live ? '<span class="live-dot"></span>' : ''}
@@ -637,10 +637,10 @@ function rrRenderKadAwam(m, isStaff, sukanId) {
   const mi = (state.roundRobin[sukanId]?.perlawanan || []).indexOf(m);
 
   const statusKls   = m.status === 'selesai'             ? 'selesai'
-                    : m.status === 'sedang_berlangsung'   ? 'berlangsung'
+                    : statusPaparan(m) === 'sedang_berlangsung'   ? 'berlangsung'
                     : 'akan-datang';
   const statusLabel = m.status === 'selesai'             ? '✓ Selesai'
-                    : m.status === 'sedang_berlangsung'   ? '🔴 LIVE'
+                    : statusPaparan(m) === 'sedang_berlangsung'   ? '🔴 LIVE'
                     : '📅 Akan Datang';
 
   const rumahMenang = m.status === 'selesai' && m.scoreRumah > m.scoreTamu;
@@ -648,7 +648,7 @@ function rrRenderKadAwam(m, isStaff, sukanId) {
 
   /* Countdown */
   let countdown = '';
-  if (m.status === 'akan_datang' && m.tarikh && m.masa) {
+  if (statusPaparan(m) === 'akan_datang' && m.tarikh && m.masa) {
     const beza = new Date(m.tarikh + 'T' + m.masa + ':00') - new Date();
     if (beza > 0) {
       const j = Math.floor(beza / 3600000), mn = Math.floor((beza % 3600000) / 60000);
@@ -659,7 +659,7 @@ function rrRenderKadAwam(m, isStaff, sukanId) {
 
   const staffBtns = isStaff && mi >= 0 ? `
     <div class="perlawanan-actions">
-      ${m.status === 'sedang_berlangsung' ? `
+      ${statusPaparan(m) === 'sedang_berlangsung' ? `
         <button class="aksi-btn selesai-btn"
           onclick="setTab('tetapan');state.subTab='round_robin';state.rrSukanTab='${sukanId}';state.rrEditingMatch='${sukanId}___${mi}';render()">
           ✓ Tamat + Score
