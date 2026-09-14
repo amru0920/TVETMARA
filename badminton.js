@@ -33,13 +33,15 @@ function kiraPerlawananBadminton(sets) {
     if (r > t) menangR++;
     else if (t > r) menangT++;
     setInfo.push({ r, t, selesai });
-    if (menangR === 2 || menangT === 2) break; /* max 2 set menang */
+    /* Tiada 'break' di sini: SPARTA XIII main kesemua 3 set, jadi
+       keputusan 3-0 mesti boleh direkod. Kalau pasukan hanya main
+       2 set, set ke-3 dibiar 0-0 dan dilangkau di atas. */
   }
 
   return {
     sets:    setInfo,
     menangR, menangT,
-    selesai: menangR === 2 || menangT === 2,
+    selesai: menangR >= 2 || menangT >= 2,
     scoreR:  menangR,
     scoreT:  menangT,
   };
@@ -144,20 +146,9 @@ function renderFormSetBadminton(sukanId, perlId, isBracket, fasa, mi) {
       <div id="${formId}-score-wrap" style="display:${tunjukScore?'block':'none'}">
         <div class="field-label" style="margin-bottom:10px">🏸 Score Set (Maks 3 Set)</div>
 
-        <!-- Header -->
-        <div style="display:grid;grid-template-columns:1fr 60px 60px;gap:6px;
-          margin-bottom:6px;padding:0 4px">
-          <div style="font-size:11px;color:var(--muted)">Pasukan</div>
-          <div style="font-size:11px;color:var(--muted);text-align:center">Set 1</div>
-          <div style="font-size:11px;color:var(--muted);text-align:center">Set 2</div>
-          <div></div>
-          <div style="font-size:11px;color:var(--muted);text-align:center">Set 3</div>
-        </div>
-
         <!-- Baris Set (3 set) -->
         ${[0,1,2].map(si => `
-          <div class="bdk-set-row" id="${formId}-set${si}-row"
-            style="${si===2?'opacity:0.5':''}">
+          <div class="bdk-set-row" id="${formId}-set${si}-row">
             <div class="bdk-set-label">Set ${si+1}</div>
             <div style="display:flex;align-items:center;gap:10px;flex:1">
               <div class="bdk-pasukan-nama" data-nama-for="${formId}-rumah">${p.rumah||'?'}</div>
@@ -209,10 +200,6 @@ function updateBadmintonPreview(formId) {
   const info = kiraPerlawananBadminton(sets);
   const prev = document.getElementById(formId + '-preview');
   if (!prev) return;
-
-  /* Update opacity set 3 */
-  const s2row = document.getElementById(formId + '-set2-row');
-  if (s2row) s2row.style.opacity = (info.menangR >= 1 && info.menangT >= 1) ? '1' : '0.4';
 
   if (info.sets.length === 0) { prev.innerHTML = ''; return; }
 
