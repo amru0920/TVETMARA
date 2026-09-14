@@ -85,7 +85,20 @@ async function simpanData() {
     if (Object.keys(kemaskini).length === 0) return;   /* tiada perubahan */
 
     kemaskini.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
-    await db.collection('spekma').doc('mainData').set(kemaskini, { merge: true });
+
+    /* GUNA update(), BUKAN set({merge:true}).
+       set(merge) mencantum map secara MENDALAM — jadi kunci yang admin
+       padam (cth satu keputusan dalam state.keputusan) kekal di server
+       dan muncul semula pada snapshot berikutnya. update() menggantikan
+       nilai medan sepenuhnya, jadi pemadaman betul-betul berkuat kuasa. */
+    const ruj = db.collection('spekma').doc('mainData');
+    try {
+      await ruj.update(kemaskini);
+    } catch (err) {
+      /* update() gagal kalau dokumen belum wujud — cipta buat kali pertama */
+      if (err && err.code === 'not-found') await ruj.set(kemaskini);
+      else throw err;
+    }
     if (typeof tutupRalatSimpan === 'function') tutupRalatSimpan();
   } catch (e) {
     /* JANGAN senyap. Semasa pertandingan, simpan yang gagal tanpa
