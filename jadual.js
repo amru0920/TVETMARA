@@ -677,10 +677,14 @@ function renderJadualKumpulanFormat(sukanId, senarai, isStaff, katAktif) {
     html += `</div>`;
   });
 
-  /* ── Perlawanan peringkat seterusnya TANPA tarikh (suku akhir, final dll) ── */
-  const tanpaTarikhKO = senarai.filter(m =>
-    !m.tarikh && m.peringkat && m.peringkat !== 'kumpulan'
-  );
+  /* ── Perlawanan TANPA tarikh — SEMUA peringkat ──
+     Dulu penapis ini membuang peringkat 'kumpulan' dan juga
+     perlawanan yang langsung tiada peringkat. Perlawanan begitu
+     tidak muncul dalam senarai ikut tarikh (kerana tiada tarikh)
+     dan tidak muncul di sini — jadi ia jadi yatim: kelihatan pada
+     paparan lain tetapi tiada butang Edit atau Padam, hingga admin
+     tidak boleh membetulkan mahupun membuangnya. */
+  const tanpaTarikhKO = senarai.filter(m => !m.tarikh);
 
   if (tanpaTarikhKO.length > 0) {
     /* Kumpul ikut peringkat */
@@ -691,7 +695,11 @@ function renderJadualKumpulanFormat(sukanId, senarai, isStaff, katAktif) {
       byPeringkat[p].push(m);
     });
 
-    susunan.filter(p => p !== 'kumpulan').forEach(p => {
+    /* Ikut turutan rasmi, kemudian mana-mana peringkat luar jangkaan */
+    const kunciPeringkat = susunan.filter(p => byPeringkat[p])
+      .concat(Object.keys(byPeringkat).filter(p => susunan.indexOf(p) === -1));
+
+    kunciPeringkat.forEach(p => {
       if (!byPeringkat[p]) return;
       html += `
         <div class="peringkat-blok" id="peringkat-${sukanId}-${p}"
