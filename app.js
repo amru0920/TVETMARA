@@ -278,9 +278,13 @@ function paparRalatSimpan(e) {
   if (!t) { alert('Gagal simpan ke server: ' + (e && e.message ? e.message : e)); return; }
   const msg = document.getElementById('ralat-toast-teks');
   if (msg) {
-    msg.textContent = (e && e.code === 'permission-denied')
-      ? 'Server menolak simpanan (permission denied). Skor BELUM tersimpan — hubungi pentadbir sistem.'
-      : 'Gagal simpan ke server. Skor BELUM tersimpan — semak internet dan cuba simpan semula.';
+    msg.textContent =
+      (e && e.code === 'permission-denied')
+        ? 'Server menolak simpanan (permission denied). Skor BELUM tersimpan — hubungi pentadbir sistem.'
+      : (e && e.code === 'mismatch')
+        ? 'Simpanan TIDAK mendarat di server (' + (e.medan || []).join(', ') + '). ' +
+          'Kemungkinan admin lain menimpanya pada masa yang sama — sila periksa dan simpan semula.'
+        : 'Gagal simpan ke server. Skor BELUM tersimpan — semak internet dan cuba simpan semula.';
   }
   t.style.display = 'flex';
 }

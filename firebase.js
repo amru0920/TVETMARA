@@ -21,6 +21,63 @@ let firestoreInitialized = false;
    perbandingan "ada perubahan?" akan sentiasa kata tiada. */
 let _capJauh = {};
 
+/* ----------------------------------------------------------------
+   GABUNGAN TIGA-HALA
+   ----------------------------------------------------------------
+   asas = nilai di server KETIKA INI (dibaca dalam transaksi)
+   lama = nilai asal yang peranti ini muat (garis dasar)
+   baru = nilai peranti ini sekarang
+
+   Hanya perubahan SAYA yang dikenakan; selebihnya nilai server
+   dikekalkan. Tanpa ini, menulis keseluruhan senarai jadual akan
+   memadam perlawanan yang admin lain baru simpan.
+   ---------------------------------------------------------------- */
+function _gabungTigaHala(asas, lama, baru) {
+  const rentetan = v => JSON.stringify(v);
+  const petaBiasa = v => v && typeof v === 'object' && !Array.isArray(v);
+
+  /* Senarai objek ber-id (jadual) — gabung ikut id */
+  if (Array.isArray(baru) && Array.isArray(lama) &&
+      baru.every(x => x && typeof x === 'object' && x.id != null) &&
+      lama.every(x => x && typeof x === 'object' && x.id != null)) {
+
+    const hasil = new Map();
+    (Array.isArray(asas) ? asas : []).forEach(x => {
+      if (x && x.id != null) hasil.set(x.id, x);
+    });
+
+    const petaLama = new Map();
+    lama.forEach(x => petaLama.set(x.id, rentetan(x)));
+
+    /* Item yang SAYA buang */
+    petaLama.forEach((_, id) => {
+      if (!baru.some(x => x.id === id)) hasil.delete(id);
+    });
+
+    /* Item yang SAYA tambah atau ubah */
+    baru.forEach(x => {
+      if (petaLama.get(x.id) !== rentetan(x)) hasil.set(x.id, x);
+      else if (!hasil.has(x.id)) hasil.set(x.id, x);
+    });
+
+    return Array.from(hasil.values());
+  }
+
+  /* Map berkunci (keputusan, bracket, roundRobin, …) — gabung ikut kunci */
+  if (petaBiasa(baru) && petaBiasa(lama)) {
+    const hasil = Object.assign({}, petaBiasa(asas) ? asas : {});
+    Object.keys(lama).forEach(k => { if (!(k in baru)) delete hasil[k]; });
+    Object.keys(baru).forEach(k => {
+      if (rentetan(lama[k]) !== rentetan(baru[k])) hasil[k] = baru[k];
+      else if (!(k in hasil)) hasil[k] = baru[k];
+    });
+    return hasil;
+  }
+
+  /* Senarai teks (pasukan) atau nilai mudah (password) — ganti terus */
+  return baru;
+}
+
 /* Ambil cap JSON semua medan dari satu snapshot server */
 function _rakamCapJauh(data) {
   const cap = {};
@@ -82,23 +139,34 @@ async function simpanData() {
       if (JSON.stringify(state[k]) !== _capJauh[k]) kemaskini[k] = state[k];
     });
 
-    if (Object.keys(kemaskini).length === 0) return;   /* tiada perubahan */
+    const medanUbah = Object.keys(kemaskini);
+    if (medanUbah.length === 0) return;   /* tiada perubahan */
 
-    kemaskini.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
-
-    /* GUNA update(), BUKAN set({merge:true}).
-       set(merge) mencantum map secara MENDALAM — jadi kunci yang admin
-       padam (cth satu keputusan dalam state.keputusan) kekal di server
-       dan muncul semula pada snapshot berikutnya. update() menggantikan
-       nilai medan sepenuhnya, jadi pemadaman betul-betul berkuat kuasa. */
+    /* Tulis dalam TRANSAKSI: baca nilai server terkini, gabungkan
+       perubahan saya sahaja, kemudian tulis. Firestore akan mengulang
+       transaksi secara automatik kalau ada orang lain menulis serentak,
+       jadi tiada lagi tulisan yang menimpa kerja admin lain. */
     const ruj = db.collection('spekma').doc('mainData');
-    try {
-      await ruj.update(kemaskini);
-    } catch (err) {
-      /* update() gagal kalau dokumen belum wujud — cipta buat kali pertama */
-      if (err && err.code === 'not-found') await ruj.set(kemaskini);
-      else throw err;
-    }
+
+    await db.runTransaction(async function (tx) {
+      const snap     = await tx.get(ruj);
+      const diServer = snap.exists ? snap.data() : {};
+
+      const tulis = {};
+      medanUbah.forEach(function (k) {
+        const lama = (_capJauh[k] !== undefined)
+          ? JSON.parse(_capJauh[k])
+          : (Array.isArray(state[k]) ? [] : {});
+        tulis[k] = _gabungTigaHala(diServer[k], lama, state[k]);
+      });
+      tulis.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+
+      if (snap.exists) tx.update(ruj, tulis);
+      else             tx.set(ruj, tulis);
+    });
+
+    console.log('[SIMPAN] \u2713 Tersimpan:', medanUbah.join(', '));
+
     if (typeof tutupRalatSimpan === 'function') tutupRalatSimpan();
   } catch (e) {
     /* JANGAN senyap. Semasa pertandingan, simpan yang gagal tanpa
