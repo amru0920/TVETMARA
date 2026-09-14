@@ -21,17 +21,24 @@ Object.assign(state, {
    ================================================================ */
 function _bersihkanStatus() {
   const now = new Date();
-  state.jadual.forEach(m => {
-    if (m.status !== 'sedang_berlangsung' || !m.tarikh || !m.masa) return;
-    if ((now - new Date(m.tarikh + 'T' + m.masa + ':00')) / 3600000 >= 4)
-      m.status = 'akan_datang';
-  });
+
+  /* Padamkan lampu LIVE hanya untuk perlawanan yang NYALA SENDIRI
+     tetapi tiada siapa sentuh (masih 0-0).
+
+     Perlawanan yang sudah ada skor DIBIARKAN kekal LIVE: kad hanya
+     memaparkan skor apabila status 'selesai' atau 'sedang_berlangsung',
+     jadi menetapkannya semula ke 'akan_datang' akan MENYEMBUNYIKAN
+     skor yang admin baru masukkan — nampak seperti skor hilang. */
+  const bolehReset = (m) =>
+    m.status === 'sedang_berlangsung' &&
+    m.tarikh && m.masa &&
+    (m.scoreRumah || 0) === 0 && (m.scoreTamu || 0) === 0 &&
+    (now - new Date(m.tarikh + 'T' + m.masa + ':00')) / 3600000 >= 4;
+
+  state.jadual.forEach(m => { if (bolehReset(m)) m.status = 'akan_datang'; });
+
   Object.values(state.roundRobin).forEach(rr => {
-    (rr.perlawanan || []).forEach(m => {
-      if (m.status !== 'sedang_berlangsung' || !m.tarikh || !m.masa) return;
-      if ((now - new Date(m.tarikh + 'T' + m.masa + ':00')) / 3600000 >= 4)
-        m.status = 'akan_datang';
-    });
+    (rr.perlawanan || []).forEach(m => { if (bolehReset(m)) m.status = 'akan_datang'; });
   });
 }
 
