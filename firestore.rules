@@ -1,0 +1,46 @@
+rules_version = '2';
+
+// ================================================================
+// PERATURAN FIRESTORE — SPARTA XIII
+// ================================================================
+// Tampal kandungan fail ini ke:
+//   Firebase Console → Firestore Database → Rules → Publish
+//
+// Tujuan utama: menghalang peranti berkod LAMA daripada menulis.
+//
+// Setiap tulisan dari kod baharu membawa 'klienNonce' yang berbeza
+// setiap kali. Peraturan di bawah menuntut medan itu BERUBAH pada
+// setiap tulisan. Kod lama tidak menghantarnya langsung, jadi
+// nilainya tidak berubah dan tulisan ditolak oleh server.
+//
+// Kesannya: admin pada versi lama akan nampak amaran merah
+// "VERSI LAMA — muat semula", dan tidak lagi boleh merosakkan data.
+// ================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /spekma/mainData {
+      allow read: if true;
+
+      allow write: if request.resource.data.klienVersi is int
+                   && request.resource.data.klienVersi >= 29
+                   && request.resource.data.diff(resource.data)
+                        .affectedKeys().hasAny(['klienNonce']);
+
+      // Dokumen belum wujud — benarkan penciptaan pertama
+      allow create: if request.resource.data.klienVersi is int
+                    && request.resource.data.klienVersi >= 29;
+    }
+
+    // Log aktiviti — punca ralat "log Firebase fail" dalam console
+    match /spekma_log/{rekod} {
+      allow read, write: if true;
+    }
+
+    // Selain daripada di atas, tolak semuanya
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

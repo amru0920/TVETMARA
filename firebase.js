@@ -26,6 +26,28 @@ let _capJauh = {};
    (JADUAL_ASAL) dan MENULISNYA akan mencemarkan jadual sebenar. */
 let _dataServerSedia = false;
 
+/* ================================================================
+   CAP KLIEN — menghalang peranti berkod LAMA daripada menulis
+   ================================================================
+   Pembaikan v21-v29 hanya melindungi peranti yang benar-benar
+   memuatnya. Peranti yang tidak pernah dimuat semula masih menulis
+   gumpalan lapuknya dan memusnahkan kerja admin lain — sudah tiga
+   kali berlaku.
+
+   Setiap tulisan kini membawa klienNonce yang BERBEZA setiap kali.
+   Peraturan Firestore menuntut medan itu berubah pada setiap
+   tulisan; kod lama tidak menghantarnya langsung, jadi tulisannya
+   ditolak oleh SERVER — bukan bergantung pada kod klien.
+   ================================================================ */
+const VERSI_KLIEN = 29;
+
+function _capKlien() {
+  return {
+    klienVersi: VERSI_KLIEN,
+    klienNonce: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10),
+  };
+}
+
 /* ----------------------------------------------------------------
    GABUNGAN TIGA-HALA
    ----------------------------------------------------------------
@@ -247,6 +269,7 @@ async function simpanData() {
         tulis[k] = _gabungTigaHala(diServer[k], lama, state[k]);
       });
       tulis.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+      Object.assign(tulis, _capKlien());
 
       if (snap.exists) tx.update(ruj, tulis);
       else             tx.set(ruj, tulis);
