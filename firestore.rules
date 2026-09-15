@@ -23,14 +23,15 @@ service cloud.firestore {
     match /spekma/mainData {
       allow read: if true;
 
-      allow write: if request.resource.data.klienVersi is int
+      // Tulisan mesti membawa klienNonce yang BERUBAH. Kod lama tidak
+      // menghantarnya, jadi tulisannya ditolak.
+      // resource == null bermakna dokumen belum wujud (tulisan pertama).
+      allow write: if request.resource != null
+                   && request.resource.data.klienVersi is int
                    && request.resource.data.klienVersi >= 29
-                   && request.resource.data.diff(resource.data)
-                        .affectedKeys().hasAny(['klienNonce']);
-
-      // Dokumen belum wujud — benarkan penciptaan pertama
-      allow create: if request.resource.data.klienVersi is int
-                    && request.resource.data.klienVersi >= 29;
+                   && (resource == null
+                       || request.resource.data.diff(resource.data)
+                            .affectedKeys().hasAny(['klienNonce']));
     }
 
     // Log aktiviti — punca ralat "log Firebase fail" dalam console
