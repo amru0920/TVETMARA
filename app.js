@@ -4,11 +4,26 @@
    simpanData() dan muatData() diurus oleh firebase.js
    ================================================================ */
 
-/* state dideklarasi dalam data.js — isi nilai betul di sini */
+/* state dideklarasi dalam data.js — isi nilai betul di sini.
+
+   pasukan/sukan/jadual SENGAJA dibiar kosong. Dahulu ia disemai
+   dengan PASUKAN_ASAL/SUKAN_ASAL/JADUAL_ASAL (pasukan MRSM dan jadual
+   2025 demo). Akibatnya:
+     · skrin melukis pasukan palsu sekelip mata sebelum data server
+       tiba, dan meminta fail logo yang memang tiada (ralat 404)
+     · lebih bahaya, data demo itu pernah tertulis ke pangkalan data
+       sebenar dan mencemarkan jadual pertandingan
+
+   Kosong lebih selamat: kalau server belum jawab, skrin menunggu;
+   kalau offline, muatDataOffline() memulihkan salinan localStorage.
+   Pemalar ASAL itu dikekalkan dalam data.js/jadual.js sebagai rujukan.
+
+   staff & password kekal disemai supaya admin masih boleh log masuk
+   ketika sambungan gagal. */
 Object.assign(state, {
-  pasukan:       [...PASUKAN_ASAL],
-  sukan:         [...SUKAN_ASAL],
-  jadual:        [...JADUAL_ASAL],
+  pasukan:       [],
+  sukan:         [],
+  jadual:        [],
   staff:         [...STAFF_ASAL],
   password:      PASSWORD_TETAP,
   formatSukan:   { ...FORMAT_ASAL },
@@ -245,6 +260,10 @@ function togolDrawMode(sukanId) {
 function adaBorangTerbuka() {
   if (state.editingPerlawanan || state.editingAcara ||
       state.bracketEdit || state.rrEditingMatch) return true;
+
+  /* Muat naik CSV: dialog fail OS menarik fokus keluar dari halaman,
+     jadi activeElement sahaja tidak memadai. Lihat csvSedangDiisi(). */
+  if (typeof csvSedangDiisi === 'function' && csvSedangDiisi()) return true;
 
   /* Panel Tetapan tiada bendera edit — semak kursor pengguna pula */
   const el = document.activeElement;

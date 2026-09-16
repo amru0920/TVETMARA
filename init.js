@@ -15,6 +15,28 @@ function _tabDariURL() {
 (async () => {
   _tabDariURL();
   await muatData();
-  render();
+
+  /* JANGAN render() di sini.
+
+     muatData() hanya MENDAFTAR onSnapshot lalu terus pulang — ia tidak
+     menunggu data pertama. render() pada ketika ini melukis data benih
+     demo yang ditetapkan dalam app.js (pasukan MRSM, jadual 2025),
+     menyebabkan kilasan pasukan palsu dan permintaan logo yang 404.
+
+     Setiap laluan dalam muatData() sudah merender sendiri bila data
+     sedia: snapshot -> renderSelamat(), dokumen tiada atau ralat ->
+     muatDataOffline() -> render().
+
+     Jaring keselamatan: kalau server senyap tanpa ralat, skrin akan
+     tersekat pada "Menghubungkan...". Selepas 12 saat, guna salinan
+     tempatan supaya pengguna tidak terpandang skrin mati. */
+  setTimeout(() => {
+    const el = document.getElementById('main-content');
+    if (el && el.querySelector('[data-menunggu]')) {
+      console.warn('[MULA] Server senyap 12s — guna salinan tempatan.');
+      muatDataOffline();
+    }
+  }, 12000);
+
   mulaAutoStatus();
 })();

@@ -295,7 +295,7 @@ async function simpanData() {
 async function muatData() {
   const el = document.getElementById('main-content');
   if (el) el.innerHTML = `
-    <div style="text-align:center;padding:80px 20px;color:var(--muted)">
+    <div data-menunggu style="text-align:center;padding:80px 20px;color:var(--muted)">
       <div style="font-size:36px;margin-bottom:12px">⏳</div>
       <div>Menghubungkan ke server SPARTA XIII...</div>
     </div>`;

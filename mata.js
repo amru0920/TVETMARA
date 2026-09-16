@@ -257,6 +257,9 @@ function tutupMataPusat()     { state.mataPusat = null;  render(); }
    ================================================================ */
 
 function renderImportCsv() {
+  /* Butang padam hanya muncul bila ada sesuatu untuk dipadam. */
+  const adaMata = pastikanMata().kolum.length > 0;
+
   return `
     <div class="csv-blok">
       <div class="csv-kepala">
@@ -268,6 +271,9 @@ function renderImportCsv() {
             <br/>Lajur pertama = nama pusat, lajur seterusnya = <strong>sukan</strong>.
             Lajur <strong>TOTAL</strong> diabaikan — jumlah dikira sendiri.
             Sukan yang belum tamat boleh dikosongkan dan dimuat naik kemudian.
+            <br/>Muat naik <strong>menggabung</strong> dengan markah sedia ada. Kalau
+            nama lajur berubah, padam semua mata dahulu supaya lajur lama
+            tidak terus dikira.
           </div>
         </div>
         <button class="csv-btn-templat" onclick="muatTurunTemplatCsv()">
@@ -278,7 +284,8 @@ function renderImportCsv() {
       <div class="csv-cara">
         <label class="csv-fail">
           📄 Pilih fail CSV
-          <input type="file" accept=".csv,text/csv" onchange="pilihFailCsv(event)" hidden/>
+          <input type="file" accept=".csv,text/csv" onclick="mulaPilihFail()"
+                 onchange="pilihFailCsv(event)" hidden/>
         </label>
         <span class="csv-atau">atau salin dari Google Sheets dan tampal di bawah</span>
       </div>
@@ -291,6 +298,11 @@ function renderImportCsv() {
           Kosongkan
         </button>
         <button class="save-btn" onclick="semakCsvMata()">🔍 Semak Dahulu</button>
+        ${adaMata ? `
+          <button class="csv-btn-padam" onclick="padamSemuaMata()">
+            🗑️ Padam Semua Mata
+          </button>
+        ` : ''}
       </div>
 
       <div id="csv-pratonton"></div>
@@ -298,8 +310,46 @@ function renderImportCsv() {
   `;
 }
 
+/* ================================================================
+   PERLINDUNGAN KOTAK CSV SEMASA SEGERAK
+   ================================================================
+   adaBorangTerbuka() menilai document.activeElement. Itu tidak cukup
+   untuk kotak CSV kerana dua sebab:
+
+     1. Bila dialog pilih-fail OS terbuka, fokus KELUAR dari halaman.
+        activeElement jadi <body>, jadi snapshot yang tiba ketika itu
+        akan render() dan membina semula tab di tengah-tengah pengguna
+        memilih fail.
+     2. Selepas menampal teks, pengguna selalu klik di luar kotak
+        sebelum menekan Semak Dahulu. Teks tampalan itu akan hilang.
+
+   Jadi kita jejak niat pengguna, bukan sekadar kedudukan kursor.
+   ================================================================ */
+var _csvPilihFail = false;
+
+function mulaPilihFail() {
+  _csvPilihFail = true;
+  /* Kalau dialog dibatalkan, tiada event 'change' langsung. Lepaskan
+     bendera sebentar selepas fokus kembali ke halaman supaya ia tidak
+     tersangkut selama-lamanya. */
+  window.addEventListener('focus', function lepas() {
+    window.removeEventListener('focus', lepas);
+    setTimeout(() => { _csvPilihFail = false; }, 1500);
+  });
+}
+
+/* Adakah pengguna sedang di tengah-tengah kerja muat naik CSV? */
+function csvSedangDiisi() {
+  if (_csvPilihFail) return true;
+  const ta = document.getElementById('csv-teks');
+  if (ta && ta.value.trim()) return true;
+  const pv = document.getElementById('csv-pratonton');
+  return !!(pv && pv.innerHTML.trim());
+}
+
 /* Baca fail yang dipilih terus ke dalam kotak teks */
 function pilihFailCsv(e) {
+  _csvPilihFail = false;
   const f = e.target.files && e.target.files[0];
   if (!f) return;
   const r = new FileReader();
@@ -421,6 +471,43 @@ function simpanCsvMata() {
   simpanData();
   render();
   alert('Selesai. Markah ' + h.dikenali.length + ' pusat dikemas kini.');
+}
+
+/* Buang SEMUA markah supaya CSV baharu boleh dimuat naik dari kosong.
+   Perlu kerana simpanCsvMata() menggabung dan tidak mengganti: tanpa
+   pembuangan ini, lajur lama yang tiada dalam CSV baharu masih kekal
+   dan terus dikira dalam jumlah. */
+function padamSemuaMata() {
+  if (!state.staffLogin) { bukaPanelLogin(); return; }
+
+  const m = pastikanMata();
+  const berisi = Object.keys(m.nilai).length;
+  if (!m.kolum.length && !berisi) { alert('Tiada markah untuk dipadam.'); return; }
+
+  const jumlah = (state.pasukan || []).reduce((n, p) => n + jumlahMata(p), 0);
+  const nl = String.fromCharCode(10);
+
+  const pesan = [
+    'Padam SEMUA markah dalam tab Mata?',
+    '',
+    'Lajur sukan     : ' + m.kolum.length,
+    'Pusat bermarkah : ' + berisi,
+    'Jumlah mata     : ' + jumlah,
+    '',
+    'Semua pusat akan kembali 0 mata dalam Kedudukan.',
+    'Tindakan ini TIDAK boleh dibatalkan.',
+  ].join(nl);
+  if (!confirm(pesan)) return;
+
+  state.mata = { kolum: [], nilai: {} };
+
+  if (typeof tambahLog === 'function') {
+    tambahLog('mata_padam', m.kolum.length + ' lajur, ' + berisi + ' pusat dipadam');
+  }
+
+  simpanData();
+  render();
+  alert('Semua markah dipadam. Anda boleh muat naik CSV baharu sekarang.');
 }
 
 /* Templat CSV berdasarkan pasukan & sukan sebenar dalam sistem */
