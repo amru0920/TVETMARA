@@ -2587,39 +2587,6 @@ input[type="time"] { color-scheme: light; }
 }
 .pwa-modal-tutup:hover { background: var(--navy3); color: var(--text); }
 
-/* ── Toast versi baharu ── */
-.pwa-toast {
-  position: fixed;
-  left: 50%;
-  bottom: 20px;
-  transform: translateX(-50%);
-  z-index: 950;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--navy-deep);
-  color: #fff;
-  border: 1px solid rgba(245,166,35,0.4);
-  border-radius: 12px;
-  padding: 11px 14px;
-  font-size: 13.5px;
-  box-shadow: 0 8px 26px rgba(10,22,40,0.4);
-  max-width: calc(100vw - 32px);
-}
-.pwa-toast-btn {
-  background: var(--gold);
-  color: var(--dark);
-  border: none;
-  border-radius: 8px;
-  padding: 7px 14px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 14px;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
 /* Bila dibuka sebagai app terpasang — sembunyi apa-apa ajakan pasang */
 @media (display-mode: standalone) {
   .pwa-kad-wrap { display: none !important; }

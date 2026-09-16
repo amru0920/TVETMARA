@@ -125,30 +125,12 @@ function pwaDaftarSW() {
   /* Service worker perlu HTTPS (atau localhost) */
   if (location.protocol !== 'https:' && location.hostname !== 'localhost') return;
 
-  navigator.serviceWorker.register('sw.js').then(reg => {
-    /* Ada versi baharu sedang menunggu? */
-    reg.addEventListener('updatefound', () => {
-      const baru = reg.installing;
-      if (!baru) return;
-      baru.addEventListener('statechange', () => {
-        if (baru.state === 'installed' && navigator.serviceWorker.controller) {
-          pwaPaparKemasKini(baru);
-        }
-      });
-    });
-  }).catch(err => console.warn('[PWA] Service worker gagal daftar:', err));
-}
-
-/* Toast kecil: "Versi baharu tersedia" */
-function pwaPaparKemasKini(pekerjaBaru) {
-  const t = document.getElementById('pwa-toast');
-  if (!t) return;
-  t.style.display = 'flex';
-  const btn = document.getElementById('pwa-toast-btn');
-  if (btn) btn.onclick = () => {
-    pekerjaBaru.postMessage('SKIP_WAITING');
-    location.reload();
-  };
+  /* Tiada ajakan "Muat Semula" lagi. Versi baharu tetap sampai sendiri:
+     sw.js memanggil skipWaiting() semasa pasang dan clients.claim()
+     semasa aktif, manakala HTML/JS/CSS guna strategi rangkaian-dahulu.
+     Jadi kod terbaru diambil pada kali berikut halaman dibuka. */
+  navigator.serviceWorker.register('sw.js')
+    .catch(err => console.warn('[PWA] Service worker gagal daftar:', err));
 }
 
 

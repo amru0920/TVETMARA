@@ -91,6 +91,21 @@ function tafsirCsvMata(teks) {
   }
   if (!kolum.length) return { ralat: 'Tiada lajur sukan dijumpai selepas lajur nama pusat.' };
 
+  /* Dua lajur bertajuk sama saling menimpa semasa disimpan (nilai[pusat]
+     ialah objek, kunci yang sama ditindih) dan jumlahnya pula dikira dua
+     kali oleh jumlahMata(). Tolak awal-awal supaya markah tidak hilang
+     tanpa disedari. */
+  const nampak = {};
+  for (let i = 0; i < kolum.length; i++) {
+    const k = kolum[i].toLowerCase().replace(/\s+/g, ' ');
+    if (nampak[k]) {
+      return { ralat: 'Lajur "' + kolum[i] + '" berulang dua kali. Beri nama '
+             + 'berbeza bagi setiap lajur, contohnya "PETANQUE (LELAKI)" dan '
+             + '"PETANQUE (PEREMPUAN)".' };
+    }
+    nampak[k] = true;
+  }
+
   const nilai = {}, tidakDikenali = [], dikenali = [], tidakSepadan = [];
   const senarai = state.pasukan || [];
   const kunci = n => String(n || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -431,10 +446,27 @@ function muatTurunTemplatCsv() {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-/* Cadangan lajur bila belum ada CSV: satu bagi setiap SUKAN.
-   Mata dikira pada peringkat sukan, bukan kategori — jadi
-   Badminton ialah satu lajur, bukan tiga. */
+/* Sukan yang dipertandingkan berasingan bagi lelaki dan perempuan.
+   Kedua-dua acara ini menghasilkan markah sendiri, jadi templat
+   memberi dua lajur — sama seperti helaian markah rasmi. */
+const MATA_PECAH_JANTINA = {
+  tvetrun:  ['LELAKI', 'PEREMPUAN'],
+  petanque: ['LELAKI', 'PEREMPUAN'],
+};
+
+/* Cadangan lajur bila belum ada CSV: satu bagi setiap SUKAN, kecuali
+   sukan dalam MATA_PECAH_JANTINA yang dapat dua.
+
+   Sukan lain kekal satu lajur walaupun ada beberapa kategori, sebab
+   mata dikira pada peringkat sukan — Badminton ada tiga kategori
+   tetapi satu lajur markah sahaja. */
 function senaraiLajurCadangan() {
-  const l = (state.sukan || []).map(s => String(s.nama || '').toUpperCase());
+  const l = [];
+  (state.sukan || []).forEach(s => {
+    const nama  = String(s.nama || '').toUpperCase();
+    const pecah = MATA_PECAH_JANTINA[_kunciNama(s.nama)];
+    if (pecah) pecah.forEach(j => l.push(nama + ' (' + j + ')'));
+    else       l.push(nama);
+  });
   return l.length ? l : ['SUKAN 1', 'SUKAN 2'];
 }
