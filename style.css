@@ -2933,8 +2933,9 @@ input[type="time"] { color-scheme: light; }
 
 @media (max-width: 640px) {
   .bawah-nav {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    /* Flex, bukan grid: butang Staff boleh disembunyikan dan baki
+       butang mengagih ruang sendiri tanpa meninggalkan lompang. */
+    display: flex;
     position: fixed;
     left: 0; right: 0; bottom: 0;
     z-index: 300;
@@ -2945,6 +2946,8 @@ input[type="time"] { color-scheme: light; }
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   .bawah-btn {
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -3293,3 +3296,24 @@ input[type="time"] { color-scheme: light; }
   color: var(--muted);
   opacity: 0.85;
 }
+
+
+/* Toast: akses staff dibuka */
+.staff-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 955;
+  display: flex;
+  align-items: center;
+  background: var(--navy-deep);
+  color: #fff;
+  border: 1px solid rgba(245,166,35,0.45);
+  border-radius: 20px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 26px rgba(10,22,40,0.4);
+}
+@media (max-width: 640px) { .staff-toast { bottom: 74px; } }

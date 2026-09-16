@@ -43,8 +43,8 @@
 
       <div class="topbar-brand" role="button" tabindex="0"
         title="Kembali ke Kedudukan"
-        onclick="setTab('kedudukan')"
-        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setTab('kedudukan')}">
+        onclick="klikLogo()"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();klikLogo()}">
         <div class="topbar-logo"><img class="topbar-logo-img" src="assets/logo-sparta-xiii.png" alt="Logo SPARTA XIII"/></div>
         <div class="topbar-titles">
           <span class="topbar-name">SPARTA <span class="xiii">XIII</span></span>
@@ -56,12 +56,11 @@
         <button class="nav-btn active" onclick="setTab('kedudukan')">🏆 Kedudukan</button>
         <button class="nav-btn"        onclick="setTab('keputusan')">🏅 Pingat</button>
         <button class="nav-btn"        onclick="setTab('mata')">📊 Mata</button>
-        <button class="nav-btn"        onclick="setTab('jadual')">📅 Jadual</button>
-        <button class="nav-btn"        onclick="setTab('streaming')">📺 Live</button>
 
         <!-- Auth area -->
         <div id="auth-area">
-          <button class="staff-login-btn" id="btn-buka-login" onclick="bukaPanelLogin()">
+          <button class="staff-login-btn" id="btn-buka-login" style="display:none"
+            onclick="bukaPanelLogin()">
             🔒 Staff Login
           </button>
           <div class="staff-logged" id="staff-logged-info" style="display:none">
@@ -91,13 +90,8 @@
     <button class="bawah-btn" data-tab="mata" onclick="setTab('mata')">
       <span class="bawah-ikon">📊</span><span class="bawah-teks">Mata</span>
     </button>
-    <button class="bawah-btn" data-tab="jadual" onclick="setTab('jadual')">
-      <span class="bawah-ikon">📅</span><span class="bawah-teks">Jadual</span>
-    </button>
-    <button class="bawah-btn" data-tab="streaming" onclick="setTab('streaming')">
-      <span class="bawah-ikon">📺</span><span class="bawah-teks">Live</span>
-    </button>
-    <button class="bawah-btn" data-tab="tetapan" id="bawah-staff" onclick="bawahStaff()">
+    <button class="bawah-btn" data-tab="tetapan" id="bawah-staff"
+      style="display:none" onclick="bawahStaff()">
       <span class="bawah-ikon">🔒</span><span class="bawah-teks">Staff</span>
     </button>
   </nav>
@@ -235,6 +229,12 @@
 
       <button class="pwa-modal-tutup" onclick="pwaTutupArahan()">Tutup</button>
     </div>
+  </div>
+
+
+  <!-- Toast: akses staff dibuka -->
+  <div class="staff-toast" id="staff-toast" style="display:none">
+    <span>🔓 Akses staff dibuka</span>
   </div>
 
 

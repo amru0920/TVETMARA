@@ -120,15 +120,11 @@ function renderKedudukan() {
     <div class="stats-bar">
       <div class="stat-card">
         <div class="stat-num">${state.pasukan.length}</div>
-        <div class="stat-lbl">Pasukan</div>
+        <div class="stat-lbl">Pusat</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num">${totalAcara()}</div>
-        <div class="stat-lbl">Kategori</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num">${totalSelesai()}</div>
-        <div class="stat-lbl">Selesai</div>
+        <div class="stat-num">${(state.sukan || []).length}</div>
+        <div class="stat-lbl">Sukan</div>
       </div>
     </div>
     <table class="stand-table">
@@ -150,7 +146,7 @@ function renderKedudukan() {
    RENDER UTAMA
    ================================================================ */
 function render() {
-  const tabList = ['kedudukan', 'keputusan', 'mata', 'jadual', 'streaming'];
+  const tabList = ['kedudukan', 'keputusan', 'mata'];
   document.querySelectorAll('.topbar-nav .nav-btn').forEach((btn, i) => {
     if (tabList[i]) btn.classList.toggle('active', tabList[i] === state.tab);
   });
@@ -160,6 +156,14 @@ function render() {
   /* Bar navigasi bawah (telefon) */
   document.querySelectorAll('.bawah-btn').forEach(btn =>
     btn.classList.toggle('active', btn.dataset.tab === state.tab));
+
+  /* Kawalan staff tersembunyi sehingga logo ditekan 5 kali */
+  if (typeof kemasPandanganStaff === 'function') kemasPandanganStaff();
+
+  /* Jadual dan Live sudah dibuang dari navigasi. Kodnya dikekalkan,
+     tetapi apa-apa keadaan lama (URL ?tab=, sesi tersimpan) dialihkan
+     supaya skrin tidak kekal kosong. */
+  if (state.tab === 'jadual' || state.tab === 'streaming') state.tab = 'kedudukan';
 
   const el = document.getElementById('main-content');
   if (!el) return;
@@ -360,4 +364,69 @@ function ringkasPerlawanan(m) {
     : (m.scoreRumah || 0) + ' - ' + (m.scoreTamu || 0);
   return (m.rumah || '?') + ' ' + skor + ' ' + (m.tamu || '?') +
          '   [' + (m.masa || '-') + ', ' + (m.gelanggang || '-') + ']';
+}
+
+
+/* ================================================================
+   AKSES STAFF TERSEMBUNYI
+   ================================================================
+   Butang Staff disembunyikan daripada orang awam. Tekan logo
+   SPARTA lima kali berturut-turut untuk mendedahkannya.
+
+   Ini menyembunyikan, bukan mengunci — kata laluan tetap menjaga
+   akses sebenar. Tujuannya supaya orang awam tidak tergoda menekan
+   butang yang bukan untuk mereka.
+   ================================================================ */
+
+var _klikLogo      = 0;
+var _masaKlikLogo  = null;
+var _staffTerbuka  = false;      /* sesi semasa sahaja */
+
+const KLIK_PERLU   = 5;
+const TEMPOH_KLIK  = 3000;       /* semua klik mesti dalam 3 saat */
+
+/* Staff boleh dilihat kalau sudah log masuk, atau baru dibuka */
+function staffBolehLihat() {
+  return !!state.staffLogin || _staffTerbuka;
+}
+
+/* Logo: sentiasa balik ke Kedudukan, sambil mengira klik */
+function klikLogo() {
+  clearTimeout(_masaKlikLogo);
+  _klikLogo++;
+  _masaKlikLogo = setTimeout(() => { _klikLogo = 0; }, TEMPOH_KLIK);
+
+  if (!staffBolehLihat() && _klikLogo >= KLIK_PERLU) {
+    _klikLogo = 0;
+    _staffTerbuka = true;
+    kemasPandanganStaff();
+    paparToastStaff();
+  }
+
+  setTab('kedudukan');
+}
+
+/* Papar atau sembunyikan setiap kawalan staff */
+function kemasPandanganStaff() {
+  const nampak = staffBolehLihat();
+
+  const btnBawah = document.getElementById('bawah-staff');
+  if (btnBawah) btnBawah.style.display = nampak ? 'flex' : 'none';
+
+  const btnLogin = document.getElementById('btn-buka-login');
+  if (btnLogin && !state.staffLogin) btnLogin.style.display = nampak ? '' : 'none';
+}
+
+function paparToastStaff() {
+  const t = document.getElementById('staff-toast');
+  if (!t) return;
+  t.style.display = 'flex';
+  setTimeout(() => { t.style.display = 'none'; }, 4000);
+}
+
+/* Sembunyikan semula selepas log keluar */
+function tutupAksesStaff() {
+  _staffTerbuka = false;
+  _klikLogo = 0;
+  kemasPandanganStaff();
 }

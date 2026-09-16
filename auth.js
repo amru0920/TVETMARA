@@ -103,8 +103,16 @@ function logKeluar() {
   state.editingAcara = null;
   if (state.tab === 'tetapan') state.tab = 'kedudukan';
 
-  document.getElementById('btn-buka-login').style.display    = 'inline-flex';
   document.getElementById('staff-logged-info').style.display = 'none';
+
+  /* Sembunyikan semula kawalan staff — tekan logo 5 kali untuk
+     membukanya lagi. kemasPandanganStaff() dipanggil di dalamnya,
+     jadi butang log masuk turut disembunyikan. */
+  if (typeof tutupAksesStaff === 'function') {
+    tutupAksesStaff();
+  } else {
+    document.getElementById('btn-buka-login').style.display = 'inline-flex';
+  }
 
   kemaskinMobAuth();
   render();

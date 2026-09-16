@@ -8,7 +8,7 @@
 function _tabDariURL() {
   try {
     const t = new URLSearchParams(location.search).get('tab');
-    if (['kedudukan', 'keputusan', 'jadual', 'streaming'].includes(t)) state.tab = t;
+    if (['kedudukan', 'keputusan', 'mata'].includes(t)) state.tab = t;
   } catch (e) { /* URL pelik — biar tab asal */ }
 }
 
