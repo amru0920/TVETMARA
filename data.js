@@ -249,6 +249,52 @@ const SUKAN_ASAL = [
 ];
 
 /* ================================================================
+   LOGO PUSAT
+   ================================================================
+   Fail diletakkan dalam assets/logo/ dengan nama yang diterbitkan
+   dari nama pusat: huruf kecil, ruang jadi sengkang.
+     "TVETMARA ALOR SETAR"  ->  assets/logo/tvetmara-alor-setar.png
+
+   Kalau fail tiada, <img> gagal senyap dan kod memaparkan huruf
+   awal pusat sebagai ganti \u2014 jadi pusat tanpa logo tetap kemas.
+   ================================================================ */
+
+function _slugPusat(nama) {
+  return String(nama || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function logoPusat(nama) {
+  const slug = _slugPusat(nama);
+  return slug ? 'assets/logo/' + slug + '.png' : '';
+}
+
+/* Dua huruf awal untuk paparan gantian.
+   "TVETMARA ALOR SETAR" -> "AS" (perkataan TVETMARA dilangkau
+   kerana setiap pusat berkongsi awalan itu). */
+function inisialPusat(nama) {
+  const kata = String(nama || '').trim().split(/\s+/)
+    .filter(w => !/^tvetmara$/i.test(w));
+  if (!kata.length) return '?';
+  if (kata.length === 1) return kata[0].slice(0, 2).toUpperCase();
+  return (kata[0][0] + kata[1][0]).toUpperCase();
+}
+
+/* <img> dengan gantian automatik bila fail tiada */
+function htmlLogoPusat(nama, saiz) {
+  const s = saiz || 28;
+  const sel = String(nama || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+  return '<span class="logo-pusat" style="width:' + s + 'px;height:' + s + 'px">' +
+           '<img src="' + logoPusat(nama) + '" alt="" loading="lazy"' +
+           ' onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"/>' +
+           '<span class="logo-ganti" style="display:none">' + inisialPusat(sel) + '</span>' +
+         '</span>';
+}
+
+
+/* ================================================================
    MATA — pembantu pengiraan
    ================================================================
    Pingat (tab Pingat) dan mata (tab Mata) kini BERASINGAN

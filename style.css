@@ -3324,3 +3324,44 @@ input[type="time"] { color-scheme: light; }
   box-shadow: 0 8px 26px rgba(10,22,40,0.4);
 }
 @media (max-width: 640px) { .staff-toast { bottom: 74px; } }
+
+
+/* ================================================================
+   LOGO PUSAT
+   ================================================================
+   Gantian huruf awal dipapar bila fail logo tiada, jadi pusat yang
+   belum ada logo tetap kelihatan kemas.
+   ================================================================ */
+.logo-pusat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--card2);
+  border: 1px solid var(--border);
+}
+.logo-pusat img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  background: #fff;
+}
+.logo-ganti {
+  width: 100%; height: 100%;
+  align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--navy-deep2);
+}
+
+/* Sel pasukan dalam jadual Kedudukan */
+.team-cell { display: flex; align-items: center; gap: 10px; }
+.team-cell .team-name { min-width: 0; }
+
+/* Tajuk halaman pecahan mata */
+.section-title.tajuk-logo {
+  display: flex; align-items: center; gap: 12px;
+}

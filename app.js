@@ -107,7 +107,10 @@ function renderKedudukan() {
       <td><span class="rank ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i + 1}</span></td>
       <td>
         ${i === 0 ? '<div class="leader-bar"></div>' : ''}
-        <div class="team-name">${t.nama}</div>
+        <div class="team-cell">
+          ${htmlLogoPusat(t.nama, 30)}
+          <span class="team-name">${t.nama}</span>
+        </div>
       </td>
       <td><span class="medal-dot m-e">${t.emas   || '—'}</span></td>
       <td><span class="medal-dot m-p">${t.perak  || '—'}</span></td>

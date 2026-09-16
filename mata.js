@@ -151,6 +151,7 @@ function renderMata() {
   const kad = senarai.map((t, i) => `
     <div class="mata-kad" onclick="bukaMataPusat('${t.nama.replace(/'/g, "\'")}')">
       <div class="mata-kad-rank">${i + 1}</div>
+      ${htmlLogoPusat(t.nama, 34)}
       <div class="mata-kad-nama">${t.nama}</div>
       <div class="mata-kad-mata">${t.mata}</div>
     </div>
@@ -197,7 +198,10 @@ function renderMataPusat(pusat) {
 
   return `
     <button class="back-btn" onclick="tutupMataPusat()">← Semua Pusat</button>
-    <div class="section-title">📊 ${pusat}</div>
+    <div class="section-title tajuk-logo">
+      ${htmlLogoPusat(pusat, 44)}
+      <span>${pusat}</span>
+    </div>
 
     <div class="stats-bar">
       <div class="stat-card">

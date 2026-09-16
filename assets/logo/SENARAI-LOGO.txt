@@ -1,0 +1,42 @@
+LOGO PUSAT — SPARTA XIII
+============================================================
+
+Simpan logo setiap pusat dalam folder ini dengan nama TEPAT
+seperti di bawah. Format PNG, latar lutsinar kalau boleh.
+Saiz cadangan 256x256 atau 512x512 (segi empat sama).
+
+Pusat yang belum ada logo akan papar huruf awalnya sebagai
+ganti - tiada gambar rosak, jadi anda boleh tambah sedikit demi
+sedikit.
+
+------------------------------------------------------------
+
+ 1. TVETMARA LUMUT                   ->  tvetmara-lumut.png
+ 2. TVETMARA LENGGONG                ->  tvetmara-lenggong.png
+ 3. TVETMARA BALIK PULAU             ->  tvetmara-balik-pulau.png
+ 4. TVETMARA SEBERANG PERAI UTARA    ->  tvetmara-seberang-perai-utara.png
+ 5. TVETMARA SUNGAI PETANI           ->  tvetmara-sungai-petani.png
+ 6. TVETMARA ALOR SETAR              ->  tvetmara-alor-setar.png
+ 7. TVETMARA SIK                     ->  tvetmara-sik.png
+ 8. TVETMARA MJII                    ->  tvetmara-mjii.png
+ 9. TVETMARA PETALING JAYA           ->  tvetmara-petaling-jaya.png
+10. TVETMARA KUALA LUMPUR            ->  tvetmara-kuala-lumpur.png
+11. TVETMARA REMBAU                  ->  tvetmara-rembau.png
+12. TVETMARA PASIR MAS               ->  tvetmara-pasir-mas.png
+13. TVETMARA KEMAMAN                 ->  tvetmara-kemaman.png
+14. TVETMARA KUANTAN                 ->  tvetmara-kuantan.png
+15. TVETMARA PEKAN                   ->  tvetmara-pekan.png
+16. TVETMARA LEDANG                  ->  tvetmara-ledang.png
+17. TVETMARA SRI GADING              ->  tvetmara-sri-gading.png
+18. TVETMARA MASJID TANAH            ->  tvetmara-masjid-tanah.png
+19. TVETMARA JASIN                   ->  tvetmara-jasin.png
+20. TVETMARA JOHOR BHARU             ->  tvetmara-johor-bharu.png
+21. TVETMARA BESUT                   ->  tvetmara-besut.png
+22. TVETMARA KUCHING                 ->  tvetmara-kuching.png
+23. TVETMARA KOTA KINABALU           ->  tvetmara-kota-kinabalu.png
+24. TVETMARA BINTULU                 ->  tvetmara-bintulu.png
+25. TVETMARA BESERI                  ->  tvetmara-beseri.png
+
+------------------------------------------------------------
+
+Jumlah: 25 fail
