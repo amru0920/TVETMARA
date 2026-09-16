@@ -3282,3 +3282,14 @@ input[type="time"] { color-scheme: light; }
   .mata-grid { grid-template-columns: 1fr; }
   .csv-btn-templat, .csv-fail { width: 100%; text-align: center; }
 }
+
+/* Nota kecil pada tajuk "Peringkat Dicapai" */
+.rank-tajuk-nota {
+  margin-left: 8px;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
+  opacity: 0.85;
+}

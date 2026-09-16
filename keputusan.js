@@ -233,7 +233,6 @@ function _htmlPeringkat(acaraId, sistemId, dipilih) {
     return '<div class="pr-blok">' +
              '<div class="pr-kepala">' +
                '<span class="pr-label" data-pr-label="' + pr.id + '">' + pr.label + '</span>' +
-               '<span class="pr-mata">' + pr.mata + ' mata</span>' +
              '</div>' +
              '<div class="pr-senarai">' + kotak + '</div>' +
            '</div>';
@@ -525,12 +524,13 @@ function renderPaparAcara(acara, r, isStaff, isPasukan) {
   const prSenarai = senaraiPeringkat(sistemId).filter(pr => (prRekod[pr.id] || []).length);
   const prHTML = prSenarai.length ? `
     <div class="rank-senarai">
-      <div class="rank-tajuk">🏁 Peringkat Dicapai</div>
+      <div class="rank-tajuk">🏁 Peringkat Dicapai
+        <span class="rank-tajuk-nota">maklumat sahaja — tiada mata</span>
+      </div>
       ${prSenarai.map(pr => `
         <div class="pr-papar">
           <div class="pr-papar-kepala">
             <span class="pr-papar-label">${pr.label}</span>
-            <span class="pr-mata">${pr.mata} mata</span>
           </div>
           <div class="pr-papar-nama">${(prRekod[pr.id] || []).join(', ')}</div>
         </div>
@@ -544,7 +544,6 @@ function renderPaparAcara(acara, r, isStaff, isPasukan) {
         <div class="acara-name">${acara.nama}</div>
         <div class="acara-status done">✓ Selesai</div>
       </div>
-      <div class="sistem-chip">${SISTEM_MARKAH[sistemId].icon} ${SISTEM_MARKAH[sistemId].label}</div>
       ${podiumHTML}
       ${lainHTML}
       ${prHTML}
@@ -724,7 +723,7 @@ function simpanKeputusan(acaraId) {
     (s2 ? ' 🥈' + s2 : '') + (s3 ? ' 🥉' + s3 : '') +
     (lain.length ? ' +' + lain.length + ' tempat' : '') +
     (peringkat && Object.keys(peringkat).length ? ' +peringkat' : '') +
-    ' (' + SISTEM_MARKAH[sistemId].label + ')';
+    '';
   if (typeof tambahLog === 'function') tambahLog('keputusan_simpan', _log);
 
   state.keputusan[acaraId] = rekod;
