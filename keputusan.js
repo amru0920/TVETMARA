@@ -142,13 +142,10 @@ function _bacaNilaiTempat(acaraId, pos) {
 }
 
 /* Satu baris input untuk tempat ke-4 dan seterusnya */
-function _htmlBarisTempat(acaraId, pos, nilai, sistemId) {
-  const mata = mataTempat(sistemId || _sistemBorang(acaraId), pos);
+function _htmlBarisTempat(acaraId, pos, nilai) {
   return '<div class="tempat-baris" data-pos="' + pos + '">' +
            '<div class="tempat-no">' + pos + '</div>' +
            '<div class="tempat-isi">' +
-             '<div class="tempat-mata" data-mata-pos="' + pos + '">' +
-               (mata ? mata + ' mata' : 'tiada mata') + '</div>' +
              _htmlPilihanPasukan(acaraId, pos, 'Tempat ' + pos, false, nilai || '') +
            '</div>' +
            '<button class="tempat-buang" title="Buang tempat ' + pos + '"' +
@@ -262,8 +259,10 @@ function _bacaPeringkat(acaraId) {
 /* Tukar sistem markah — tanpa render() penuh, supaya isian
    dalam borang yang belum disimpan tidak hilang. */
 function tukarSistemAcara(acaraId, sistemId) {
-  const adaPeringkat = senaraiPeringkat(sistemId).length > 0;
-  const markahTerus  = sistemMarkahTerus(sistemId);
+  /* Pemilih sistem sudah dibuang dari borang — kekalkan fungsi ini
+     supaya sebarang panggilan lama tidak membaling ralat. */
+  const adaPeringkat = false;
+  const markahTerus  = false;
 
   /* Ranking Sum tak guna podium / senarai tempat langsung */
   const papar = function (id, tunjuk, jenis) {
@@ -287,16 +286,6 @@ function tukarSistemAcara(acaraId, sistemId) {
   const nota = document.getElementById('nota-sistem-' + acaraId);
   if (nota) nota.textContent = _notaSistem(sistemId);
 
-  /* Kemas kini setiap badge mata — supaya admin nampak kesan
-     pertukaran sistem serta-merta, tanpa perlu simpan dahulu. */
-  Array.prototype.forEach.call(
-    document.querySelectorAll('[data-mata-pos]'),
-    function(el) {
-      const mata = mataTempat(sistemId, el.dataset.mataPos);
-      el.textContent = mata ? mata + ' mata' : 'tiada mata';
-      el.classList.toggle('sifar', !mata);
-    }
-  );
 }
 
 
@@ -362,15 +351,18 @@ function renderFormEdit(acara, sukan, isPasukan) {
 
   /* Tempat ke-4 dan seterusnya */
   const lain      = _senaraiTempatLain(r);
-  const lainHTML  = lain.map((nama, i) => _htmlBarisTempat(acara.id, i + 4, nama, sistemAcara(acara))).join('');
+  const lainHTML  = lain.map((nama, i) => _htmlBarisTempat(acara.id, i + 4, nama)).join('');
   const lainKira  = lain.length
     ? 'Jumlah ' + (lain.length + 3) + ' tempat'
     : 'Belum ada — podium 3 tempat sahaja';
 
   /* Sistem markah acara ini */
   const sistemKini   = sistemAcara(acara);
-  const adaPeringkat  = senaraiPeringkat(sistemKini).length > 0;
-  const markahTerus   = sistemMarkahTerus(sistemKini);
+  /* Tab ini kini menentukan PINGAT sahaja, jadi setiap kategori
+     guna podium yang sama. Blok peringkat dan markah-terus dibuang:
+     mata datang dari tab Mata. */
+  const adaPeringkat  = false;
+  const markahTerus   = false;
   const markahHTML    = _htmlMarkahTerus(acara.id, r.markah);
   const opsSistem = Object.keys(SISTEM_MARKAH).map(k =>
     `<option value="${k}" ${k === sistemKini ? 'selected' : ''}>` +
@@ -397,17 +389,17 @@ function renderFormEdit(acara, sukan, isPasukan) {
         style="display:${markahTerus ? 'none' : 'grid'}">
 
         <div class="podium-edit-slot">
-          <div class="podium-edit-label p1">🥇 Tempat 1<span class="tempat-mata" data-mata-pos="1">${mataTempat(sistemKini, 1)} mata</span></div>
+          <div class="podium-edit-label p1">🥇 Tempat 1</div>
           ${html1}
         </div>
 
         <div class="podium-edit-slot">
-          <div class="podium-edit-label p2">🥈 Tempat 2<span class="tempat-mata" data-mata-pos="2">${mataTempat(sistemKini, 2)} mata</span></div>
+          <div class="podium-edit-label p2">🥈 Tempat 2</div>
           ${html2}
         </div>
 
         <div class="podium-edit-slot">
-          <div class="podium-edit-label p3">🥉 Tempat 3<span class="tempat-mata" data-mata-pos="3">${mataTempat(sistemKini, 3)} mata</span></div>
+          <div class="podium-edit-label p3">🥉 Tempat 3</div>
           ${html3}
         </div>
 
@@ -420,7 +412,6 @@ function renderFormEdit(acara, sukan, isPasukan) {
           <div>
             <div class="tempat-lain-tajuk">📋 Tempat Ke-4 &amp; Seterusnya</div>
             <div class="tempat-lain-nota" id="kira-tempat-${acara.id}">${lainKira}</div>
-            <div class="tempat-lain-nota" id="nota-sistem-${acara.id}">${_notaSistem(sistemKini)}</div>
           </div>
           <button class="tambah-tempat-btn" onclick="tambahTempatKeputusan('${acara.id}')">
             + Tambah Tempat
@@ -611,10 +602,13 @@ function simpanKeputusan(acaraId) {
 
   const _sukanAcara0 = state.sukan.find(s => s.acara.some(a => a.id === acaraId));
   const _objAcara0   = _sukanAcara0?.acara.find(a => a.id === acaraId);
-  const sistemPilih  = document.getElementById('sistem-' + acaraId)?.value || SISTEM_ASAL;
+  /* Tab Pingat tidak lagi menyimpan markah — mata datang dari tab
+     Mata. Cabang Ranking Sum dimatikan supaya kategori yang masih
+     bertanda 'ranking_sum' dalam data lama (TVET Run) tetap
+     menggunakan podium biasa. */
+  const sistemPilih  = SISTEM_ASAL;
 
-  /* ── Ranking Sum: admin taip markah, kedudukan dijana dari markah ── */
-  if (sistemMarkahTerus(sistemPilih)) {
+  if (false) {
     const markah = _bacaMarkahTerus(acaraId);
     const susun  = susunIkutMarkah(markah);
 
@@ -669,8 +663,7 @@ function simpanKeputusan(acaraId) {
 
   /* Sistem markah + peringkat dicapai */
   const sistemId    = document.getElementById('sistem-' + acaraId)?.value || SISTEM_ASAL;
-  const adaPeringkat = senaraiPeringkat(sistemId).length > 0;
-  const peringkat   = adaPeringkat ? _bacaPeringkat(acaraId) : null;
+  const peringkat = null;   /* peringkat tiada kaitan dengan pingat */
 
   /* Kontinjen yang SAMA dibenarkan mengisi beberapa tempat.
      Dalam acara lari dan perseorangan, satu kontinjen menghantar
