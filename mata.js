@@ -19,16 +19,23 @@ function huraiCSV(teks) {
   const t = String(teks || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
   if (!t.trim()) return [];
 
-  /* Teka pemisah dari baris pertama di luar petikan */
-  const barisAwal = t.split('\n')[0];
-  let luar = true, koma = 0, koln = 0;
+  /* Teka pemisah dari baris pertama di luar petikan.
+     TAB disokong kerana menyalin sel terus dari Google Sheets atau
+     Excel menghasilkan teks TAB-dipisah — itulah cara paling mudah
+     bagi admin, tanpa perlu eksport fail langsung. */
+  const barisAwal = t.split(String.fromCharCode(10))[0];
+  const TAB = String.fromCharCode(9);
+  let luar = true;
+  const kira = { ',': 0, ';': 0 };
+  kira[TAB] = 0;
   for (let i = 0; i < barisAwal.length; i++) {
     const c = barisAwal[i];
     if (c === '"') luar = !luar;
-    else if (luar && c === ',') koma++;
-    else if (luar && c === ';') koln++;
+    else if (luar && kira[c] !== undefined) kira[c]++;
   }
-  const PEMISAH = koln > koma ? ';' : ',';
+  let PEMISAH = ',';
+  if (kira[TAB] > 0 && kira[TAB] >= kira[','] && kira[TAB] >= kira[';']) PEMISAH = TAB;
+  else if (kira[';'] > kira[',']) PEMISAH = ';';
 
   const baris = [];
   let medan = '', semasa = [], dalamPetik = false;
@@ -237,8 +244,11 @@ function renderImportCsv() {
         <div>
           <div class="csv-tajuk">📥 Muat Naik Markah (CSV)</div>
           <div class="csv-nota">
-            Lajur pertama = nama pusat. Lajur seterusnya = acara.
-            Lajur <strong>TOTAL</strong> diabaikan — jumlah dikira sendiri.
+            Cara paling mudah: buka Google Sheets, pilih sel termasuk
+            baris tajuk, <strong>Ctrl+C</strong>, dan tampal terus ke kotak di bawah.
+            <br/>Lajur pertama = nama pusat. Lajur <strong>TOTAL</strong> diabaikan —
+            jumlah dikira sendiri. Sukan yang belum tamat boleh
+            dikosongkan dan dimuat naik kemudian.
           </div>
         </div>
         <button class="csv-btn-templat" onclick="muatTurunTemplatCsv()">
@@ -251,11 +261,11 @@ function renderImportCsv() {
           📄 Pilih fail CSV
           <input type="file" accept=".csv,text/csv" onchange="pilihFailCsv(event)" hidden/>
         </label>
-        <span class="csv-atau">atau tampal di bawah</span>
+        <span class="csv-atau">atau salin dari Google Sheets dan tampal di bawah</span>
       </div>
 
       <textarea id="csv-teks" class="csv-textarea" rows="5"
-        placeholder="PUSAT,TVRUN L,TVRUN P,BOLA SEPAK&#10;ALOR SETAR,3,3,2&#10;BALIK PULAU,22,16,4"></textarea>
+        placeholder="Tampal di sini — terus dari Google Sheets (Ctrl+C) atau fail CSV&#10;&#10;PUSAT,TVRUN L,TVRUN P,BOLA SEPAK&#10;ALOR SETAR,3,3,2&#10;BALIK PULAU,22,16,4"></textarea>
 
       <div class="btn-group" style="margin-top:10px">
         <button class="cancel-btn" onclick="document.getElementById('csv-teks').value=''">
@@ -371,8 +381,17 @@ function simpanCsvMata() {
   if (!confirm(pesan)) return;
 
   const m = pastikanMata();
-  m.kolum = h.kolum;                       /* lajur ikut CSV terkini */
-  Object.keys(h.nilai).forEach(p => { m.nilai[p] = h.nilai[p]; });
+
+  /* GABUNG, jangan ganti. Sukan yang belum tamat akan dimuat naik
+     kemudian; kalau kita ganti senarai lajur, lajur yang sudah diisi
+     sebelum ini hilang dari kiraan walaupun nilainya masih ada. */
+  h.kolum.forEach(k => { if (m.kolum.indexOf(k) === -1) m.kolum.push(k); });
+
+  Object.keys(h.nilai).forEach(p => {
+    /* Hanya lajur yang ADA dalam muat naik ini dikemas kini;
+       selebihnya kekal seperti sedia ada. */
+    m.nilai[p] = Object.assign({}, m.nilai[p] || {}, h.nilai[p]);
+  });
 
   if (typeof tambahLog === 'function') {
     tambahLog('mata_import',
