@@ -249,6 +249,43 @@ const SUKAN_ASAL = [
 ];
 
 /* ================================================================
+   MATA — pembantu pengiraan
+   ================================================================
+   Pingat (tab Pingat) dan mata (tab Mata) kini BERASINGAN
+   sepenuhnya. Pingat hanya mengisi lajur emas/perak/gangsa;
+   mata hanya datang dari markah yang dimuat naik di tab Mata.
+   ================================================================ */
+
+/* Pastikan struktur wujud walaupun data lama tiada medan ini */
+function pastikanMata() {
+  if (!state.mata || typeof state.mata !== 'object') state.mata = { kolum: [], nilai: {} };
+  if (!Array.isArray(state.mata.kolum)) state.mata.kolum = [];
+  if (!state.mata.nilai || typeof state.mata.nilai !== 'object') state.mata.nilai = {};
+  return state.mata;
+}
+
+/* Markah satu pusat bagi satu lajur */
+function mataLajur(pusat, lajur) {
+  const m = pastikanMata();
+  const baris = m.nilai[pusat];
+  const v = baris ? baris[lajur] : 0;
+  return Number(v) || 0;
+}
+
+/* Jumlah markah satu pusat merentas semua lajur */
+function jumlahMata(pusat) {
+  const m = pastikanMata();
+  return m.kolum.reduce((n, k) => n + mataLajur(pusat, k), 0);
+}
+
+/* Pecahan markah satu pusat, lajur bermarkah sahaja didahulukan */
+function pecahanMata(pusat) {
+  const m = pastikanMata();
+  return m.kolum.map(k => ({ lajur: k, mata: mataLajur(pusat, k) }));
+}
+
+
+/* ================================================================
    MASKOT SPARTA XIII MENGIKUT SUKAN
    Padanan ikut nama sukan (huruf kecil, tanpa ruang/tanda).
    Kalau nama sukan tak match, kad guna emoji ikon sahaja (fallback).
@@ -364,6 +401,17 @@ var state = {
   selectedKategori:    {},
   selectedKatKumpulan: {},
   keputusan:           {},
+
+  /* MATA — markah setiap pusat bagi setiap lajur acara.
+     Lajur ditakrifkan oleh CSV yang admin muat naik, bukan dikunci
+     dalam kod: hamparan rasmi memecahkan TVET Run kepada L/P,
+     Petanque kepada dua, dan E-Sport kepada PUBG/ML. Biarkan
+     hamparan itu menjadi sumber kebenaran.
+       { kolum: ['TVRUN L','BOLA SEPAK',…],
+         nilai: { 'LUMUT': { 'TVRUN L': 12, … } } }              */
+  mata:                { kolum: [], nilai: {} },
+  mataPusat:           null,   /* pusat yang sedang dibuka dalam tab Mata */
+
   pasukan:             [],
   sukan:               [],
   jadual:              [],

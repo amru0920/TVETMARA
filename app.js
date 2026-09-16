@@ -62,52 +62,29 @@ function utkPapar(m) {
    KIRA KEDUDUKAN
    ================================================================ */
 function getKedudukan() {
-  /* Kira sekali sahaja: untuk setiap acara, siapa dapat berapa mata.
-     Mata bergantung pada sistem markah acara itu (lihat SISTEM_MARKAH
-     dalam data.js) — jadi kita perlu objek acara, bukan hanya keputusan. */
-  const mataPasukan = {};
-  const medal       = {};
-  state.pasukan.forEach(p => { mataPasukan[p] = 0; medal[p] = [0, 0, 0]; });
+  /* PINGAT dan MATA kini dua sumber yang BERASINGAN:
+       · pingat  \u2190 tab Pingat (siapa Tempat 1/2/3 setiap kategori)
+       · mata    \u2190 tab Mata  (markah dimuat naik melalui CSV)
+     Kedudukan pingat tidak lagi memberi sebarang mata. */
+  const medal = {};
+  (state.pasukan || []).forEach(p => { medal[p] = [0, 0, 0]; });
 
-  const tambah = (nama, mata, tempat) => {
-    if (!nama || !(nama in mataPasukan)) return;   /* pasukan sudah dibuang */
-    mataPasukan[nama] += mata;
-    if (tempat >= 1 && tempat <= 3) medal[nama][tempat - 1]++;
-  };
-
-  state.sukan.forEach(s => (s.acara || []).forEach(a => {
+  (state.sukan || []).forEach(s => (s.acara || []).forEach(a => {
     const r = state.keputusan[a.id];
-    if (!r || !r[1]) return;
-    const sistemId = sistemAcara(a);
-
-    /* Tempat bernombor — berhenti pada lompang pertama.
-       Bagi Ranking Sum, mataTempat() pulangkan 0: kedudukan hanya
-       menentukan pingat, manakala mata datang dari r.markah di bawah. */
-    for (let pos = 1; r[pos]; pos++) tambah(r[pos], mataTempat(sistemId, pos), pos);
-
-    /* Ranking Sum — markah yang admin taip terus jadi mata */
-    if (r.markah) {
-      Object.keys(r.markah).forEach(nama => {
-        tambah(nama, parseInt(r.markah[nama], 10) || 0, 0);
-      });
-    }
-
-    /* Peringkat dicapai (Liga+Kalah Mati / Kalah Mati) */
-    const pr = r.peringkat || {};
-    Object.keys(pr).forEach(id => {
-      const mata = mataPeringkat(sistemId, id);
-      (pr[id] || []).forEach(nama => tambah(nama, mata, 0));
+    if (!r) return;
+    [1, 2, 3].forEach(pos => {
+      const nama = r[pos];
+      if (nama && medal[nama]) medal[nama][pos - 1]++;
     });
   }));
 
-  return state.pasukan.map(p => ({
+  return (state.pasukan || []).map(p => ({
     nama:   p,
     emas:   medal[p][0],
     perak:  medal[p][1],
     gangsa: medal[p][2],
-    mata:   mataPasukan[p],
+    mata:   jumlahMata(p),
   })).sort((a, b) =>
-    /* Sistem rasmi berasaskan MATA — jadi mata mendahului kiraan pingat */
     b.mata - a.mata || b.emas - a.emas ||
     b.perak - a.perak || b.gangsa - a.gangsa
   );
@@ -173,7 +150,7 @@ function renderKedudukan() {
    RENDER UTAMA
    ================================================================ */
 function render() {
-  const tabList = ['kedudukan', 'keputusan', 'jadual', 'streaming'];
+  const tabList = ['kedudukan', 'keputusan', 'mata', 'jadual', 'streaming'];
   document.querySelectorAll('.topbar-nav .nav-btn').forEach((btn, i) => {
     if (tabList[i]) btn.classList.toggle('active', tabList[i] === state.tab);
   });
@@ -192,6 +169,7 @@ function render() {
 
   if      (state.tab === 'kedudukan') el.innerHTML = renderKedudukan();
   else if (state.tab === 'keputusan') el.innerHTML = renderKeputusan();
+  else if (state.tab === 'mata')      el.innerHTML = renderMata();
   else if (state.tab === 'jadual')    el.innerHTML = renderJadual();
   else if (state.tab === 'streaming') el.innerHTML = state.streamTab === 'urus' && state.staffLogin
                                                         ? renderUrusStreaming()
@@ -210,6 +188,7 @@ function setTab(tab) {
   state.editingAcara      = null;
   state.editingPerlawanan = null;
   if (tab !== 'jadual') state.jadualSukanTab = null;
+  if (tab !== 'mata')   state.mataPusat = null;
   if (tab === 'jadual') semakAutoStatus();
   render();
 }

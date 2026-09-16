@@ -18,7 +18,7 @@
    supaya cache lama dibuang automatik.
    ================================================================ */
 
-const VERSI       = 'v30';
+const VERSI       = 'v31';
 const CACHE_SHELL = 'sparta-shell-' + VERSI;
 const CACHE_MEDIA = 'sparta-media-' + VERSI;
 
@@ -37,6 +37,7 @@ const SHELL = [
   './badminton.js',
   './cetak.js',
   './keputusan.js',
+  './mata.js',
   './jadual.js',
   './tetapan.js',
   './log_aktiviti.js',

@@ -3151,3 +3151,134 @@ input[type="time"] { color-scheme: light; }
 }
 .ralat-toast-btn:hover { background: rgba(255,255,255,0.26); }
 @media (max-width: 640px) { .ralat-toast { bottom: 74px; } }
+
+
+/* ================================================================
+   TAB MATA — markah setiap pusat
+   ================================================================ */
+.mata-nota { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+.mata-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+.mata-kad {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.mata-kad:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(15,31,82,0.14);
+  border-color: var(--gold);
+}
+.mata-kad-rank {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--navy2); color: var(--navy-deep);
+  font-size: 12px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.mata-kad-nama {
+  flex: 1; min-width: 0; font-size: 13px; font-weight: 700;
+  color: var(--text); line-height: 1.3;
+}
+.mata-kad-mata {
+  flex-shrink: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 22px; color: var(--gold2);
+}
+.mata-jadual tbody tr.kosong td { color: var(--muted); }
+.mata-angka { text-align: right; font-weight: 700; }
+.mata-jadual tfoot td {
+  border-top: 2px solid var(--gold);
+  font-size: 14px; padding-top: 10px;
+}
+
+/* Nota dalam tab Pingat */
+.pingat-nota {
+  background: var(--card2);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 13px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+.pingat-nota strong { color: var(--text); }
+
+/* ── Import CSV (admin sahaja) ── */
+.csv-blok {
+  background: var(--card);
+  border: 1px solid rgba(245,166,35,0.35);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.csv-kepala {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.csv-tajuk {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 16px; letter-spacing: 0.4px;
+  color: var(--navy-deep);
+}
+.csv-nota { font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 3px; }
+.csv-nota strong { color: var(--gold2); }
+.csv-btn-templat {
+  flex-shrink: 0;
+  background: var(--card2); border: 1px solid var(--border);
+  color: var(--navy-deep2); border-radius: 8px; padding: 8px 14px;
+  font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 12.5px;
+  cursor: pointer; white-space: nowrap;
+}
+.csv-btn-templat:hover { border-color: var(--gold); color: var(--gold2); }
+.csv-cara { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.csv-fail {
+  display: inline-block;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--gold2) 100%);
+  color: var(--dark); border-radius: 8px; padding: 8px 16px;
+  font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 13px;
+  cursor: pointer;
+}
+.csv-fail:hover { filter: brightness(1.07); }
+.csv-atau { font-size: 12px; color: var(--muted); }
+.csv-textarea {
+  width: 100%; padding: 10px 12px;
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text);
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 12px; line-height: 1.5; outline: none; resize: vertical;
+}
+.csv-textarea:focus { border-color: var(--gold); }
+.csv-pratonton {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+.csv-ringkas { display: flex; gap: 6px; flex-wrap: wrap; }
+.csv-pil {
+  font-size: 11.5px; font-weight: 600; border-radius: 20px;
+  padding: 3px 10px; background: var(--navy2); color: var(--muted);
+}
+.csv-pil.ok     { background: rgba(30,153,82,0.12); color: var(--green); }
+.csv-pil.amaran { background: rgba(245,166,35,0.15); color: var(--gold2); }
+.csv-ralat {
+  background: rgba(227,30,36,0.08);
+  border: 1px solid rgba(227,30,36,0.3);
+  border-radius: 8px; padding: 9px 12px;
+  font-size: 12.5px; color: var(--red); line-height: 1.5;
+}
+.csv-lajur { font-size: 11.5px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+
+@media (max-width: 500px) {
+  .mata-grid { grid-template-columns: 1fr; }
+  .csv-btn-templat, .csv-fail { width: 100%; text-align: center; }
+}

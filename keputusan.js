@@ -386,17 +386,12 @@ function renderFormEdit(acara, sukan, isPasukan) {
         <div class="acara-status edit">✏️ Sedang diedit</div>
       </div>
 
-      <div class="sistem-pilih-blok">
-        <label class="score-label">⚖️ Sistem Kiraan Markah</label>
-        <select id="sistem-${acara.id}" class="podium-select"
-          onchange="tukarSistemAcara('${acara.id}', this.value)">
-          ${opsSistem}
-        </select>
-        <div class="score-hint">
-          Tempat 1-4 sama bagi semua sistem (20 / 16 / 14 / 12).
-          Perbezaannya bermula selepas tempat ke-4.
-        </div>
+      <div class="pingat-nota">
+        🏅 Tab ini menentukan <strong>pingat</strong> sahaja — emas, perak
+        dan gangsa dalam Kedudukan. Mata kini dimasukkan berasingan
+        melalui tab <strong>Mata</strong>.
       </div>
+
 
       <div class="podium-edit-grid" id="bhg-podium-${acara.id}"
         style="display:${markahTerus ? 'none' : 'grid'}">
@@ -460,7 +455,7 @@ function renderFormEdit(acara, sukan, isPasukan) {
       <div class="btn-group">
         <button class="cancel-btn" onclick="batalEdit()">Batal</button>
         <button class="save-btn" onclick="simpanKeputusan('${acara.id}')">
-          💾 Simpan Keputusan
+          💾 Simpan Pingat
         </button>
       </div>
 
@@ -476,7 +471,7 @@ function renderPaparAcara(acara, r, isStaff, isPasukan) {
   const editBtn = isStaff ? `
     <div class="btn-group">
       <button class="edit-btn" onclick="mulaEdit('${acara.id}')">
-        ${r[1] ? '✏️ Edit Keputusan' : '+ Masuk Keputusan'}
+        ${r[1] ? '✏️ Edit Pingat' : '+ Masuk Pingat'}
       </button>
       ${r[1] ? `<button class="padam-btn" onclick="padamKeputusan('${acara.id}')">🗑 Padam</button>` : ''}
     </div>
@@ -487,7 +482,7 @@ function renderPaparAcara(acara, r, isStaff, isPasukan) {
       <div class="acara-card">
         <div class="acara-header">
           <div class="acara-name">${acara.nama}</div>
-          <div class="acara-status">Belum ada keputusan</div>
+          <div class="acara-status">Belum ada pingat</div>
         </div>
         ${editBtn}
       </div>
@@ -749,7 +744,7 @@ function simpanKeputusan(acaraId) {
 function padamKeputusan(acaraId) {
   const sukan = state.sukan.find(s => s.acara.some(a => a.id === acaraId));
   const acara = sukan?.acara.find(a => a.id === acaraId);
-  if (!confirm('Padam keputusan untuk "' + (acara?.nama || acaraId) + '"?')) return;
+  if (!confirm('Padam pingat untuk "' + (acara?.nama || acaraId) + '"?')) return;
   if (typeof tambahLog === 'function') tambahLog('keputusan_padam', 'Padam: ' + (acara?.nama || acaraId));
   delete state.keputusan[acaraId];
   simpanData();

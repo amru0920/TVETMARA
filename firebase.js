@@ -187,6 +187,7 @@ function _rakamCapJauh(data) {
 const MEDAN_SEGERAK = [
   'pasukan', 'sukan', 'formatSukan', 'kumpulanSukan', 'jadual',
   'roundRobin', 'bracket', 'keputusan', 'staff', 'password', 'streaming',
+  'mata',
 ];
 
 /* ── Init Firebase ── */
@@ -219,6 +220,7 @@ async function simpanData() {
     localStorage.setItem('spekma_kumpulan',   JSON.stringify(state.kumpulanSukan));
     localStorage.setItem('spekma_roundrobin', JSON.stringify(state.roundRobin));
     localStorage.setItem('spekma_streaming',  JSON.stringify(state.streaming));
+    localStorage.setItem('spekma_mata',       JSON.stringify(state.mata));
     localStorage.setItem('spekma_bracket',    JSON.stringify(state.bracket));
     localStorage.setItem('spekma_log',       JSON.stringify(state.logAktiviti || []));
   } catch (e) { console.warn('localStorage fail:', e); }
@@ -320,6 +322,7 @@ async function muatData() {
       if (data.staff)         state.staff         = data.staff;
       if (data.password)      state.password      = data.password;
       if (data.streaming)     state.streaming     = data.streaming;
+      if (data.mata)          state.mata          = data.mata;
       if (data.logAktiviti)   state.logAktiviti   = data.logAktiviti;
 
       console.log('⚡ Data SPEKMA dikemaskini secara Real-time!');
@@ -370,6 +373,7 @@ function muatDataOffline() {
   state.roundRobin    = ambil('spekma_roundrobin', {});
   state.bracket       = ambil('spekma_bracket',    {});
   state.streaming     = ambil('spekma_streaming',  {});
+  state.mata          = ambil('spekma_mata', { kolum: [], nilai: {} });
 
   console.warn('[MUAT] Offline — guna salinan localStorage. Simpanan dikunci.');
   render();
