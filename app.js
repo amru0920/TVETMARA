@@ -256,8 +256,24 @@ function togolDrawMode(sukanId) {
    render() biasa berjalan dan terus memaparkan data terkini.
    ================================================================ */
 
+/* Bila kali terakhir pengguna menaip?
+
+   document.activeElement sahaja tidak memadai. Admin selalu menaip
+   nama kategori, lalu menatal atau klik di tempat lain sebelum
+   menekan Tambah. Ketika itu fokus sudah keluar dari medan, dan
+   render() akan memadam apa yang baru ditaip.
+
+   Jadi kita beri tempoh perlindungan selepas ketukan kekunci
+   terakhir. Guna fasa tangkap supaya medan dalam modal pun dikesan. */
+var _masaTaipTerakhir = 0;
+var TEMPOH_TAIP = 15000;
+document.addEventListener('input',
+  () => { _masaTaipTerakhir = Date.now(); }, true);
+
 /* Adakah pengguna sedang mengisi sesuatu? */
 function adaBorangTerbuka() {
+  if (Date.now() - _masaTaipTerakhir < TEMPOH_TAIP) return true;
+
   if (state.editingPerlawanan || state.editingAcara ||
       state.bracketEdit || state.rrEditingMatch) return true;
 

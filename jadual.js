@@ -1701,7 +1701,16 @@ function semakAutoStatus() {
      Fungsi ini sengaja TIDAK mengubah state dan TIDAK menyimpan:
      mutasi automatik pada salinan lapuk pernah menimpa skor admin
      lain. Cukup lukis semula supaya lencana LIVE muncul tepat pada
-     masanya. */
+     masanya.
+
+     TETAPI jangan lukis semula kalau admin sedang mengisi sesuatu.
+     render() membina semula DOM, jadi nama kategori yang separuh
+     ditaip terus hilang — setiap 10 saat. Lencana LIVE boleh
+     tunggu satu pusingan lagi; kerja admin tidak boleh diganggu.
+
+     Tiada toast di sini: pemasa bukan berita. Toast segerak hanya
+     untuk perubahan sebenar dari admin lain (lihat renderSelamat). */
+  if (typeof adaBorangTerbuka === 'function' && adaBorangTerbuka()) return;
   render();
 }
 
