@@ -14,6 +14,15 @@
 var _promptPasang = null;                   /* event beforeinstallprompt */
 var _KUNCI_SIAP   = 'sparta_pasang_siap';   /* ingat pemasangan berjaya */
 
+/* Papar kad ajakan "Install SPARTA XIII" di bawah hero banner?
+   Ditetapkan false: kad itu memakan ruang pada papan kedudukan awam.
+
+   Pemasangan TIDAK dimatikan — manifest, service worker dan
+   pwaPasang() semuanya kekal, jadi pengguna masih boleh memasang
+   melalui menu pelayar (Chrome: ⋮ → Pasang aplikasi). Tukar kepada
+   true untuk mengembalikan kad itu. */
+var PAPAR_KAD_PASANG = false;
+
 
 /* ================================================================
    PENGESANAN PERANTI
@@ -37,6 +46,9 @@ function pwaSudahDipasang() {
 function pwaPaparKad() {
   const kad = document.getElementById('pwa-kad');
   if (!kad) return;
+
+  /* Kad dimatikan — lihat PAPAR_KAD_PASANG di atas */
+  if (!PAPAR_KAD_PASANG) { kad.style.display = 'none'; return; }
 
   /* Jangan ganggu kalau sedang dibuka sebagai app terpasang */
   if (pwaSudahDipasang()) { kad.style.display = 'none'; return; }

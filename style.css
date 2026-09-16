@@ -204,8 +204,15 @@ body {
 /* ================================================================
    TAB KEDUDUKAN
    ================================================================ */
-.stats-bar { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 22px; }
+/* Flex + justify-content:center supaya kad kekal di tengah walau
+   berapa banyak pun — grid 3-lajur dahulu meregangkan dua kad
+   melintasi seluruh lebar skrin. */
+.stats-bar {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 10px; margin-bottom: 22px;
+}
 .stat-card {
+  flex: 0 1 200px;
   background: var(--card); border: 1px solid var(--border);
   border-radius: 10px; padding: 14px; text-align: center;
 }
@@ -504,7 +511,7 @@ body {
 @media (max-width: 640px) {
   .topbar-nav { display: none; }   /* diganti bar navigasi bawah */
   .topbar-sub { display: none; }
-  .stats-bar  { grid-template-columns: repeat(3,1fr); }
+  .stat-card  { flex: 1 1 100px; }
   .sukan-grid { grid-template-columns: repeat(2,1fr); }
   .sukan-icon-maskot { height: 52px; }
   .podium-edit-grid  { grid-template-columns: 1fr; }

@@ -89,7 +89,7 @@ function tafsirCsvMata(teks) {
     kolum.push(tajuk[i]);
     indeks.push(i);
   }
-  if (!kolum.length) return { ralat: 'Tiada lajur acara dijumpai selepas lajur nama pusat.' };
+  if (!kolum.length) return { ralat: 'Tiada lajur sukan dijumpai selepas lajur nama pusat.' };
 
   const nilai = {}, tidakDikenali = [], dikenali = [], tidakSepadan = [];
   const senarai = state.pasukan || [];
@@ -171,7 +171,7 @@ function renderMata() {
       </div>
     ` : `
       <div class="mata-nota">
-        ${senarai.length} pusat &nbsp;·&nbsp; ${state.mata.kolum.length} acara
+        ${senarai.length} pusat &nbsp;·&nbsp; ${state.mata.kolum.length} sukan
         &nbsp;·&nbsp; tekan nama pusat untuk melihat pecahan
       </div>
       <div class="mata-grid">${kad}</div>
@@ -206,16 +206,16 @@ function renderMataPusat(pusat) {
       </div>
       <div class="stat-card">
         <div class="stat-num">${berisi}</div>
-        <div class="stat-lbl">Acara Bermarkah</div>
+        <div class="stat-lbl">Sukan Bermarkah</div>
       </div>
       <div class="stat-card">
         <div class="stat-num">${pecahan.length}</div>
-        <div class="stat-lbl">Jumlah Acara</div>
+        <div class="stat-lbl">Jumlah Sukan</div>
       </div>
     </div>
 
     <table class="stand-table mata-jadual">
-      <thead><tr><th>Acara</th><th style="width:100px">Mata</th></tr></thead>
+      <thead><tr><th>Sukan</th><th style="width:100px">Mata</th></tr></thead>
       <tbody>${baris}</tbody>
       <tfoot>
         <tr><td><strong>JUMLAH</strong></td>
@@ -246,9 +246,9 @@ function renderImportCsv() {
           <div class="csv-nota">
             Cara paling mudah: buka Google Sheets, pilih sel termasuk
             baris tajuk, <strong>Ctrl+C</strong>, dan tampal terus ke kotak di bawah.
-            <br/>Lajur pertama = nama pusat. Lajur <strong>TOTAL</strong> diabaikan —
-            jumlah dikira sendiri. Sukan yang belum tamat boleh
-            dikosongkan dan dimuat naik kemudian.
+            <br/>Lajur pertama = nama pusat, lajur seterusnya = <strong>sukan</strong>.
+            Lajur <strong>TOTAL</strong> diabaikan — jumlah dikira sendiri.
+            Sukan yang belum tamat boleh dikosongkan dan dimuat naik kemudian.
           </div>
         </div>
         <button class="csv-btn-templat" onclick="muatTurunTemplatCsv()">
@@ -317,7 +317,7 @@ function semakCsvMata() {
         <span class="csv-pil ok">${h.dikenali.length} pusat dikenali</span>
         ${h.tidakDikenali.length
           ? `<span class="csv-pil amaran">${h.tidakDikenali.length} tidak dikenali</span>` : ''}
-        <span class="csv-pil">${h.kolum.length} lajur acara</span>
+        <span class="csv-pil">${h.kolum.length} lajur sukan</span>
         ${h.tidakSepadan.length
           ? `<span class="csv-pil amaran">${h.tidakSepadan.length} jumlah tak sepadan</span>` : ''}
       </div>
@@ -427,13 +427,10 @@ function muatTurunTemplatCsv() {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-/* Cadangan lajur bila belum ada CSV: satu bagi setiap kategori */
+/* Cadangan lajur bila belum ada CSV: satu bagi setiap SUKAN.
+   Mata dikira pada peringkat sukan, bukan kategori — jadi
+   Badminton ialah satu lajur, bukan tiga. */
 function senaraiLajurCadangan() {
-  const l = [];
-  (state.sukan || []).forEach(s => {
-    const kat = s.acara || [];
-    if (kat.length <= 1) l.push(s.nama.toUpperCase());
-    else kat.forEach(k => l.push((s.nama + ' ' + k.nama).toUpperCase()));
-  });
-  return l.length ? l : ['ACARA 1', 'ACARA 2'];
+  const l = (state.sukan || []).map(s => String(s.nama || '').toUpperCase());
+  return l.length ? l : ['SUKAN 1', 'SUKAN 2'];
 }
