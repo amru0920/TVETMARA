@@ -511,7 +511,12 @@ body {
 @media (max-width: 640px) {
   .topbar-nav { display: none; }   /* diganti bar navigasi bawah */
   .topbar-sub { display: none; }
-  .stat-card  { flex: 1 1 100px; }
+  /* flex-grow 0: kad kekal saiz asalnya dan duduk di tengah.
+     Dengan grow 1 dahulu, dua kad meregang sampai ke tepi skrin
+     lalu justify-content:center tiada kesan. flex-shrink kekal 1
+     supaya ia mengecil sendiri pada skrin sempit, bukan melompat
+     ke baris baharu. */
+  .stat-card  { flex: 0 1 140px; }
   .sukan-grid { grid-template-columns: repeat(2,1fr); }
   .sukan-icon-maskot { height: 52px; }
   .podium-edit-grid  { grid-template-columns: 1fr; }

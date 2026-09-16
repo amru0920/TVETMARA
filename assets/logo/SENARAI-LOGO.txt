@@ -1,42 +1,51 @@
-LOGO PUSAT — SPARTA XIII
-============================================================
-
-Simpan logo setiap pusat dalam folder ini dengan nama TEPAT
-seperti di bawah. Format PNG, latar lutsinar kalau boleh.
-Saiz cadangan 256x256 atau 512x512 (segi empat sama).
-
-Pusat yang belum ada logo akan papar huruf awalnya sebagai
-ganti - tiada gambar rosak, jadi anda boleh tambah sedikit demi
-sedikit.
-
-------------------------------------------------------------
-
- 1. TVETMARA LUMUT                   ->  tvetmara-lumut.png
- 2. TVETMARA LENGGONG                ->  tvetmara-lenggong.png
- 3. TVETMARA BALIK PULAU             ->  tvetmara-balik-pulau.png
- 4. TVETMARA SEBERANG PERAI UTARA    ->  tvetmara-seberang-perai-utara.png
- 5. TVETMARA SUNGAI PETANI           ->  tvetmara-sungai-petani.png
- 6. TVETMARA ALOR SETAR              ->  tvetmara-alor-setar.png
- 7. TVETMARA SIK                     ->  tvetmara-sik.png
- 8. TVETMARA MJII                    ->  tvetmara-mjii.png
- 9. TVETMARA PETALING JAYA           ->  tvetmara-petaling-jaya.png
-10. TVETMARA KUALA LUMPUR            ->  tvetmara-kuala-lumpur.png
-11. TVETMARA REMBAU                  ->  tvetmara-rembau.png
-12. TVETMARA PASIR MAS               ->  tvetmara-pasir-mas.png
-13. TVETMARA KEMAMAN                 ->  tvetmara-kemaman.png
-14. TVETMARA KUANTAN                 ->  tvetmara-kuantan.png
-15. TVETMARA PEKAN                   ->  tvetmara-pekan.png
-16. TVETMARA LEDANG                  ->  tvetmara-ledang.png
-17. TVETMARA SRI GADING              ->  tvetmara-sri-gading.png
-18. TVETMARA MASJID TANAH            ->  tvetmara-masjid-tanah.png
-19. TVETMARA JASIN                   ->  tvetmara-jasin.png
-20. TVETMARA JOHOR BHARU             ->  tvetmara-johor-bharu.png
-21. TVETMARA BESUT                   ->  tvetmara-besut.png
-22. TVETMARA KUCHING                 ->  tvetmara-kuching.png
-23. TVETMARA KOTA KINABALU           ->  tvetmara-kota-kinabalu.png
-24. TVETMARA BINTULU                 ->  tvetmara-bintulu.png
-25. TVETMARA BESERI                  ->  tvetmara-beseri.png
-
-------------------------------------------------------------
-
-Jumlah: 25 fail
+LOGO PUSAT - SPARTA XIII
+============================================================
+
+Logo untuk kesemua 25 pusat sudah ada di sini.
+Format: PNG 160x160. Dipaparkan dalam bulatan pada tab
+Kedudukan (30px) dan tab Mata (34px & 44px).
+
+MENUKAR ATAU MENAMBAH LOGO
+------------------------------------------------------------
+Ganti fail sedia ada dengan nama yang SAMA. Nama fail dijana
+dari nama pusat oleh logoPusat() dalam data.js: huruf kecil,
+ruang jadi '-'.  Contoh: TVETMARA ALOR SETAR -> tvetmara-alor-setar.png
+
+Pusat tanpa fail logo akan papar huruf awal namanya dalam
+bulatan - tiada ikon gambar rosak.
+
+PERHATIAN: nama pusat dalam pangkalan data ialah
+'TVETMARA JOHOR BHARU' (bukan BAHRU), jadi failnya
+tvetmara-johor-bharu.png.
+
+SENARAI FAIL
+------------------------------------------------------------
+
+ 1. tvetmara-alor-setar.png             11.2 KB
+ 2. tvetmara-balik-pulau.png            10.0 KB
+ 3. tvetmara-beseri.png                 10.1 KB
+ 4. tvetmara-besut.png                  10.7 KB
+ 5. tvetmara-bintulu.png                 8.7 KB
+ 6. tvetmara-jasin.png                   9.2 KB
+ 7. tvetmara-johor-bharu.png             8.2 KB
+ 8. tvetmara-kemaman.png                 8.4 KB
+ 9. tvetmara-kota-kinabalu.png           6.7 KB
+10. tvetmara-kuala-lumpur.png           12.6 KB
+11. tvetmara-kuantan.png                 6.2 KB
+12. tvetmara-kuching.png                12.5 KB
+13. tvetmara-ledang.png                 10.5 KB
+14. tvetmara-lenggong.png                9.6 KB
+15. tvetmara-lumut.png                  10.6 KB
+16. tvetmara-masjid-tanah.png           11.1 KB
+17. tvetmara-mjii.png                   10.9 KB
+18. tvetmara-pasir-mas.png              10.6 KB
+19. tvetmara-pekan.png                   9.6 KB
+20. tvetmara-petaling-jaya.png          10.3 KB
+21. tvetmara-rembau.png                 11.7 KB
+22. tvetmara-seberang-perai-utara.png    9.3 KB
+23. tvetmara-sik.png                    10.0 KB
+24. tvetmara-sri-gading.png             13.6 KB
+25. tvetmara-sungai-petani.png           6.1 KB
+
+------------------------------------------------------------
+Jumlah: 25 fail, 0.24 MB
