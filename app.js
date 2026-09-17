@@ -143,7 +143,7 @@ function renderKedudukan() {
     <div class="stats-bar">
       <div class="stat-card">
         <div class="stat-num">${state.pasukan.length}</div>
-        <div class="stat-lbl">Pusat</div>
+        <div class="stat-lbl">Kontinjen</div>
       </div>
       <div class="stat-card">
         <div class="stat-num">${jumlahEmas}</div>
