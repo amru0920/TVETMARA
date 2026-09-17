@@ -117,6 +117,11 @@ function totalSelesai() { return Object.values(state.keputusan).filter(r => r[1]
    ================================================================ */
 function renderKedudukan() {
   const standings = getKedudukan();
+
+  /* Jumlah pingat emas yang sudah diagihkan. Dikira dari standings
+     supaya ia sentiasa sepadan dengan lajur emas dalam jadual di
+     bawah — satu sumber, bukan dua kiraan berasingan. */
+  const jumlahEmas = standings.reduce((n, t) => n + t.emas, 0);
   const rows = standings.map((t, i) => `
     <tr class="${i < 3 ? 'top3' : ''}">
       <td><span class="rank ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i + 1}</span></td>
@@ -141,8 +146,8 @@ function renderKedudukan() {
         <div class="stat-lbl">Pusat</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num">${(state.sukan || []).length}</div>
-        <div class="stat-lbl">Sukan</div>
+        <div class="stat-num">${jumlahEmas}</div>
+        <div class="stat-lbl">Pingat Emas</div>
       </div>
     </div>
     <table class="stand-table">
