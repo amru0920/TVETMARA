@@ -1,7 +1,7 @@
 LOGO PUSAT - SPARTA XIII
 ============================================================
 
-Logo untuk kesemua 25 pusat sudah ada di sini.
+Logo untuk kesemua 25 pusat ada di sini.
 Format: PNG 160x160. Dipaparkan dalam bulatan pada tab
 Kedudukan (30px) dan tab Mata (34px & 44px).
 
@@ -14,9 +14,13 @@ ruang jadi '-'.  Contoh: TVETMARA ALOR SETAR -> tvetmara-alor-setar.png
 Pusat tanpa fail logo akan papar huruf awal namanya dalam
 bulatan - tiada ikon gambar rosak.
 
-PERHATIAN: nama pusat dalam pangkalan data ialah
-'TVETMARA JOHOR BHARU' (bukan BAHRU), jadi failnya
-tvetmara-johor-bharu.png.
+KALAU NAMA PUSAT DITUKAR
+------------------------------------------------------------
+Menukar ejaan nama pusat akan memutuskan DUA benda:
+  1. Logo  - namakan semula fail PNG ikut ejaan baharu.
+  2. Mata  - state.mata.nilai dikunci ikut nama pusat, jadi
+             markahnya jadi 0. Muat naik semula CSV untuk
+             memulihkannya.
 
 SENARAI FAIL
 ------------------------------------------------------------
@@ -27,7 +31,7 @@ SENARAI FAIL
  4. tvetmara-besut.png                  10.7 KB
  5. tvetmara-bintulu.png                 8.7 KB
  6. tvetmara-jasin.png                   9.2 KB
- 7. tvetmara-johor-bharu.png             8.2 KB
+ 7. tvetmara-johor-bahru.png             8.2 KB
  8. tvetmara-kemaman.png                 8.4 KB
  9. tvetmara-kota-kinabalu.png           6.7 KB
 10. tvetmara-kuala-lumpur.png           12.6 KB
